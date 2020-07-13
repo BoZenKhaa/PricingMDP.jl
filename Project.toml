@@ -1,0 +1,13 @@
+name = "PricingMDP"
+uuid = "970633d0-fc35-4d62-9bcd-e74aee58f016"
+authors = ["Jan Mrkos <mrkosjan@gmail.com> and contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
