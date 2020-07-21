@@ -2,7 +2,7 @@ using Distributions
 using StatsPlots
 
 bin = Binomial(50,0.1)
-plot(bin)
+# plot(bin)
 
 # x = 1:10; y = rand(10,2)
 # p = plot(x,y)

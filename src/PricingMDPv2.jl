@@ -228,35 +228,21 @@ function POMDPs.gen(m::PMDPv2, s, a, rng)
     return (sp = State(c, s.t+1, prod), r = r)
 end
 
-# function POMDPs.gen(m::PMDPv2, s, a, rng)
-#     d_demand_model = Categorical([m.p_customer_arrival,1-m.p_customer_arrival])
-#     d_user_model = Categorical([m.p_purchase,1-m.p_purchase])
-#
-#     if s.t>m.T || s.c==0
-#         sp = State(s.t, s.c)
-#         r = 0
-#     else
-#         if rand(rng, d_demand_model)==1 # Customer arrives
-#             if rand(rng, d_demand_model)==1 # Customer buys
-#                 sp = State(s.t+1, s.c-1)
-#                 r = a
-#             else # Customer does not buy
-#                 sp = State(s.t+1, s.c)
-#                 r = 0
-#             end
-#         else # No user arrives
-#             sp = State(s.t+1, s.c)
-#             r=0
-#         end
-#     end
-#     return (sp=sp, r=r)
-# end
+function POMDPs.isterminal(m::PMDPv2, s::State)
+    if s.t>m.T || sum(s.c)<=0 
+        return true
+    else
+        return false
+    end
+end
+
+
 
 function POMDPs.discount(m::PMDPv2)
     return 0.99
 end
 
-POMDPs.actions(m::PMDPv2) = (0.,5.,10.,15.,20.,25.,30.,35.,70.)
+POMDPs.actions(m::PMDPv2) = Float64[1:5:100;]
 
 POMDPs.initialstate_distribution(m::PMDPv2) = Deterministic(State(SA[4,4,4], 0, nothing))
 
