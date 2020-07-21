@@ -3,10 +3,14 @@ using PricingMDP.PricingMDPv2
 using StaticArrays
 using MCTS
 
-mdp = PMDPv2(100)
+edges = create_edges(5, 3, [50,60,70,80,90])
+products = create_continuous_products(edges)
+λ = create_λ(Float64[10,3,3,5,4], products)
+mdp = PMDPv2(edges, products, λ)
+
 solver = MCTSSolver(n_iterations=100, depth=100, exploration_constant=10.0)
 planner = solve(solver, mdp)
-s = State(SA[1,1,1], 0, SA[1,0,0])
+s = State(SA[1,1,1,1,1], 0, SA[1,0,0,1,1])
 a = action(planner, s)
 println("Action:")
 println(a)
