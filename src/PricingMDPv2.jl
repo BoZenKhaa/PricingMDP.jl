@@ -1,16 +1,3 @@
-module PricingMDPv2
-
-export PMDPv2, State, create_continuous_products, create_edges, create_λ
-
-using POMDPs
-using StaticArrays
-using POMDPModelTools
-using MCTS
-using Random, Distributions
-using Combinatorics
-
-import Base.show
-
 """
     pwl(10, slope_start=5., slope_end=30.)
 
@@ -262,5 +249,3 @@ end
 POMDPs.initialstate_distribution(m::PMDPv2) = Deterministic(State(SA[5,5,5,5,5], 0, SA[0,0,0,0,0]))
 
 # PMDPv2() = PMDPv2(30)
-
-end
