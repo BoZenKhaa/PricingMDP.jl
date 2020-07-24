@@ -121,9 +121,9 @@ end
 
 
 """
-m = PMDPv2(edges, products, λ)
+m = PMDP(edges, products, λ)
 """
-struct PMDPv2 <: MDP{State, Float64}
+struct PMDP <: MDP{State, Float64}
     T::Timestep                  # max timestep
     E::Array{Edge}
     P::Array{Product}
@@ -131,7 +131,7 @@ struct PMDPv2 <: MDP{State, Float64}
     selling_period_end::Array{Int64} # Selling period end for each product
     product_request_p::Array{Float64} # probability of request arriving in timestep (homogenous Poisson process)
     
-    function PMDPv2(E, P, λ)
+    function PMDP(E, P, λ)
         selling_period_end = get_selling_period_end(E, P)
         T = selling_period_end[1]
         product_request_p = zeros(Float64, length(P))
@@ -183,7 +183,7 @@ end
 Returns user buy or no buy decision given timestep, user requested product, agent selected action.
 Probability is based on the unit price of the product.
 """
-function user_buy(m::PMDPv2, prod::Product, a::Action, t::Timestep, rng::AbstractRNG)
+function user_buy(m::PMDP, prod::Product, a::Action, t::Timestep, rng::AbstractRNG)
     if prod != m.P[1]
         unit_price = sum(prod)/a
         d_user_buy = Categorical([pwl(unit_price), 1-pwl(unit_price)])
@@ -197,7 +197,7 @@ end
 """
 Returns next requested product. 
 """
-function next_request(m::PMDPv2, t::Timestep, rng::AbstractRNG)
+function next_request(m::PMDP, t::Timestep, rng::AbstractRNG)
     if t in m.selling_period_end
         set_product_request_p!(m.product_request_p, t, m.λ, m.selling_period_end)
     end
@@ -208,7 +208,7 @@ function next_request(m::PMDPv2, t::Timestep, rng::AbstractRNG)
 end
 
 
-function POMDPs.gen(m::PMDPv2, s, a, rng)
+function POMDPs.gen(m::PMDP, s, a, rng)
     if user_buy(m, s.p, a, s.t, rng)
         r = a
         c = s.c-s.p
@@ -225,7 +225,7 @@ function POMDPs.gen(m::PMDPv2, s, a, rng)
     return (sp = State(c, s.t+Δt, prod), r = r)
 end
 
-function POMDPs.isterminal(m::PMDPv2, s::State)
+function POMDPs.isterminal(m::PMDP, s::State)
     if s.t>m.T || sum(s.c.<=0)>0 
         return true
     else
@@ -233,12 +233,12 @@ function POMDPs.isterminal(m::PMDPv2, s::State)
     end
 end
 
-function POMDPs.discount(m::PMDPv2)
+function POMDPs.discount(m::PMDP)
     return 0.99
 end
 
-# POMDPs.actions(m::PMDPv2) = Float64[1:5:100;]
-function POMDPs.actions(m::PMDPv2, s::State)
+# POMDPs.actions(m::PMDP) = Float64[1:5:100;]
+function POMDPs.actions(m::PMDP, s::State)
     if sum(s.p)<=0
         return Float64[0]
     else
@@ -246,6 +246,6 @@ function POMDPs.actions(m::PMDPv2, s::State)
     end
 end
 
-POMDPs.initialstate_distribution(m::PMDPv2) = Deterministic(State(SA[5,5,5,5,5], 0, SA[0,0,0,0,0]))
+POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State(SA[5,5,5,5,5], 0, SA[0,0,0,0,0]))
 
-# PMDPv2() = PMDPv2(30)
+# PMDP() = PMDP(30)

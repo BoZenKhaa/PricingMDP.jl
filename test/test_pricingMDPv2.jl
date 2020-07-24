@@ -15,7 +15,7 @@ import Base.show
 edges = create_edges(5, 3, [50,60,70,80,90])
 products = create_continuous_products(edges)
 λ = create_λ(Float64[10,3,3,5,4], products)
-mdp = PMDPv2(edges, products, λ)
+mdp = PMDP(edges, products, λ)
 
 # @requirements_info ValueIterationSolver() mdp
 @requirements_info MCTSSolver() mdp State(SA[1,1,1,1,1], 89, SA[0,0,1,1,1])
