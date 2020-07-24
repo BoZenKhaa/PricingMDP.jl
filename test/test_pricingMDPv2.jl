@@ -1,4 +1,4 @@
-using PricingMDP.PricingMDPv2
+using PricingMDP
 
 using StaticArrays
 using POMDPs
@@ -63,6 +63,3 @@ h_rand = simulate(hr, mdp, rand_policy, initial_state)
 
 @show state_hist(h_mcts)
 @show collect(action_hist(h_mcts))
-
-state = initialstate(mdp, Random.MersenneTwister(4))
-D3Tree(planner, state, init_expand=2)
