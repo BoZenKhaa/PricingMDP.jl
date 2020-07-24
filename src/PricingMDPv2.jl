@@ -9,6 +9,8 @@ using MCTS
 using Random, Distributions
 using Combinatorics
 
+import Base.show
+
 """
     pwl(10, slope_start=5., slope_end=30.)
 
@@ -88,6 +90,11 @@ struct State
     p::Product    # Requested product
 end
 
+function show(io::IO, s::State)
+    println(io, "t:$(s.t)_c:$(s.c)_p:$(s.p)")
+end
+
+
 """
 Returns nothing if p not in products
 """
@@ -127,7 +134,6 @@ end
 
 
 """
-
 m = PMDPv2(edges, products, λ)
 """
 struct PMDPv2 <: MDP{State, Float64}
@@ -201,7 +207,6 @@ function user_buy(m::PMDPv2, prod::Product, a::Action, t::Timestep, rng::Abstrac
     return buy
 end
 
-
 """
 Returns next requested product. 
 """
@@ -225,26 +230,36 @@ function POMDPs.gen(m::PMDPv2, s, a, rng)
         c = s.c
     end
     prod = next_request(m, s.t, rng)
-    return (sp = State(c, s.t+1, prod), r = r)
+    Δt = 1
+    while sum(prod)==0
+        prod = next_request(m, s.t, rng)
+        Δt += 1
+    end
+    return (sp = State(c, s.t+Δt, prod), r = r)
 end
 
 function POMDPs.isterminal(m::PMDPv2, s::State)
-    if s.t>m.T || sum(s.c)<=0 
+    if s.t>m.T || sum(s.c.<=0)>0 
         return true
     else
         return false
     end
 end
 
-
-
 function POMDPs.discount(m::PMDPv2)
     return 0.99
 end
 
-POMDPs.actions(m::PMDPv2) = Float64[1:5:100;]
+# POMDPs.actions(m::PMDPv2) = Float64[1:5:100;]
+function POMDPs.actions(m::PMDPv2, s::State)
+    if sum(s.p)<=0
+        return Float64[0]
+    else
+        return Float64[0:5:100;]
+    end
+end
 
-POMDPs.initialstate_distribution(m::PMDPv2) = Deterministic(State(SA[4,4,4], 0, nothing))
+POMDPs.initialstate_distribution(m::PMDPv2) = Deterministic(State(SA[5,5,5,5,5], 0, SA[0,0,0,0,0]))
 
 # PMDPv2() = PMDPv2(30)
 

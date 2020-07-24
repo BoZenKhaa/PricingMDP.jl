@@ -8,6 +8,9 @@ using Plots
 using POMDPSimulators
 using D3Trees
 using POMDPPolicies
+using Random
+
+import Base.show
 
 edges = create_edges(5, 3, [50,60,70,80,90])
 products = create_continuous_products(edges)
@@ -17,9 +20,12 @@ mdp = PMDPv2(edges, products, λ)
 # @requirements_info ValueIterationSolver() mdp
 @requirements_info MCTSSolver() mdp State(SA[1,1,1,1,1], 89, SA[0,0,1,1,1])
 
-solver = MCTSSolver(n_iterations=100, depth=100, exploration_constant=10.0)
+solver = MCTSSolver(n_iterations=100, 
+                    depth=100, 
+                    exploration_constant=10.0, 
+                    enable_tree_vis=true)
 planner = solve(solver, mdp)
-s = State(SA[1,1,1,1,1], 89, SA[0,0,1,1,1])
+s = initialstate(mdp, Random.MersenneTwister(4))
 a = action(planner, s)
 println("Action:")
 println(a)
@@ -27,7 +33,7 @@ println("State:")
 println(s)
 
 s_actions = zeros(500)
-for i in 1:500
+for i in 1:10
     a = action(planner, s)
     s_actions[i]=a
 end
@@ -44,14 +50,19 @@ rand_policy = RandomPolicy(mdp)
 # hr = HistoryRecorder(max_steps=100)
 # history = simulate(hr, mdp,  )
  
-initialstate = State(SA[5,5,5,5,5], 0, SA[0,0,0,0,0])
+initial_state = State(SA[5,5,5,5,5], 0, SA[0,0,0,0,0])
 rollout_sim = RolloutSimulator(max_steps=10)
-r_mcts = simulate(rollout_sim, mdp, planner, initialstate)
-r_rand = simulate(rollout_sim, mdp, rand_policy, initialstate)
+r_mcts = simulate(rollout_sim, mdp, planner, initial_state)
+r_rand = simulate(rollout_sim, mdp, rand_policy, initial_state)
 
 
-initialstate = State(SA[5,5,5,5,5], 0, SA[0,0,0,0,0])
-hr = HistoryRecorder(max_steps=10)
-h_mcts = simulate(hr, mdp, planner, initialstate)
-h_rand = simulate(hr, mdp, rand_policy, initialstate)
+initial_state = State(SA[5,5,5,5,5], 0, SA[0,0,0,0,0])
+hr = HistoryRecorder(max_steps=30)
+h_mcts = simulate(hr, mdp, planner, initial_state)
+h_rand = simulate(hr, mdp, rand_policy, initial_state)
 
+@show state_hist(h_mcts)
+@show collect(action_hist(h_mcts))
+
+state = initialstate(mdp, Random.MersenneTwister(4))
+D3Tree(planner, state, init_expand=2)
