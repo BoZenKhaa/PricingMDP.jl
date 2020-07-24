@@ -22,7 +22,7 @@ function pwl(x::Number;
     end
 end
 
-const n_edges = 5
+# const n_edges = 5
 # const products = [SA[0,0,0],SA[1,0,0], SA[0,1,0], SA[0,0,1], SA[1,1,0], SA[0,1,1], SA[1,1,1]]
 
 struct Edge
@@ -31,7 +31,7 @@ struct Edge
     selling_period_end::Int64  
 end
 
-Product = SVector{n_edges,Bool}
+Product{n_edges} = SVector{n_edges,Bool}
 Action = Float64
 Timestep = Int64
 
@@ -52,7 +52,7 @@ function create_continuos_product(start_edge_id::Int64, len::Int64, total_n_edge
     for i in start_edge_id:(start_edge_id+len-1)
         product[i]=true
     end
-    return Product(product)
+    return Product{total_n_edges}(product)
 end
 
 
@@ -61,8 +61,9 @@ products = create_continuous_products(edges)
 """
 function create_continuous_products(edges::Array{Edge})
     # n_products = convert(Int64,(length(edges)+1)length(edges)/2)
-    products = Product[]
-    push!(products, Product(zeros(Bool, length(edges)))) # Empty product
+    n_edges = length(edges)
+    products = Product{n_edges}[]
+    push!(products, Product{n_edges}(zeros(Bool, length(edges)))) # Empty product
     for len in 1:length(edges)
         for start in 1:(length(edges)+1-len)
             push!(products, create_continuos_product(start, len, length(edges)))
@@ -71,10 +72,10 @@ function create_continuous_products(edges::Array{Edge})
     return products
 end
 
-struct State
+struct State{n_edges}
     c::SVector{n_edges,Int64}   # Capacity vector
     t::Timestep                # Timestep
-    p::Product    # Requested product
+    p::Product{n_edges}    # Requested product
 end
 
 function show(io::IO, s::State)
@@ -89,11 +90,11 @@ function prod2ind(p::Product, products::Array{Product})
     return indexin([p], products)[1]
 end
 
-function ind2prod(i::Int64, products::Array{Product})
+function ind2prod(i::Int64, products::Array{Product}) 
     return products[i]
 end
 
-function get_selling_period_end(E::Array{Edge}, P::Array{Product})
+function get_selling_period_end(E::Array{Edge}, P::Array{Product{N}}) where N
     selling_period_end = zeros(Int64, length(P))
     for i in 2:length(P)
         prod = P[i]
@@ -154,7 +155,7 @@ Create the same demand for all products, sum of which across all products will b
 
     λ = create_λ(20., products)
 """
-function create_λ(demand::Float64, products::Array{Product})
+function create_λ(demand::Float64, products::Array{Product{N}}) where N
     λ = fill(demand/(length(products)-1), length(products)) 
     λ[1]=0. # product[1] is the empty product
     return λ
@@ -165,7 +166,7 @@ Create same product demand for each product size. For all products of size len, 
 
     λ = create_λ(Float64[10,3,3,5,4], products)
 """
-function create_λ(demand::Array{Float64}, products::Array{Product})
+function create_λ(demand::Array{Float64}, products::Array{Product{N}}) where N
     λ = zeros(Float64, length(products)) 
     sizes = map(sum, products)
     for len in unique(sizes)
@@ -208,7 +209,7 @@ function next_request(m::PMDP, t::Timestep, rng::AbstractRNG)
 end
 
 
-function POMDPs.gen(m::PMDP, s, a, rng)
+function POMDPs.gen(m::PMDP, s::State, a::Action, rng::AbstractRNG)
     if user_buy(m, s.p, a, s.t, rng)
         r = a
         c = s.c-s.p
@@ -246,6 +247,6 @@ function POMDPs.actions(m::PMDP, s::State)
     end
 end
 
-POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State(SA[5,5,5,5,5], 0, SA[0,0,0,0,0]))
+POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{5}(SA[5,5,5,5,5], 0, SA[0,0,0,0,0]))
 
 # PMDP() = PMDP(30)

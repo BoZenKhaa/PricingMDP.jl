@@ -10,15 +10,15 @@ using D3Trees
 using POMDPPolicies
 using Random
 
-import Base.show
+using Traceur
 
-edges = create_edges(5, 3, [50,60,70,80,90])
-products = create_continuous_products(edges)
-λ = create_λ(Float64[10,3,3,5,4], products)
-mdp = PMDP(edges, products, λ)
+@trace edges = create_edges(5, 3, [50,60,70,80,90])
+@trace products = create_continuous_products(edges)
+@trace λ = create_λ(Float64[10,3,3,5,4], products)
+@trace mdp = PMDP(edges, products, λ)
 
 # @requirements_info ValueIterationSolver() mdp
-@requirements_info MCTSSolver() mdp State(SA[1,1,1,1,1], 89, SA[0,0,1,1,1])
+@requirements_info MCTSSolver() mdp State{5}(SA[1,1,1,1,1], 89, SA[0,0,1,1,1])
 
 solver = MCTSSolver(n_iterations=100, 
                     depth=100, 
@@ -50,13 +50,13 @@ rand_policy = RandomPolicy(mdp)
 # hr = HistoryRecorder(max_steps=100)
 # history = simulate(hr, mdp,  )
  
-initial_state = State(SA[5,5,5,5,5], 0, SA[0,0,0,0,0])
+initial_state = State{5}(SA[5,5,5,5,5], 0, SA[0,0,0,0,0])
 rollout_sim = RolloutSimulator(max_steps=10)
 r_mcts = simulate(rollout_sim, mdp, planner, initial_state)
 r_rand = simulate(rollout_sim, mdp, rand_policy, initial_state)
 
 
-initial_state = State(SA[5,5,5,5,5], 0, SA[0,0,0,0,0])
+initial_state = State{5}(SA[5,5,5,5,5], 0, SA[0,0,0,0,0])
 hr = HistoryRecorder(max_steps=30)
 h_mcts = simulate(hr, mdp, planner, initial_state)
 h_rand = simulate(hr, mdp, rand_policy, initial_state)
