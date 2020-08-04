@@ -9,7 +9,7 @@ using Combinatorics
 
 import Base.show
 
-export PMDP, State, create_continuous_products, create_edges, create_λ
+export PMDP, State, Action, create_continuous_products, create_edges, create_λ
 include("PricingMDPv2.jl")
 include("NRM/NRMProblem.jl")
 include("NRM/Product.jl")

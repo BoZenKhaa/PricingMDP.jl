@@ -13,10 +13,7 @@ using Test
 
 # using Traceur
 
-edges = create_edges(5, 3, [50,60,70,80,90])
-products = create_continuous_products(edges)
-λ = create_λ(Float64[10,3,3,5,4], products)
-mdp = PMDP(edges, products, λ)
+include("PMDP_instances/e5.jl")
 
 #@requirements_info MCTSSolver() mdp State{5}(SA[1,1,1,1,1], 89, SA[0,0,1,1,1])
 

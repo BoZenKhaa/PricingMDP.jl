@@ -39,6 +39,8 @@ struct PMDP <: MDP{State, Action}
     end
 end
 
+
+# --------------------------------------- Generative interface
 """
 Returns next requested product. If in given timestep one of the prodcuts has selling period end, update the product request probs.
 """
@@ -82,14 +84,27 @@ function POMDPs.discount(m::PMDP)
 end
 
 # POMDPs.actions(m::PMDP) = Float64[1:5:100;]
-function POMDPs.actions(m::PMDP, s::State)
+function POMDPs.actions(m::PMDP, s::State; actions = Action[0:5:100;])
     if sum(s.p)<=0
-        return Float64[0]
+        return -1.
     else
-        return Float64[0:5:100;]
+        return actions
     end
 end
 
 POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{5}(SA[5,5,5,5,5], 0, SA[0,0,0,0,0]))
 
-# PMDP() = PMDP(30)
+
+
+# ------------------------------------- Explicit interface (Methods for VI) --------------------
+# @requirements_info SparseValueIterationSolver() mdp
+
+# POMDPs.transition(m::PMDP, s::State, a::Action)
+# POMDPs.reward(::PMDP, ::State, ::Float64, ::State)
+# POMDPs.stateindex(::PMDP, ::State)
+# POMDPs.actionindex(::PMDP, ::Float64)
+# function POMDPs.states(::PMDP)
+
+    
+
+
