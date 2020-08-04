@@ -19,3 +19,8 @@ POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{n_edges}(@SVecto
 
 mdp = PMDP(edges, products, λ)
 
+sts = states(mdp)
+
+stateindex(mdp, sts[30])
+
+actions(mdp)

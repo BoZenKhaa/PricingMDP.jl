@@ -4,7 +4,7 @@ const Timestep = Int64
 
 struct Edge
     id::Int64
-    c::Int64                    # capacity
+    c_init::Int64                    # initial capacity
     selling_period_end::Timestep  
 end
 
@@ -83,15 +83,18 @@ function POMDPs.discount(m::PMDP)
     return 0.99
 end
 
-# POMDPs.actions(m::PMDP) = Float64[1:5:100;]
+
 function POMDPs.actions(m::PMDP, s::State; actions = Action[0:5:100;])
     if sum(s.p)<=0
-        return -1.
+        return actions[1]
     else
         return actions
     end
 end
 
+POMDPs.actions(m::PMDP) = Float64[0:5:100;] # TODO - fix to take values ftom actions above
+
+#TODO fix for changing initial state for other dims
 POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{5}(SA[5,5,5,5,5], 0, SA[0,0,0,0,0]))
 
 
@@ -99,11 +102,41 @@ POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{5}(SA[5,5,5,5,5]
 # ------------------------------------- Explicit interface (Methods for VI) --------------------
 # @requirements_info SparseValueIterationSolver() mdp
 
-# POMDPs.transition(m::PMDP, s::State, a::Action)
-# POMDPs.reward(::PMDP, ::State, ::Float64, ::State)
-# POMDPs.stateindex(::PMDP, ::State)
-# POMDPs.actionindex(::PMDP, ::Float64)
-# function POMDPs.states(::PMDP)
+function POMDPs.transition(m::PMDP, s::State, a::Action)
+    return SparseCat([s], [1.])
+end
+
+
+function POMDPs.reward(m::PMDP, s::State, a::Action, sp::State)
+    if s.c==sp.c
+        return 0
+    else
+        return a
+    end
+end
+
+function POMDPs.stateindex(m::PMDP, s::State)
+    ind = findfirst(isequal(s), states(m))
+    if ind==nothing
+        println(s, ind)
+    end
+    return ind
+    #TODO: Check this one out https://discourse.julialang.org/t/how-to-convert-cartesianindex-n-values-to-int64/15074/5
+end
+
+function POMDPs.actionindex(m::PMDP, a::Action)
+    ind = findfirst(isequal(a), actions(m))
+    if ind==nothing
+        println(a, ind)
+    end
+    return ind
+end
+
+function POMDPs.states(m::PMDP)
+    c_it = Iterators.product([0:e.c_init for e in m.E]...)
+    s_it = Iterators.product(c_it, 0:maximum(m.selling_period_ends), m.P)
+    states = [State(SVector(args[1]), args[2], args[3]) for args in s_it]
+end
 
     
 

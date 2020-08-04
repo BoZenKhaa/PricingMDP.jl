@@ -14,7 +14,11 @@ using Traceur
 
 include("PMDP_instances/e3.jl")
 
-@requirements_info SparseValueIterationSolver() mdp
+# @requirements_info SparseValueIterationSolver() mdp
+
+solver = SparseValueIterationSolver(max_iterations=5, belres=1e-6, verbose=true) # creates the solver
+solve(solver, mdp)
+
 # @requirements_info MCTSSolver() mdp State{5}(SA[1,1,1,1,1], 89, SA[0,0,1,1,1])
 
 # solver = MCTSSolver(n_iterations=100, 
