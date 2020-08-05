@@ -14,8 +14,13 @@ struct State{n_edges}
     p::Product{n_edges}    # Requested product
 end
 
+function State(c::Array, t::Timestep, product::Array)
+    size = length(c)
+    State{size}(SVector{size}(c), t, SVector{size}(product))
+end
+
 function show(io::IO, s::State)
-    println(io, "t:$(s.t)_c:$(s.c)_p:$(s.p)")
+    println(io, "c:$(s.c)_t:$(s.t)_p:$(s.p)")
 end
 
 
@@ -84,13 +89,13 @@ function POMDPs.discount(m::PMDP)
 end
 
 
-function POMDPs.actions(m::PMDP, s::State; actions = Action[0:5:100;])
-    if sum(s.p)<=0
-        return actions[1]
-    else
-        return actions
-    end
-end
+# function POMDPs.actions(m::PMDP, s::State; actions = Action[0:5:100;])
+#     if sum(s.p)<=0
+#         return actions[1]
+#     else
+#         return actions
+#     end
+# end
 
 POMDPs.actions(m::PMDP) = Float64[0:5:100;] # TODO - fix to take values ftom actions above
 
@@ -116,17 +121,19 @@ function POMDPs.reward(m::PMDP, s::State, a::Action, sp::State)
 end
 
 function POMDPs.stateindex(m::PMDP, s::State)
-    ind = findfirst(isequal(s), states(m))
-    if ind==nothing
+    S = states(m)
+    cart_ind = findfirst(isequal(s), S)
+
+    ind = LinearIndices(S)[cart_ind]
+    if ind===nothing
         println(s, ind)
     end
     return ind
-    #TODO: Check this one out https://discourse.julialang.org/t/how-to-convert-cartesianindex-n-values-to-int64/15074/5
 end
 
 function POMDPs.actionindex(m::PMDP, a::Action)
     ind = findfirst(isequal(a), actions(m))
-    if ind==nothing
+    if ind===nothing
         println(a, ind)
     end
     return ind
