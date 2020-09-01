@@ -18,7 +18,9 @@ include("PMDP_instances/e3.jl")
 # @requirements_info SparseValueIterationSolver() mdp
 
 solver = SparseValueIterationSolver(max_iterations=5, belres=1e-6, verbose=true) # creates the solver
+println("Solving...")
 policy = solve(solver, mdp)
+println("Done.")
 
 # Get action counts
 df = DataFrame(p = policy.policy)
