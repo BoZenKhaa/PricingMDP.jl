@@ -23,6 +23,7 @@ Given λ, the expected number of request in period (0,1),
 the probability of request arrivel in given timestep is given by λ~mp where m is the number of timesteps in period (0,1).
 """
 function calculate_product_request_probs(t::Timestep,  λ::Array{Float64}, selling_period_ends::Array{Timestep})
+    product_request_probs = Array{Float64, 1}(undef, length(λ))
     for i in 2:length(selling_period_ends)
         if t>selling_period_ends[i]
             product_request_probs[i]=0

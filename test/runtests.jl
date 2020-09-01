@@ -10,9 +10,9 @@ end
 end
 
 @testset "PricingMDPv1.jl" begin
-    include("test_pricingMDPv1.jl")
+    include("test_MCTSpricingMDPv1.jl")
 end
 
 @testset "PricingMDPv2.jl" begin
-    include("test_pricingMDPv2.jl")
+    include("test_MCTSpricingMDPv2.jl")
 end

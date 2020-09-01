@@ -28,12 +28,13 @@ end
 m = PMDP(edges, products, λ)
 """
 struct PMDP <: MDP{State, Action}
+    n_edges::Int64
     T::Timestep                  # max timestep
     E::Array{Edge}
-    P::Array{Product{n_edges}} where n_edges
+    P::Array{Product}
     λ::Array{Float64} # Demand vector (expected number of requests for each product = λ, we assume time interval (0,1))
     selling_period_ends::Array{Timestep} # Selling period end for each product
-    empty_product::Product{n_edges}
+    empty_product::Product
     # product_request_probs::Array{Float64} # probability of request arriving in timestep (homogenous Poisson process)
     
     function PMDP(E, P, λ)
@@ -42,7 +43,7 @@ struct PMDP <: MDP{State, Action}
         empty_product=P[1]
         # product_request_probs = zeros(Float64, length(P))
         # set_product_request_probs!(product_request_probs, 0, λ, selling_period_ends)
-        return new(T,E,P,λ, selling_period_ends, empty_product)
+        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product)
     end
 end
 
@@ -108,30 +109,30 @@ POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{5}(SA[5,5,5,5,5]
 # ------------------------------------- Explicit interface (Methods for VI) --------------------
 # @requirements_info SparseValueIterationSolver() mdp
 
-function POMDPs.transition(m::PMDP, s::State, a::Action)
-    if s.t>=m.T
-        return SparseCat(s, [1.])
-    else
-        product_request_probs = calculate_product_request_probs(s.t, m.λ, m.selling_period_ends)
+# function POMDPs.transition(m::PMDP, s::State, a::Action)
+#     if s.t>=m.T
+#         return SparseCat(s, [1.])
+#     else
+#         product_request_probs = calculate_product_request_probs(s.t, m.λ, m.selling_period_ends)
         
-        if s.p==m.empty_product
-        prob_sale = prob_sale_linear(s.p, a)
+#         if s.p==m.empty_product
+#         prob_sale = prob_sale_linear(s.p, a)
 
-        sps_nosale = [State(s.c, s.t+1, prod) for prod in m.P[2:end]]
-        sps_nosale_probs = product_request_probs.*(1-prob_sale)
+#         sps_nosale = [State(s.c, s.t+1, prod) for prod in m.P[2:end]]
+#         sps_nosale_probs = product_request_probs.*(1-prob_sale)
         
         
 
-        for next_product in m.P
+#         for next_product in m.P
 
-            sp_sale = State(s.c, s.t+1, next_product)
+#             sp_sale = State(s.c, s.t+1, next_product)
             
-            push!(sps, sp)
-            push!(t_probs, prob)
-        end
-        return SparseCat(sps, [1.])
-    end
-end
+#             push!(sps, sp)
+#             push!(t_probs, prob)
+#         end
+#         return SparseCat(sps, [1.])
+#     end
+# end
 
 
 function POMDPs.reward(m::PMDP, s::State, a::Action, sp::State)

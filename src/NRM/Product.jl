@@ -25,10 +25,10 @@ end
 """
 Returns nothing if p not in products
 """
-function prod2ind(p::Product{Size}, products::Array{Product{Size}}) where Size
+function prod2ind(p::Product{Size}, products::Array{Product, 1})
     return indexin([p], products)[1]
 end
 
-function ind2prod(i::Int64, products::Array{Product{Size}}) where Size
+function ind2prod(i::Int64, products::Array{Product, 1})
     return products[i]
 end

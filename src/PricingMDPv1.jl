@@ -1,6 +1,6 @@
 module PricingMDPv1
 
-export PMDPv1, State
+export PMDPv1
 
 using POMDPs
 using StaticArrays
