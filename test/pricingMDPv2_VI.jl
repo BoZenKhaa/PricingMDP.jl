@@ -8,6 +8,7 @@ using Plots
 using POMDPSimulators
 using D3Trees
 using POMDPPolicies
+using POMDPLinter
 using Random
 using DataFrames
 
@@ -15,9 +16,10 @@ using Traceur
 
 include("PMDP_instances/e3.jl")
 
-# @requirements_info SparseValueIterationSolver() mdp
+# POMDPLinter.@requirements_info SparseValueIterationSolver() mdp
+# @requirements_info ValueIterationSolver() mdp
 
-solver = SparseValueIterationSolver(max_iterations=5, belres=1e-6, verbose=true) # creates the solver
+solver = ValueIterationSolver(max_iterations=1, belres=1e-6, verbose=true) # creates the solver
 println("Solving...")
 policy = solve(solver, mdp)
 println("Done.")

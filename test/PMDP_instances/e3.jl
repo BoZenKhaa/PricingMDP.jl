@@ -19,8 +19,18 @@ POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{n_edges}(@SVecto
 
 mdp = PMDP(edges, products, λ)
 
-sts = states(mdp)
+testing = false
+if testing
+    @time sts = states(mdp);
+    @time acts = actions(mdp);
 
-stateindex(mdp, sts[30])
+    s = sts[9000]
 
-actions(mdp)
+    @time transition(mdp, s, acts[5]);
+
+    @time stateindex(mdp, s);
+
+    @time actionindex(mdp, acts[5])
+    using Traceur
+    # @trace(actionindex(mdp, acts[5]), modules=[PricingMDP])
+end

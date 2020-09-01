@@ -23,6 +23,14 @@ function show(io::IO, s::State)
     println(io, "c:$(s.c)_t:$(s.t)_p:$(s.p)")
 end
 
+"""
+Enumerates all states for MDP
+"""
+function generate_states(E, P, selling_period_ends)
+    c_it = Iterators.product([0:e.c_init for e in E]...)
+    s_it = Iterators.product(c_it, 0:maximum(selling_period_ends), P)
+    states = [State(SVector(args[1]), args[2], args[3]) for args in s_it]
+end
 
 """
 m = PMDP(edges, products, λ)
@@ -35,15 +43,17 @@ struct PMDP <: MDP{State, Action}
     λ::Array{Float64} # Demand vector (expected number of requests for each product = λ, we assume time interval (0,1))
     selling_period_ends::Array{Timestep} # Selling period end for each product
     empty_product::Product
+    states::Array{State} # ONLY USEFUL FOR EXPLICIT
     # product_request_probs::Array{Float64} # probability of request arriving in timestep (homogenous Poisson process)
     
     function PMDP(E, P, λ)
         selling_period_ends = get_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
+        states = generate_states(E, P, selling_period_ends)
         # product_request_probs = zeros(Float64, length(P))
         # set_product_request_probs!(product_request_probs, 0, λ, selling_period_ends)
-        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product)
+        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product, states)
     end
 end
 
@@ -144,7 +154,6 @@ function POMDPs.transition(m::PMDP, s::State, a::Action)
     return transitions
 end
 
-
 function POMDPs.reward(m::PMDP, s::State, a::Action, sp::State)
     if s.c==sp.c
         return 0
@@ -157,23 +166,29 @@ function POMDPs.stateindex(m::PMDP, s::State)
     S = states(m)
     cart_ind = findfirst(isequal(s), S)
 
-    ind = LinearIndices(S)[cart_ind]
-    if ind===nothing
-        println(s, ind)
-    end
-    return ind
+    # ind = 
+    LinearIndices(S)[cart_ind]
+    # if ind===nothing
+    #     println(s, ind)
+    # end
+    # return ind
 end
 
 function POMDPs.actionindex(m::PMDP, a::Action)
-    ind = findfirst(isequal(a), actions(m))
-    if ind===nothing
-        println(a, ind)
-    end
-    return ind
+    # ind = 
+    return findfirst(isequal(a), actions(m))
+    # if ind===nothing
+    #     println(a, ind)
+    # end
+    # return ind
 end
 
 function POMDPs.states(m::PMDP)
-    c_it = Iterators.product([0:e.c_init for e in m.E]...)
-    s_it = Iterators.product(c_it, 0:maximum(m.selling_period_ends), m.P)
-    states = [State(SVector(args[1]), args[2], args[3]) for args in s_it]
+    m.states
 end
+
+# function POMDPs.states(m::PMDP)
+#     c_it = Iterators.product([0:e.c_init for e in m.E]...)
+#     s_it = Iterators.product(c_it, 0:maximum(m.selling_period_ends), m.P)
+#     states = [State(SVector(args[1]), args[2], args[3]) for args in s_it]
+# end
