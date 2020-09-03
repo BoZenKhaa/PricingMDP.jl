@@ -121,7 +121,7 @@ POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{5}(SA[5,5,5,5,5]
 
 function POMDPs.transition(m::PMDP, s::State, a::Action)
     if s.t>=m.T
-        transitions = SparseCat(s, [1.])
+        transitions = SparseCat([s], [1.])
     else # t<T
         # PROBS
         # --- Product sale

@@ -19,14 +19,18 @@ include("PMDP_instances/e3.jl")
 # POMDPLinter.@requirements_info SparseValueIterationSolver() mdp
 # @requirements_info ValueIterationSolver() mdp
 
-solver = ValueIterationSolver(max_iterations=1, belres=1e-6, verbose=true) # creates the solver
+solver = ValueIterationSolver(max_iterations=8, belres=1e-6, verbose=true) # creates the solver
+POMDPs.@show_requirements POMDPs.solve(solver, mdp)
+
 println("Solving...")
 policy = solve(solver, mdp)
 println("Done.")
 
 # Get action counts
-df = DataFrame(p = policy.policy)
-combine(groupby(df, :p), nrow)
+df = DataFrame(pricei = policy.policy)
+acts = actions(mdp)
+df[:, :price] = [acts[i] for i in df.pricei]
+combine(groupby(df, :price), nrow)
 
 
 # @requirements_info MCTSSolver() mdp State{5}(SA[1,1,1,1,1], 89, SA[0,0,1,1,1])
