@@ -19,7 +19,7 @@ function create_λ(demand::Float64, products::Array{Product{n_edges}}) where n_e
 end
 
 """
-Create same product demand for each product size. For all products of size len, the expected sum of demands is λ[len].
+Create same product demand for each product size. For all products of size len, the expected sum of demands (λ) is demand[len].
 
     λ = create_λ(Float64[10,3,3,5,4], products)
 """

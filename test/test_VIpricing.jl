@@ -13,13 +13,14 @@ using Random
 using DataFrames
 
 using Traceur
+using XLSX
 
-include("PMDP_instances/e3.jl")
+include("PMDP_instances/e2.jl")
 
 # POMDPLinter.@requirements_info SparseValueIterationSolver() mdp
 # @requirements_info ValueIterationSolver() mdp
 
-solver = ValueIterationSolver(max_iterations=8, belres=1e-6, verbose=true) # creates the solver
+solver = ValueIterationSolver(max_iterations=100, belres=1e-6, verbose=true) # creates the solver
 POMDPs.@show_requirements POMDPs.solve(solver, mdp)
 
 println("Solving...")
@@ -28,10 +29,17 @@ println("Done.")
 
 # Get action counts
 df = DataFrame(pricei = policy.policy)
-acts = actions(mdp)
-df[:, :price] = [acts[i] for i in df.pricei]
+df[:, :price] = [policy.action_map[i] for i in df.pricei]
 combine(groupby(df, :price), nrow)
 
+
+qmat = policy.qmat
+non_zero_Q_states = (sum(qmat, dims = 2).>0)[:,1]
+qmat[non_zero_Q_states, :]
+
+qdf = DataFrame(hcat( [repr(mdp.states[i]) for i in 1:length(mdp.states)], policy.qmat), map(Symbol, vcat(["state"], policy.action_map)))
+
+XLSX.writetable("q_mat.xlsx", qdf)
 
 # @requirements_info MCTSSolver() mdp State{5}(SA[1,1,1,1,1], 89, SA[0,0,1,1,1])
 
@@ -77,4 +85,4 @@ combine(groupby(df, :price), nrow)
 # h_rand = simulate(hr, mdp, rand_policy, initial_state)
 
 # @show state_hist(h_mcts)
-# @show collect(action_hist(h_mcts))
+# @show collect(action_hist(h_mcts)
