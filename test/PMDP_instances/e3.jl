@@ -14,7 +14,8 @@ products = create_continuous_products(edges)
 λ = create_λ(demand, products)
 
 # POMDPs.actions(m::PMDP) = Action[1:5:100;]
-POMDPs.actions(m::PMDP, s::State) = POMDPs.actions(m::PMDP, s::State; actions = Action[0:5:100;])
+POMDPs.actions(m::PMDP) = Action[0,15,30,45,60,75,1000]
+# POMDPs.actions(m::PMDP, s::State) = POMDPs.actions(m::PMDP, s::State; actions = Action[0:5:100;])
 POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{n_edges}(@SVector(fill(c_init, n_edges)), 0, @SVector(fill(false, n_edges))))
 
 mdp = PMDP(edges, products, λ)
