@@ -88,7 +88,7 @@ function POMDPs.gen(m::PMDP, s::State, a::Action, rng::AbstractRNG)
 end
 
 function POMDPs.isterminal(m::PMDP, s::State)
-    if s.t>m.T || sum(s.c.<=0)>0 
+    if s.t >= m.T || all(s.c .<= 0) 
         return true
     else
         return false
@@ -100,19 +100,19 @@ function POMDPs.discount(m::PMDP)
 end
 
 
-function POMDPs.actions(m::PMDP, s::State; actions = Action[0:5:100;])
-    # if sum(s.p)<=0
-    #     return actions[1]
-    # else
-    #     return actions
-    # end
-    return actions
-end
+# function POMDPs.actions(m::PMDP, s::State; actions = Action[0:5:100;])
+#     # if sum(s.p)<=0
+#     #     return actions[1]
+#     # else
+#     #     return actions
+#     # end
+#     return actions
+# end
 
-POMDPs.actions(m::PMDP) = Float64[0:5:100;] # TODO - fix to take values ftom actions above
+# POMDPs.actions(m::PMDP) = Float64[0:5:100;] # TODO - fix to take values ftom actions above
 
-#TODO fix for changing initial state for other dims
-POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{5}(SA[5,5,5,5,5], 0, SA[0,0,0,0,0]))
+# TODO fix for changing initial state for other dims
+# POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{5}(SA[5,5,5,5,5], 0, SA[0,0,0,0,0]))
 
 
 
@@ -121,45 +121,39 @@ POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{5}(SA[5,5,5,5,5]
 
 function POMDPs.transition(m::PMDP, s::State, a::Action)
     if s.t>=m.T
-        transitions = SparseCat([s], [1.])
+        sps = [s]
+        probs = [1.]
     else # t<T
-        # PROBS
-        # --- Product sale
-        if s.p==m.empty_product
-            prob_sale = 0.
-        else           
-            prob_sale = prob_sale_linear(s.p, a)
-        end
-        # --- Request arrival
+        # --- Request arrival probs
         product_request_probs = calculate_product_request_probs(s.t, m.λ, m.selling_period_ends)
         
         # NEXT STATES
-        if any(s.c - s.p .<0)
-            # insufficent capacity for sale
-            sps = [State(s.c, s.t+1, prod) for prod in m.P[2:end]]
+        # No sale due to no request or due to insufficient capacity
+        if  s.p==m.empty_product || any((s.c - s.p) .<0.)
+            sps = [State(s.c, s.t+1, prod) for prod in m.P]
             probs = product_request_probs
-            transitions = SparseCat(sps, probs)
+            # transitions = SparseCat(sps, probs)
         else
-            # sufficient capacity for sale
-            sps_nosale = [State(s.c, s.t+1, prod) for prod in m.P[2:end]]
-            sps_nosale_probs = product_request_probs.*(1-prob_sale)
+            prob_sale = prob_sale_linear(s.p, a)
+            # sufficient capacity for sale and non-empty request
+            sps_nosale = [State(s.c, s.t+1, prod) for prod in m.P]
+            probs_nosale = product_request_probs.*(1-prob_sale)
 
-            sps_sale = [State(s.c-s.p, s.t+1, prod) for prod in m.P[2:end]]
-            sps_sale_probs = product_request_probs.*prob_sale
+            sps_sale = [State(s.c-s.p, s.t+1, prod) for prod in m.P]
+            probs_sale = product_request_probs.*prob_sale
 
-            transitions = SparseCat([sps_nosale..., sps_sale...], 
-                                    [sps_nosale_probs..., sps_sale_probs...])
+            sps = vcat(sps_nosale, sps_sale)
+            probs = vcat(probs_nosale, probs_sale)
         end
     end
-    return transitions
+
+    @assert sum(probs) ≈ 1.
+    
+    return SparseCat(sps, probs)
 end
 
 function POMDPs.reward(m::PMDP, s::State, a::Action, sp::State)
-    if s.c==sp.c
-        return 0
-    else
-        return a
-    end
+    s.c==sp.c ? 0. :  a
 end
 
 function POMDPs.stateindex(m::PMDP, s::State)

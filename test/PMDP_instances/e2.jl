@@ -6,15 +6,15 @@ using POMDPModelTools
 
 n_edges = 2
 c_init = 2
-selling_horizon_end = [8,10]
-demand = Float64[2,1]
+selling_horizon_end = [10,10]
+demand = Float64[2,2]
 
 edges = create_edges(n_edges, c_init, selling_horizon_end)
 products = create_continuous_products(edges)
 λ = create_λ(demand, products)
 
-# POMDPs.actions(m::PMDP) = Action[1:5:100;]
-POMDPs.actions(m::PMDP, s::State) = POMDPs.actions(m::PMDP, s::State; actions = Action[0,20,40,60])
+POMDPs.actions(m::PMDP) = Action[0,15,30,45,1000]
+# POMDPs.actions(m::PMDP, s::State) = POMDPs.actions(m::PMDP, s::State; actions = Action[0,20,40,60])
 POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{n_edges}(@SVector(fill(c_init, n_edges)), 0, @SVector(fill(false, n_edges))))
 
 mdp = PMDP(edges, products, λ)

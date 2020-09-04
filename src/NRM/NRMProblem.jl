@@ -24,14 +24,14 @@ the probability of request arrivel in given timestep is given by λ~mp where m i
 """
 function calculate_product_request_probs(t::Timestep,  λ::Array{Float64}, selling_period_ends::Array{Timestep})
     product_request_probs = Array{Float64, 1}(undef, length(λ))
-    for i in 2:length(selling_period_ends)
+    for i in 2:length(λ)
         if t>selling_period_ends[i]
             product_request_probs[i]=0
         else
             product_request_probs[i]=λ[i]/selling_period_ends[i]
         end
     end
-    product_request_probs[1] = 1-sum(product_request_probs[2:end])
-    @assert 0. <= product_request_probs[1] <= 1. "The product request probability has sum > 1, finer time discretization needed."
+    product_request_probs[1] = 1.0-sum(product_request_probs[2:end])
+    @assert 0. <= product_request_probs[1] <= 1. "The non-empty product request probabilities sum is > 1, finer time discretization needed."
     return product_request_probs
 end

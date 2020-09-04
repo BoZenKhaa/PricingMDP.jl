@@ -21,7 +21,7 @@ include("PMDP_instances/e2.jl")
 # @requirements_info ValueIterationSolver() mdp
 
 solver = ValueIterationSolver(max_iterations=100, belres=1e-6, verbose=true) # creates the solver
-POMDPs.@show_requirements POMDPs.solve(solver, mdp)
+# POMDPs.@show_requirements POMDPs.solve(solver, mdp)
 
 println("Solving...")
 policy = solve(solver, mdp)
