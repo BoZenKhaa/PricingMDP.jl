@@ -20,7 +20,7 @@ function State(c::Array, t::Timestep, product::Array)
 end
 
 function show(io::IO, s::State)
-    println(io, "c:$(s.c)_t:$(s.t)_p:$(s.p)")
+    print(io, "c:$(s.c)_t:$(s.t)_p:$(s.p)")
 end
 
 """
@@ -80,10 +80,10 @@ function POMDPs.gen(m::PMDP, s::State, a::Action, rng::AbstractRNG)
     end
     prod = sample_next_request_and_update_probs(m, s.t, rng)
     Δt = 1
-    while sum(prod)==0 #Empty product
-        prod = sample_next_request_and_update_probs(m, s.t, rng)
-        Δt += 1
-    end
+    # while sum(prod)==0 #Empty product
+    #     prod = sample_next_request_and_update_probs(m, s.t, rng)
+    #     Δt += 1
+    # end
     return (sp = State(c, s.t+Δt, prod), r = r)
 end
 

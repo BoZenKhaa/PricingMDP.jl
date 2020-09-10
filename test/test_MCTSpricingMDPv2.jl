@@ -13,7 +13,7 @@ using Test
 
 # using Traceur
 
-include("PMDP_instances/e5.jl")
+include("PMDP_instances/e3.jl")
 
 #@requirements_info MCTSSolver() mdp State{5}(SA[1,1,1,1,1], 89, SA[0,0,1,1,1])
 

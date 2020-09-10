@@ -11,10 +11,11 @@ using POMDPPolicies
 using POMDPLinter
 using Random
 using DataFrames
+using POMDPSimulators
 
 using Traceur
 using XLSX
-using JLD
+using BSON
 
 include("PMDP_instances/e2.jl")
 
@@ -35,11 +36,8 @@ println("Solving...")
 policy = solve(solver, mdp)
 println("Done.")
 
-# jldopen("data/vi_policy.jld", "w") do file
-#     write(file, "qmat", policy.qmat)
-# end
-# data = load("data/vi_policy.jld")
-
+# bson("policy.bson", Dict(:policy => policy))
+# BSON.load("policy.bson")
 
 # Get action counts
 df = DataFrame(pricei = policy.policy)
@@ -58,3 +56,7 @@ qdf = DataFrame(hcat( [repr(mdp.states[i].c) for i in 1:length(mdp.states)],
 
 rm("q_mat.xlsx", force=true)
 XLSX.writetable("q_mat.xlsx", qdf)
+
+hr = HistoryRecorder(max_steps=100, capture_exception=true, rng=MersenneTwister(1234))
+h = simulate(hr, mdp, policy)
+collect(eachstep(h, "s, a"))
