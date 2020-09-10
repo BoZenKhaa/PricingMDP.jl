@@ -3,34 +3,31 @@ using StaticArrays
 using POMDPs
 using POMDPModelTools
 
-
 n_edges = 2
 c_init = 2
 selling_horizon_end = [10,10]
 demand = Float64[2,2]
+actions = Action[0,15,30,45,1000]
 
-edges = create_edges(n_edges, c_init, selling_horizon_end)
-products = create_continuous_products(edges)
-λ = create_λ(demand, products)
+# edges = create_edges(n_edges, c_init, selling_horizon_end)
+# products = create_continuous_products(edges)
+# λ = create_λ(demand, products)
 
-POMDPs.actions(m::PMDP) = Action[0,15,30,45,1000]
-# POMDPs.actions(m::PMDP, s::State) = POMDPs.actions(m::PMDP, s::State; actions = Action[0,20,40,60])
-POMDPs.initialstate(m::PMDP) = Deterministic(State{n_edges}(@SVector(fill(c_init, n_edges)), 0, @SVector(fill(false, n_edges))))
+# mdp = PMDPe(edges, products, λ, actions);
+PricingMDP.create_PMDP(PMDPe)
 
-# mdp = PMDPe(edges, products, λ)
+# testing = false
+# if testing
+#     @time sts = states(mdp);
+#     @time acts = actions(mdp);
 
-testing = false
-if testing
-    @time sts = states(mdp);
-    @time acts = actions(mdp);
+#     s = sts[9000]
 
-    s = sts[9000]
+#     @time transition(mdp, s, acts[5]);
 
-    @time transition(mdp, s, acts[5]);
+#     @time stateindex(mdp, s);
 
-    @time stateindex(mdp, s);
-
-    @time actionindex(mdp, acts[5])
-    using Traceur
-    # @trace(actionindex(mdp, acts[5]), modules=[PricingMDP])
-end
+#     @time actionindex(mdp, acts[5])
+#     using Traceur
+#     # @trace(actionindex(mdp, acts[5]), modules=[PricingMDP])
+# end

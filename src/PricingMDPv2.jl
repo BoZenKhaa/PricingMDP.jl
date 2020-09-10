@@ -47,14 +47,15 @@ struct PMDPg <: PMDP{State, Action}
     λ::Array{Float64} # Demand vector (expected number of requests for each product = λ, we assume time interval (0,1))
     selling_period_ends::Array{Timestep} # Selling period end for each product
     empty_product::Product
+    actions::Array{Action}
     # states::Array{State} # ONLY USEFUL FOR EXPLICIT
     
-    function PMDPg(E, P, λ)
+    function PMDPg(E, P, λ, A)
         selling_period_ends = get_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
         # states = generate_states(E, P, selling_period_ends)
-        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product, states)
+        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product, A)
     end
 end
 
@@ -72,14 +73,15 @@ struct PMDPe <: PMDP{State, Action}
     λ::Array{Float64} # Demand vector (expected number of requests for each product = λ, we assume time interval (0,1))
     selling_period_ends::Array{Timestep} # Selling period end for each product
     empty_product::Product
+    actions::Array{Action}
     states::Array{State} # ONLY USEFUL FOR EXPLICIT
     
-    function PMDPe(E, P, λ)
+    function PMDPe(E, P, λ, A)
         selling_period_ends = get_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
         states = generate_states(E, P, selling_period_ends)
-        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product, states)
+        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product, A, states)
     end
 end
 
@@ -135,10 +137,11 @@ function POMDPs.actions(m::PMDP, s::State)
     return actions
 end
 
-# POMDPs.actions(m::PMDP) = Action[0:5:100;] # TODO - fix to take values ftom actions above
+POMDPs.actions(m::PMDP) = m.actions
 
-# TODO fix for changing initial state for other dims
-# POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{5}(SA[5,5,5,5,5], 0, SA[0,0,0,0,0]))
+function POMDPs.initialstate(m::PMDP) 
+    Deterministic(State{m.n_edges}(SVector([e.c_init for e in E]...), 0, m.empty_product))
+end
 
 
 
