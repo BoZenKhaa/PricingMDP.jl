@@ -140,7 +140,7 @@ end
 POMDPs.actions(m::PMDP) = m.actions
 
 function POMDPs.initialstate(m::PMDP) 
-    Deterministic(State{m.n_edges}(SVector([e.c_init for e in E]...), 0, m.empty_product))
+    Deterministic(State{m.n_edges}(SVector([e.c_init for e in m.E]...), 0, m.empty_product))
 end
 
 

@@ -17,9 +17,7 @@ using Traceur
 using XLSX
 using BSON
 
-include("PMDP_instances/e2.jl")
-
-mdp = PMDPe(edges, products, λ)
+mdp = PricingMDP.create_PMDP(PMDPe)
 
 # POMDPLinter.@requirements_info SparseValueIterationSolver() mdp
 # @requirements_info ValueIterationSolver() mdp

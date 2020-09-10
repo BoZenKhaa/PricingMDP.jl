@@ -16,6 +16,7 @@ include("NRM/Product.jl")
 include("NRM/Demand.jl")
 include("NRM/User.jl")
 include("problems.jl")
+include("experiments.jl")
 
 # Subpackages
 include("SimplestPricingMDP.jl")
