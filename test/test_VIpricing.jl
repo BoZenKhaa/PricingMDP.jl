@@ -19,6 +19,8 @@ using BSON
 
 include("PMDP_instances/e2.jl")
 
+mdp = PMDPe(edges, products, λ)
+
 # POMDPLinter.@requirements_info SparseValueIterationSolver() mdp
 # @requirements_info ValueIterationSolver() mdp
 

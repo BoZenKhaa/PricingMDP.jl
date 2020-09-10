@@ -32,10 +32,39 @@ function generate_states(E, P, selling_period_ends)
     states = [State(SVector(args[1]), args[2], args[3]) for args in s_it]
 end
 
+abstract type PMDP{State, Action} <: MDP{State, Action} end
+
 """
-m = PMDP(edges, products, λ)
+m = PMDPg(edges, products, λ)
+
+PMDP for generative interface
 """
-struct PMDP <: MDP{State, Action}
+struct PMDPg <: PMDP{State, Action}
+    n_edges::Int64
+    T::Timestep                  # max timestep
+    E::Array{Edge}
+    P::Array{Product}
+    λ::Array{Float64} # Demand vector (expected number of requests for each product = λ, we assume time interval (0,1))
+    selling_period_ends::Array{Timestep} # Selling period end for each product
+    empty_product::Product
+    # states::Array{State} # ONLY USEFUL FOR EXPLICIT
+    
+    function PMDPg(E, P, λ)
+        selling_period_ends = get_selling_period_ends(E, P)
+        T = selling_period_ends[1]
+        empty_product=P[1]
+        # states = generate_states(E, P, selling_period_ends)
+        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product, states)
+    end
+end
+
+"""
+m = PMDPe(edges, products, λ)
+
+PMDP for explicit interface
+"""
+
+struct PMDPe <: PMDP{State, Action}
     n_edges::Int64
     T::Timestep                  # max timestep
     E::Array{Edge}
@@ -44,19 +73,15 @@ struct PMDP <: MDP{State, Action}
     selling_period_ends::Array{Timestep} # Selling period end for each product
     empty_product::Product
     states::Array{State} # ONLY USEFUL FOR EXPLICIT
-    # product_request_probs::Array{Float64} # probability of request arriving in timestep (homogenous Poisson process)
     
-    function PMDP(E, P, λ)
+    function PMDPe(E, P, λ)
         selling_period_ends = get_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
         states = generate_states(E, P, selling_period_ends)
-        # product_request_probs = zeros(Float64, length(P))
-        # set_product_request_probs!(product_request_probs, 0, λ, selling_period_ends)
         return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product, states)
     end
 end
-
 
 # -------------------------- Generative interface --------------------------
 
@@ -70,7 +95,7 @@ function sample_next_request_and_update_probs(m::PMDP, t::Timestep, rng::Abstrac
     return ind2prod(prod_index, m.P)
 end
 
-function POMDPs.gen(m::PMDP, s::State, a::Action, rng::AbstractRNG)
+function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
     if user_buy(m, s.p, a, s.t, rng)
         r = a
         c = s.c-s.p
@@ -120,7 +145,7 @@ end
 # --------------------------- Explicit interface (Methods for VI) --------------------
 # @requirements_info SparseValueIterationSolver() mdp
 
-function POMDPs.transition(m::PMDP, s::State, a::Action)
+function POMDPs.transition(m::PMDPe, s::State, a::Action)
     if s.t>=m.T
         sps = [s]
         probs = [1.]
@@ -157,7 +182,7 @@ function POMDPs.reward(m::PMDP, s::State, a::Action, sp::State)
     s.c==sp.c ? 0. :  a
 end
 
-function POMDPs.stateindex(m::PMDP, s::State)
+function POMDPs.stateindex(m::PMDPe, s::State)
     S = states(m)
     cart_ind = findfirst(isequal(s), S)
 
@@ -178,7 +203,7 @@ function POMDPs.actionindex(m::PMDP, a::Action)
     # return ind
 end
 
-function POMDPs.states(m::PMDP)
+function POMDPs.states(m::PMDPe)
     m.states
 end
 

@@ -17,7 +17,7 @@ POMDPs.actions(m::PMDP) = Action[0,15,30,45,1000]
 # POMDPs.actions(m::PMDP, s::State) = POMDPs.actions(m::PMDP, s::State; actions = Action[0,20,40,60])
 POMDPs.initialstate(m::PMDP) = Deterministic(State{n_edges}(@SVector(fill(c_init, n_edges)), 0, @SVector(fill(false, n_edges))))
 
-mdp = PMDP(edges, products, λ)
+# mdp = PMDPe(edges, products, λ)
 
 testing = false
 if testing
