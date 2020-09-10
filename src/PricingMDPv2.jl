@@ -99,17 +99,18 @@ function POMDPs.discount(m::PMDP)
     return 0.99
 end
 
+# reduce action set when no product is requested
+function POMDPs.actions(m::PMDP, s::State)
+    actions = POMDPs.actions(m)
+    if s.p==m.empty_product
+        return actions[1]
+    else
+        return actions
+    end
+    return actions
+end
 
-# function POMDPs.actions(m::PMDP, s::State; actions = Action[0:5:100;])
-#     # if sum(s.p)<=0
-#     #     return actions[1]
-#     # else
-#     #     return actions
-#     # end
-#     return actions
-# end
-
-# POMDPs.actions(m::PMDP) = Float64[0:5:100;] # TODO - fix to take values ftom actions above
+# POMDPs.actions(m::PMDP) = Action[0:5:100;] # TODO - fix to take values ftom actions above
 
 # TODO fix for changing initial state for other dims
 # POMDPs.initialstate_distribution(m::PMDP) = Deterministic(State{5}(SA[5,5,5,5,5], 0, SA[0,0,0,0,0]))

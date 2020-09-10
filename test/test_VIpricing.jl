@@ -59,4 +59,5 @@ XLSX.writetable("q_mat.xlsx", qdf)
 
 hr = HistoryRecorder(max_steps=100, capture_exception=true, rng=MersenneTwister(1234))
 h = simulate(hr, mdp, policy)
-collect(eachstep(h, "s, a"))
+collect(eachstep(h, "s, a, r"))
+sum(h[:r])
