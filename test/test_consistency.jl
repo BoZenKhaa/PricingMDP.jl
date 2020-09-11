@@ -1,4 +1,5 @@
 using PricingMDP
+using Test
 
 using StaticArrays
 using POMDPs
