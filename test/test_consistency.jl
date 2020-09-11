@@ -1,23 +1,6 @@
 using PricingMDP
 using Test
 
-using StaticArrays
-using POMDPs
-using MCTS, DiscreteValueIteration
-using StatsBase
-using Plots
-using POMDPSimulators
-using D3Trees
-using POMDPPolicies
-using POMDPLinter
-using Random
-using DataFrames
-using POMDPSimulators
-
-using Traceur
-using XLSX
-using BSON
-
 
 mdp_vi = PricingMDP.create_PMDP(PMDPe)
 mdp_mc = PricingMDP.create_PMDP(PMDPg) 
