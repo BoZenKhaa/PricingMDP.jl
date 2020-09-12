@@ -181,7 +181,7 @@ function POMDPs.transition(m::PMDPe, s::State, a::Action)
     return SparseCat(sps, probs)
 end
 
-function POMDPs.reward(m::PMDP, s::State, a::Action, sp::State)
+function POMDPs.reward(m::PMDPe, s::State, a::Action, sp::State)
     s.c==sp.c ? 0. :  a
 end
 
