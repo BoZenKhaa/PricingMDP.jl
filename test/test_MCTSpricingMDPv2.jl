@@ -15,14 +15,15 @@ using Test
 
 mdp = PricingMDP.create_PMDPe2(PMDPg)
 
-s = initialstate(mdp, Random.MersenneTwister(4))
+rng = Random.MersenneTwister(4)
+s = rand(rng, initialstate(mdp))
 
 solver = MCTSSolver(n_iterations=100, 
                     depth=100, 
                     exploration_constant=10.0, 
                     enable_tree_vis=true)
 
-POMDPs.@show_requirements POMDPs.solve(solver, mdp)
+# POMDPs.@show_requirements POMDPs.solve(solver, mdp)
 
 planner = solve(solver, mdp)
 
