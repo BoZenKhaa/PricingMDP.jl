@@ -130,7 +130,7 @@ end
 function POMDPs.actions(m::PMDP, s::State)
     actions = POMDPs.actions(m)
     if s.p==m.empty_product
-        return actions[1]
+        return [actions[1]]
     else
         return actions
     end
