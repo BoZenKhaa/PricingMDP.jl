@@ -98,7 +98,7 @@ function sample_next_request_and_update_probs(m::PMDP, t::Timestep, rng::Abstrac
 end
 
 function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
-    if user_buy(m, s.p, a, s.t, rng)
+    if ~any((s.c - s.p) .<0.) && user_buy(m, s.p, a, s.t, rng)
         r = a
         c = s.c-s.p
     else
