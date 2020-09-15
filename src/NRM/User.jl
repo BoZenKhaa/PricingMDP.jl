@@ -1,3 +1,5 @@
+using Distributions
+
 """
     pwl(10, slope_start=5., slope_end=30.)
 
@@ -22,6 +24,7 @@ function pwl(x::Number;
     end
 end
 
+
 """
 Probability of sale which is linear in the size of the product
 """
@@ -35,13 +38,43 @@ Returns user buy or no buy decision given timestep, user requested product, agen
 Probability is based linear in the size of the product, i.e. based on the unit price.
 """
 function user_buy(m::PMDP, prod::Product, a::Action, t::Timestep, rng::AbstractRNG)
-    if prod != m.P[1]
-        # TODO: What if sale woud be over the capacity?
+    if prod != m.empty_product
         prob_sale = prob_sale_linear(prod, a)
         d_user_buy = Categorical([prob_sale, 1-prob_sale])
         buy = rand(rng, d_user_buy)==1
     else
         buy = false
-    end
+    end 
     return buy
+end
+
+"""
+Returns user buy or no buy decision given agent selected action and user budget.
+Probability is based linear in the size of the product, i.e. based on the unit price.
+"""
+function user_buy(a::Action, budget::Float64)
+    a<budget
+end
+
+# user_budget_per_unit = Distributions.Uniform(5,30)
+# pdf.(b, [0:5:35])
+# ccdf.(b, [0:5:35])
+
+# function get_user_budget()
+
+# end
+
+"""
+Sample user budget. Budget is linear in the size of the product, i.e. based on the unit price.
+"""
+function sample_user_budget_linear(m::PMDP, prod::PricingMDP.Product, t::PricingMDP.Timestep, rng::AbstractRNG)::Float64
+    # local b::Float64
+    if prod != m.P[1]
+        budget_per_unit_d = Distributions.Uniform(5,30)
+        budget_per_unit = rand(rng, budget_per_unit_d)
+        b = sum(prod)*budget_per_unit
+    else
+        b = -1.
+    end
+    return b
 end

@@ -98,7 +98,8 @@ function sample_next_request_and_update_probs(m::PMDP, t::Timestep, rng::Abstrac
 end
 
 function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
-    if ~any((s.c - s.p) .<0.) && user_buy(m, s.p, a, s.t, rng)
+    b = sample_user_budget_linear(m, s.p, s.t, rng)
+    if ~any((s.c - s.p) .<0.) && user_buy(a, b)
         r = a
         c = s.c-s.p
     else
@@ -111,7 +112,7 @@ function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
     #     prod = sample_next_request_and_update_probs(m, s.t, rng)
     #     Δt += 1
     # end
-    return (sp = State(c, s.t+Δt, prod), r = r)
+    return (sp = State(c, s.t+Δt, prod), r = r, info=b)
 end
 
 function POMDPs.isterminal(m::PMDP, s::State)

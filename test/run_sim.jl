@@ -26,19 +26,24 @@ rng = MersenneTwister(1234)
 
 s0 = rand(rng, initialstate(mdp_mc))
 
-function run_sim(mdp::PMDP, policy::Policy; rng_seed=1234)
-    rng = MersenneTwister(rng_seed)
-    hr = HistoryRecorder(max_steps=100, capture_exception=true, rng=rng)
-    h = simulate(hr, mdp, policy)
-    collect(eachstep(h, "s, a, r"))
-    # sum(h[:r])
-end
+# function run_sim(mdp::PMDP, policy::Policy; rng_seed=1234)
+#     rng = MersenneTwister(rng_seed)
+#     hr = HistoryRecorder(max_steps=100, capture_exception=true, rng=rng)
+#     h = simulate(hr, mdp, policy)
+#     collect(eachstep(h, "s, a, r, user_budget"))
+#     # sum(h[:r])
+# end
 
-@show run_sim(mdp_mc, policy; rng_seed = 1235)
+rng = MersenneTwister(12)
+hr = HistoryRecorder(max_steps=100, capture_exception=false, rng=rng)
+h = simulate(hr, mdp_mc, planner)
+collect(eachstep(h, "s, a, r, info"))
 
-ch = run_sim(mdp_mc, planner; rng_seed = 1236)
-@show ch
-any(ch[end][:s].c .< 0)
+# @show run_sim(mdp_mc, policy; rng_seed = 1235)
+
+# ch = run_sim(mdp_mc, planner; rng_seed = 1236)
+# @show ch
+# any(ch[end][:s].c .< 0)
 
 
 # for i in 1:10000
