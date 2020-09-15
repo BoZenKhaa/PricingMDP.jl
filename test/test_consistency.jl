@@ -25,16 +25,3 @@ planner = PricingMDP.get_MCTS_planner(mdp_mc)
 rng = MersenneTwister(1234)
 
 @test rand(rng, initialstate(mdp_mc)) == rand(rng, initialstate(mdp_vi))
-
-s0 = rand(rng, initialstate(mdp_mc))
-
-hr = HistoryRecorder(max_steps=100, capture_exception=true, rng=rng)
-h = simulate(hr, mdp_vi, policy)
-collect(eachstep(h, "s, a, r"))
-sum(h[:r])
-
-
-hr2 = HistoryRecorder(max_steps=100, capture_exception=true, rng=rng)
-h2 = simulate(hr2, mdp_mc, planner)
-
-action(planner, s0)

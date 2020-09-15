@@ -129,8 +129,8 @@ end
 # reduce action set when no product is requested
 function POMDPs.actions(m::PMDP, s::State)
     actions = POMDPs.actions(m)
-    if s.p==m.empty_product
-        return [actions[1]]
+    if s.p==m.empty_product || any((s.c - s.p) .<0.)
+        return [actions[end]]
     else
         return actions
     end
