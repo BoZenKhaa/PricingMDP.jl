@@ -53,7 +53,7 @@ Returns user buy or no buy decision given agent selected action and user budget.
 Probability is based linear in the size of the product, i.e. based on the unit price.
 """
 function user_buy(a::Action, budget::Float64)
-    a<budget
+    a<=budget
 end
 
 # user_budget_per_unit = Distributions.Uniform(5,30)

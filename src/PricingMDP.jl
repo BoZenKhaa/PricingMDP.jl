@@ -18,7 +18,12 @@ include("NRM/User.jl")
 include("problems.jl")
 include("experiments.jl")
 
+# export MILP_hindsight_pricing
+# include("milp_hindsight_pricing.jl")
+
 # Subpackages
+# export MILP_hindsight_pricing
+include("LP.jl")
 include("SimplestPricingMDP.jl")
 include("PricingMDPv1.jl")
 end
