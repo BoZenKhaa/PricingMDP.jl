@@ -85,6 +85,13 @@ struct PMDPe <: PMDP{State, Action}
     end
 end
 
+"""
+Given state s, determine whether a sale of product s.p is impossible
+"""
+function sale_impossible(s::State)::Bool
+    all(s.c .== 0) || s.p==m.empty_product || any((s.c - s.p) .<0.)
+end
+ 
 # -------------------------- Generative interface --------------------------
 
 """
@@ -99,7 +106,7 @@ end
 
 function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
     b = sample_user_budget_linear(m, s.p, s.t, rng)
-    if ~any((s.c - s.p) .<0.) && user_buy(a, b)
+    if ~sale_impossible(s) && user_buy(a, b)
         r = a
         c = s.c-s.p
     else
@@ -127,11 +134,12 @@ function POMDPs.discount(m::PMDP)
     return 0.99
 end
 
+
 # reduce action set when no product is requested
 function POMDPs.actions(m::PMDP, s::State)
     actions = POMDPs.actions(m)
-    if s.p==m.empty_product || any((s.c - s.p) .<0.)
-        return [actions[end]]
+    if sale_impossible(s)
+        return [actions[1]]
     else
         return actions
     end
@@ -150,20 +158,21 @@ end
 # @requirements_info SparseValueIterationSolver() mdp
 
 function POMDPs.transition(m::PMDPe, s::State, a::Action)
-    if s.t>=m.T
-        sps = [s]
-        probs = [1.]
-    else # t<T
+    # if s.t>=m.T
+        # sps = [s]
+        # probs = [1.]
+    # else # t<T
         # --- Request arrival probs
         product_request_probs = calculate_product_request_probs(s.t, m.λ, m.selling_period_ends)
         
         # NEXT STATES
         # No sale due to no request or due to insufficient capacity
-        if  s.p==m.empty_product || any((s.c - s.p) .<0.)
+        if  sale_impossible(s) 
             sps = [State(s.c, s.t+1, prod) for prod in m.P]
             probs = product_request_probs
             # transitions = SparseCat(sps, probs)
         else
+            # TODO: change to budgets
             prob_sale = prob_sale_linear(s.p, a)
             # sufficient capacity for sale and non-empty request
             sps_nosale = [State(s.c, s.t+1, prod) for prod in m.P]
@@ -175,7 +184,7 @@ function POMDPs.transition(m::PMDPe, s::State, a::Action)
             sps = vcat(sps_nosale, sps_sale)
             probs = vcat(probs_nosale, probs_sale)
         end
-    end
+    # end
 
     @assert sum(probs) ≈ 1.
     

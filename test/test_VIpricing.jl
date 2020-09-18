@@ -33,7 +33,7 @@ solver = SparseValueIterationSolver(max_iterations=100, belres=1e-6, verbose=tru
 # POMDPs.@show_requirements POMDPs.solve(solver, mdp)
 
 println("Solving...")
-policy = solve(solver, mdp)
+policy = POMDPs.solve(solver, mdp)
 println("Done.")
 
 # bson("policy.bson", Dict(:policy => policy))
@@ -45,19 +45,21 @@ println("Done.")
 # combine(groupby(df, :price), nrow)
 
 
-# qmat = policy.qmat
-# non_zero_Q_states = (sum(qmat, dims = 2).>0)[:,1]
-# qmat[non_zero_Q_states, :]
+qmat = policy.qmat
+non_zero_Q_states = (sum(qmat, dims = 2).>0)[:,1]
+qmat[non_zero_Q_states, :]
 
-# qdf = DataFrame(hcat( [repr(mdp.states[i].c) for i in 1:length(mdp.states)],
-#                       [mdp.states[i].t for i in 1:length(mdp.states)], 
-#                       [repr(mdp.states[i].p) for i in 1:length(mdp.states)],policy.qmat), 
-#                 map(Symbol, vcat(["c", "t", "p"], policy.action_map)))
+qdf = DataFrame(hcat( [repr(mdp.states[i].c) for i in 1:length(mdp.states)],
+                      [mdp.states[i].t for i in 1:length(mdp.states)], 
+                      [repr(mdp.states[i].p) for i in 1:length(mdp.states)],policy.qmat), 
+                map(Symbol, vcat(["c", "t", "p"], policy.action_map)))
 
-# rm("q_mat.xlsx", force=true)
-# XLSX.writetable("q_mat.xlsx", qdf)
+rm("q_mat.xlsx", force=true)
+XLSX.writetable("q_mat.xlsx", qdf)
 
 hr = HistoryRecorder(max_steps=100, capture_exception=true, rng=MersenneTwister(1234))
 h = simulate(hr, mdp, policy)
 collect(eachstep(h, "s, a, r"))
 sum(h[:r])
+
+qmat
