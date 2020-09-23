@@ -16,3 +16,7 @@ create_PMDPe3(mdp_type::Type) = create_PMDP(mdp_type; n_edges = 3,
 create_PMDPe5(mdp_type::Type) = create_PMDP(mdp_type;
     n_edges = 5, c_init = 4, selling_horizon_end = [50,60,70,80,90], 
     demand = Float64[10,3,3,5,4], actions = Action[0:5:100;])
+
+create_PMDPe10(mdp_type::Type) = create_PMDP(mdp_type;
+n_edges = 10, c_init = 30, selling_horizon_end = [910,920,930,940,950,960,970,980,990,1000], 
+demand = Float64[1,1,1,1,1,1,1,1,1,20], actions = Action[0:5:100;])    

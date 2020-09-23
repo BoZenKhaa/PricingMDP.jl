@@ -114,7 +114,7 @@ function sample_next_request_and_update_probs(m::PMDP, t::Timestep, rng::Abstrac
 end
 
 function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
-    b = sample_user_budget_linear(m, s.p, s.t, rng)
+    b = sample_user_budget_linear(m, m.B, s.p, s.t, rng)
     if ~sale_impossible(m, s) && user_buy(a, b)
         r = a
         c = s.c-s.p
@@ -181,7 +181,6 @@ function POMDPs.transition(m::PMDPe, s::State, a::Action)
             probs = product_request_probs
             # transitions = SparseCat(sps, probs)
         else
-            # TODO: change to budgets
             prob_sale = get_sale_prob(m.B, s, a)
 
             # sufficient capacity for sale and non-empty request

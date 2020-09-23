@@ -76,10 +76,10 @@ end
 """
 Sample user budget. Budget is linear in the size of the product, i.e. based on the unit price.
 """
-function sample_user_budget_linear(m::PMDP, prod::PricingMDP.Product, t::PricingMDP.Timestep, rng::AbstractRNG)::Float64
+function sample_user_budget_linear(m::PMDP, B::BudgetPerUnit, prod::PricingMDP.Product, t::PricingMDP.Timestep, rng::AbstractRNG)::Float64
     # local b::Float64
     if prod != m.P[1]
-        budget_per_unit_d = m.B.β
+        budget_per_unit_d = B.β
         budget_per_unit = rand(rng, budget_per_unit_d)
         b = sum(prod)*budget_per_unit
     else
