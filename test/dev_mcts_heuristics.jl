@@ -22,15 +22,17 @@ Options
 """
 
 
-mdp_vi = PricingMDP.create_PMDP(PMDPe)
-mdp_mc = PricingMDP.create_PMDP(PMDPg) 
+mdp_vi = PricingMDP.create_PMDPe3(PMDPe)
+mdp_mc = PricingMDP.create_PMDPe3(PMDPg) 
 
 policy = PricingMDP.get_VI_policy(mdp_vi)
 planner = PricingMDP.get_MCTS_planner(mdp_mc)
 
 rng = MersenneTwister(1234)
 
-s0 = rand(rng, initialstate(mdp_mc))
+PricingMDP.compare_actions(mdp_vi, policy, planner; rng_seed=123)
+
+# s0 = rand(rng, initialstate(mdp_mc))
 
 # function run_sim(mdp::PMDP, policy::Policy; rng_seed=1234)
 #     rng = MersenneTwister(rng_seed)
@@ -40,10 +42,10 @@ s0 = rand(rng, initialstate(mdp_mc))
 #     # sum(h[:r])
 # end
 
-rng = MersenneTwister(12)
-hr = HistoryRecorder(max_steps=100, capture_exception=false, rng=rng)
-h = simulate(hr, mdp_mc, planner)
-collect(eachstep(h, "s, a, r, info"))
+# rng = MersenneTwister(12)
+# hr = HistoryRecorder(max_steps=100, capture_exception=false, rng=rng)
+# h = simulate(hr, mdp_mc, planner)
+# collect(eachstep(h, "s, a, r, info"))
 
 # @show run_sim(mdp_mc, policy; rng_seed = 1235)
 

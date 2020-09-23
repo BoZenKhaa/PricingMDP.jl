@@ -65,12 +65,21 @@ end
 # end
 
 """
+Given budget per unit, calculate price per unit and determine probability of sale using complementary cdf of user budgets.
+"""
+function get_sale_prob(B::BudgetPerUnit, s::State, a::Action)
+    prod_size = sum(s.p)
+    @assert prod_size>0
+    ccdf(B.β, a/prod_size)
+end
+
+"""
 Sample user budget. Budget is linear in the size of the product, i.e. based on the unit price.
 """
 function sample_user_budget_linear(m::PMDP, prod::PricingMDP.Product, t::PricingMDP.Timestep, rng::AbstractRNG)::Float64
     # local b::Float64
     if prod != m.P[1]
-        budget_per_unit_d = Distributions.Uniform(5,30)
+        budget_per_unit_d = m.B.β
         budget_per_unit = rand(rng, budget_per_unit_d)
         b = sum(prod)*budget_per_unit
     else

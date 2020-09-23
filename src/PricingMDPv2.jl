@@ -14,6 +14,12 @@ struct State{n_edges}
     p::Product{n_edges}         # Requested product
 end
 
+abstract type UserBudget end
+
+struct BudgetPerUnit <: UserBudget
+    β::Distribution
+end
+
 function State(c::Array, t::Timestep, product::Array)
     size = length(c)
     State{size}(SVector{size}(c), t, SVector{size}(product))
@@ -22,6 +28,7 @@ end
 function show(io::IO, s::State)
     print(io, "c:$(s.c)_t:$(s.t)_p:$(s.p)")
 end
+
 
 """
 Enumerates all states for MDP
@@ -47,15 +54,16 @@ struct PMDPg <: PMDP{State, Action}
     λ::Array{Float64} # Demand vector (expected number of requests for each product = λ, we assume time interval (0,1))
     selling_period_ends::Array{Timestep} # Selling period end for each product
     empty_product::Product
+    B::UserBudget # User budgets
     actions::Array{Action}
     # states::Array{State} # ONLY USEFUL FOR EXPLICIT
     
-    function PMDPg(E, P, λ, A)
+    function PMDPg(E, P, λ, B, A)
         selling_period_ends = get_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
         # states = generate_states(E, P, selling_period_ends)
-        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product, A)
+        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product,B, A)
     end
 end
 
@@ -74,21 +82,22 @@ struct PMDPe <: PMDP{State, Action}
     selling_period_ends::Array{Timestep} # Selling period end for each product
     empty_product::Product
     actions::Array{Action}
+    B::UserBudget # User budgets
     states::Array{State} # ONLY USEFUL FOR EXPLICIT
     
-    function PMDPe(E, P, λ, A)
+    function PMDPe(E, P, λ, B, A)
         selling_period_ends = get_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
         states = generate_states(E, P, selling_period_ends)
-        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product, A, states)
+        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product, A, B, states)
     end
 end
 
 """
 Given state s, determine whether a sale of product s.p is impossible
 """
-function sale_impossible(s::State)::Bool
+function sale_impossible(m::PMDP, s::State)::Bool
     all(s.c .== 0) || s.p==m.empty_product || any((s.c - s.p) .<0.)
 end
  
@@ -106,7 +115,7 @@ end
 
 function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
     b = sample_user_budget_linear(m, s.p, s.t, rng)
-    if ~sale_impossible(s) && user_buy(a, b)
+    if ~sale_impossible(m, s) && user_buy(a, b)
         r = a
         c = s.c-s.p
     else
@@ -138,7 +147,7 @@ end
 # reduce action set when no product is requested
 function POMDPs.actions(m::PMDP, s::State)
     actions = POMDPs.actions(m)
-    if sale_impossible(s)
+    if sale_impossible(m, s)
         return [actions[1]]
     else
         return actions
@@ -167,13 +176,14 @@ function POMDPs.transition(m::PMDPe, s::State, a::Action)
         
         # NEXT STATES
         # No sale due to no request or due to insufficient capacity
-        if  sale_impossible(s) 
+        if  sale_impossible(m, s) 
             sps = [State(s.c, s.t+1, prod) for prod in m.P]
             probs = product_request_probs
             # transitions = SparseCat(sps, probs)
         else
             # TODO: change to budgets
-            prob_sale = prob_sale_linear(s.p, a)
+            prob_sale = get_sale_prob(m.B, s, a)
+
             # sufficient capacity for sale and non-empty request
             sps_nosale = [State(s.c, s.t+1, prod) for prod in m.P]
             probs_nosale = product_request_probs.*(1-prob_sale)
