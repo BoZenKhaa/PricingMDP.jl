@@ -47,10 +47,11 @@ function compare_actions(mdp_vi::PMDPe, vi_policy::ValueIterationPolicy, mc_plan
     return bad_a, avg_q_Δ/bad_a, avg_a_Δ/bad_a
 end
 
-function run_sim(mdp::PMDP, policy::Policy; rng_seed=1234)
+function run_sim(mdp::PMDP, policy::Policy; max_steps=10, rng_seed=1234)
     rng = MersenneTwister(rng_seed)
-    hr = HistoryRecorder(max_steps=100, capture_exception=true, rng=rng)
+    hr = HistoryRecorder(max_steps=max_steps, capture_exception=true, rng=rng)
     h = simulate(hr, mdp, policy)
-    collect(eachstep(h, "s, a, r, info"))
+    return h
+    # collect(eachstep(h, "s, a, r, info"))
     # sum(h[:r])
 end

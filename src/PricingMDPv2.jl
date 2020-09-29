@@ -98,7 +98,11 @@ end
 Given state s, determine whether a sale of product s.p is impossible
 """
 function sale_impossible(m::PMDP, s::State)::Bool
-    all(s.c .== 0) || s.p==m.empty_product || any((s.c - s.p) .<0.)
+    sale_impossible(m, s.c, s.p)
+end
+
+function sale_impossible(m::PMDP, c, p::Product)
+    all(c .== 0) || p==m.empty_product || any((c - p) .<0.)
 end
  
 # -------------------------- Generative interface --------------------------

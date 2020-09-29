@@ -16,6 +16,7 @@ include("NRM/Product.jl")
 include("NRM/Demand.jl")
 include("NRM/User.jl")
 include("problems.jl")
+export run_sim
 include("experiments.jl")
 
 # export MILP_hindsight_pricing
@@ -23,7 +24,12 @@ include("experiments.jl")
 
 # Subpackages
 # export MILP_hindsight_pricing
+# export LP.MILP_hindsight_pricing
+module LP
+# export MILP_hindsight_pricing
 include("LP.jl")
-include("SimplestPricingMDP.jl")
-include("PricingMDPv1.jl")
+end
+
+# include("SimplestPricingMDP.jl")
+# include("PricingMDPv1.jl")
 end

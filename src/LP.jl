@@ -1,6 +1,3 @@
-module LP
-export MILP_hindsight_pricing
-
 using Gurobi
 using JuMP
 using PricingMDP
@@ -108,7 +105,6 @@ function MILP_hindsight_pricing(mdp::PMDP, h::SimHistory; optimization_goal="rev
             println("Allocation: ", optimal_alloc.data)
         end
 
-        return obj_val, optimal_alloc
+        return (r = obj_val, alloc = optimal_alloc)
     
-end
 end
