@@ -47,21 +47,6 @@ h_vi = run_sim(mdp_mc, policy; max_steps = max_steps, rng_seed = rng_seed)
 
 
 hindsight = PricingMDP.LP.MILP_hindsight_pricing(mdp_mc, h_mc; optimization_goal="revenue", verbose=false)
-
 flatrate = PricingMDP.flatrate_pricing(mdp_mc, h_mc)
 
 hindsight, flatrate, get_stats(h_mc), get_stats(h_vi)
-
-# @show run_sim(mdp_mc, policy; rng_seed = 1235)
-
-# ch = run_sim(mdp_mc, planner; rng_seed = 1236)
-# @show ch
-# any(ch[end][:s].c .< 0)
-
-
-# for i in 1:10000
-#     ch = run_sim(mdp_vi, planner; rng_seed = i)
-#     print(i, " ")
-#     any(ch[end][:s].c .< 0) ? break : continue
-# end
-# action(planner, s0)

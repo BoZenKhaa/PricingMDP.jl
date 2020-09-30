@@ -61,5 +61,3 @@ hr = HistoryRecorder(max_steps=100, capture_exception=true, rng=MersenneTwister(
 h = simulate(hr, mdp, policy)
 collect(eachstep(h, "s, a, r"))
 sum(h[:r])
-
-qmat
