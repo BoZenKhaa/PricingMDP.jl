@@ -55,3 +55,17 @@ function run_sim(mdp::PMDP, policy::Policy; max_steps=10, rng_seed=1234)
     # collect(eachstep(h, "s, a, r, info"))
     # sum(h[:r])
 end
+
+"""
+Get stats for given sim history, 
+    :r revenue
+    :T nunber of steps
+    :n number of non empty requests
+"""
+function get_stats(h::SimHistory)
+    n = sum(sum(s.p)>0 for s in h[:s])
+    T = length(h)
+    r = sum(h[:r])
+
+    return (r=r, T=T, n=n)
+end

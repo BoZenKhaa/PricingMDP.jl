@@ -16,11 +16,15 @@ include("NRM/Product.jl")
 include("NRM/Demand.jl")
 include("NRM/User.jl")
 include("problems.jl")
-export run_sim
+
+export run_sim, get_stats
 include("experiments.jl")
 
 # export MILP_hindsight_pricing
 # include("milp_hindsight_pricing.jl")
+
+# flatrate baseline
+include("flatrate_baseline.jl")
 
 # Subpackages
 # export MILP_hindsight_pricing
