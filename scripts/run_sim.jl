@@ -34,17 +34,16 @@ rng = MersenneTwister(1234)
 #     # sum(h[:r])
 # end
 
-# rng_seed = 1
-# max_steps = mdp_mc.T+1
-
 # rng = MersenneTwister(rand_seed)
 # hr = HistoryRecorder(max_steps=100, capture_exception=false, rng=rng)
 # h_mc = simulate(hr, mdp_mc, planner)
 # collect(eachstep(h, "s, a, r, info"))
 
+rng_seed = 1
+max_steps = mdp_mc.T+1
+
 h_mc = run_sim(mdp_mc, planner; max_steps = max_steps, rng_seed = rng_seed)
 h_vi = run_sim(mdp_mc, policy; max_steps = max_steps, rng_seed = rng_seed)
-
 
 hindsight = PricingMDP.LP.MILP_hindsight_pricing(mdp_mc, h_mc; optimization_goal="revenue", verbose=false)
 flatrate = PricingMDP.flatrate_pricing(mdp_mc, h_mc)
