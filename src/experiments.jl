@@ -7,8 +7,8 @@ function get_VI_policy(mdp::PMDPe)
     policy = solve(solver, mdp)
 end
 
-function get_MCTS_planner(mdp::PMDPg)
-    solver = MCTSSolver(n_iterations=100, depth=100, exploration_constant=10.0)
+function get_MCTS_planner(mdp::PMDPg; n_iterations=1000, depth=3, exploration_constant=70.0)
+    solver = MCTSSolver(n_iterations=n_iterations, depth=depth, exploration_constant=exploration_constant)
     planner = solve(solver, mdp)
     # s = PricingMDPv1.State(SA[1,1,1], 0, SA[1,0,0])
     # a = action(planner, s)
@@ -68,4 +68,31 @@ function get_stats(h::SimHistory)
     r = sum(h[:r])
 
     return (r=r, T=T, n=n)
+end
+
+function makesim(params::Dict; n_runs)
+    mdp_vi = PricingMDP.create_PMDP(PMDPe; params[:mdp]...)
+    mdp_mc = PricingMDP.create_PMDP(PMDPg; params[:mdp]...) 
+
+    policy = PricingMDP.get_VI_policy(mdp_vi)
+    planner = PricingMDP.get_MCTS_planner(mdp_mc; params[:mcts]...)
+
+    # rng = MersenneTwister(1234)
+
+    # rng_seed = 1
+    max_steps = mdp_mc.T+1
+    revenues = []
+    histories = []
+
+    for rng_seed in 1:n_runs
+        h_mc = run_sim(mdp_mc, planner; max_steps = max_steps, rng_seed = rng_seed)
+        h_vi = run_sim(mdp_mc, policy; max_steps = max_steps, rng_seed = rng_seed)
+
+        hindsight = PricingMDP.LP.MILP_hindsight_pricing(mdp_mc, h_mc; optimization_goal="revenue", verbose=false)
+        flatrate = PricingMDP.flatrate_pricing(mdp_mc, h_mc)
+        push!(histories, [h_mc, h_vi])
+        push!(revenues, [flatrate[:r], get_stats(h_mc)[:r], get_stats(h_vi)[:r], hindsight[:r]])
+    end
+
+    return (r=revenues, h=histories, mdp_mc=mdp_mc, mdp_vi=mdp_vi, policy = policy, planner = planner)
 end

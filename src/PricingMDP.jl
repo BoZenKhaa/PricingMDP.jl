@@ -17,7 +17,7 @@ include("NRM/Demand.jl")
 include("NRM/User.jl")
 include("problems.jl")
 
-export run_sim, get_stats
+export run_sim, get_stats, makesim
 include("experiments.jl")
 
 # export MILP_hindsight_pricing
