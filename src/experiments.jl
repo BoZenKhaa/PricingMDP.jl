@@ -7,8 +7,8 @@ function get_VI_policy(mdp::PMDPe)
     policy = solve(solver, mdp)
 end
 
-function get_MCTS_planner(mdp::PMDPg; n_iterations=1000, depth=3, exploration_constant=70.0)
-    solver = MCTSSolver(n_iterations=n_iterations, depth=depth, exploration_constant=exploration_constant)
+function get_MCTS_planner(mdp::PMDPg; params_mcts=Dict(:n_iterations=>5000, :depth=>1, :exploration_constant=>70.0))
+    solver = MCTSSolver(params_mcts...)
     planner = solve(solver, mdp)
     # s = PricingMDPv1.State(SA[1,1,1], 0, SA[1,0,0])
     # a = action(planner, s)
@@ -75,7 +75,7 @@ function makesim(params::Dict; n_runs)
     mdp_mc = PricingMDP.create_PMDP(PMDPg; params[:mdp]...) 
 
     policy = PricingMDP.get_VI_policy(mdp_vi)
-    planner = PricingMDP.get_MCTS_planner(mdp_mc; params[:mcts]...)
+    planner = PricingMDP.get_MCTS_planner(mdp_mc; params[:mcts])
 
     # rng = MersenneTwister(1234)
 
@@ -84,7 +84,9 @@ function makesim(params::Dict; n_runs)
     revenues = []
     histories = []
 
+    print("Running $n_runs sim runs: ")
     for rng_seed in 1:n_runs
+        print(rng_seed)
         h_mc = run_sim(mdp_mc, planner; max_steps = max_steps, rng_seed = rng_seed)
         h_vi = run_sim(mdp_mc, policy; max_steps = max_steps, rng_seed = rng_seed)
 

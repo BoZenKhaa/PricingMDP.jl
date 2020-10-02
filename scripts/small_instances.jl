@@ -16,15 +16,23 @@ using DataFrames
 using POMDPSimulators
 
 mdp_params = Dict(:demand => Float64[4,4], :selling_horizon_end => [25,30])
-mcts_params = Dict(:n_iterations=>5000, :depth=>1, :exploration_constant=>70.0)
+mcts_params = Dict(:n_iterations=>500, :depth=>1, :exploration_constant=>70.0)
 params = Dict(:mdp=>mdp_params, :mcts=>mcts_params)
 
-r, h = makesim(params; n_runs = 5)
-sum(r)./length(r)
+# r, h, mmc, mvi, policy, planner = makesim(params; n_runs = 20)
+# display(sum(r)./length(r))
 
-h_i = 3
-h_mc = h[h_i][1]
-h_vi = h[h_i][2]
+# h_i = 3
+# h_mc = h[h_i][1]
+# h_vi = h[h_i][2]
 
-collect(eachstep(h_mc, "s, a, r, info"))
-collect(eachstep(h_vi, "s, a, r, info"))
+# function get_trace(h)
+#     [rec for rec in collect(eachstep(h, "s, a, r, info")) if (sum(rec.s.p)>0 || rec.s.t==length(h)-1)]
+# end
+
+# display(r[h_i])
+# display(get_trace(h_mc))
+# display(get_trace(h_vi))
+
+# rng = MersenneTwister(123)
+# RolloutEstimator(RandomSolver(rng))
