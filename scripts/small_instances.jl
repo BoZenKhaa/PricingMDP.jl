@@ -15,11 +15,12 @@ using Random
 using DataFrames
 using POMDPSimulators
 
-mdp_params = Dict(:demand => Float64[4,4], :selling_horizon_end => [25,30])
-mcts_params = Dict(:n_iterations=>500, :depth=>1, :exploration_constant=>70.0)
+mdp_params = Dict(:demand => Float64[4,4], :selling_horizon_end => [25,30], :actions=> [0,collect(15:45)...,1000])
+mcts_params = Dict(:n_iterations=>5000, :depth=>30, :exploration_constant=>40.0)
 params = Dict(:mdp=>mdp_params, :mcts=>mcts_params)
 
-r, h, mmc, mvi, policy, planner = makesim(params; n_runs = 20)
+r, h, mmc, mvi, policy, planner, flat_r_a = makesim(params; n_runs = 20)
+display(maximum(sum(flat_r_a)/length(flat_r_a)))
 display(sum(r)./length(r))
 
 h_i = 3

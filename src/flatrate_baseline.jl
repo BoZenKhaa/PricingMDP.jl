@@ -9,6 +9,7 @@ function flatrate_pricing(mdp::PMDP, h::SimHistory)
 
     # Chech revenue of each flatrate
     r_max = 0
+    r_as = []
     for a in mdp.actions
         c = [e.c_init for e in mdp.E]
         r_a = 0
@@ -18,8 +19,8 @@ function flatrate_pricing(mdp::PMDP, h::SimHistory)
                 r_a +=a
             end
         end
-        # println(r_a)
+        push!(r_as, r_a)
         r_a>r_max ? r_max=r_a : r_max
     end
-    return (r = r_max,)
+    return (r = r_max, r_a = r_as)
 end

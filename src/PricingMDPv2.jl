@@ -128,10 +128,10 @@ function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
     end
     prod = sample_next_request_and_update_probs(m, s.t, rng)
     Δt = 1
-    # while sum(prod)==0 #Empty product
-    #     prod = sample_next_request_and_update_probs(m, s.t, rng)
-    #     Δt += 1
-    # end
+    while sum(prod)==0 #Empty product
+        prod = sample_next_request_and_update_probs(m, s.t, rng)
+        Δt += 1
+    end
     return (sp = State(c, s.t+Δt, prod), r = r, info=b)
 end
 

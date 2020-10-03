@@ -85,6 +85,7 @@ function makesim(params::Dict; n_runs)
     histories = []
 
     print("Running $n_runs sim runs: ")
+    flat_r_a = []
     for rng_seed in 1:n_runs
         print(rng_seed)
         h_mc = run_sim(mdp_mc, planner; max_steps = max_steps, rng_seed = rng_seed)
@@ -94,7 +95,8 @@ function makesim(params::Dict; n_runs)
         flatrate = PricingMDP.flatrate_pricing(mdp_mc, h_mc)
         push!(histories, [h_mc, h_vi])
         push!(revenues, [flatrate[:r], get_stats(h_mc)[:r], get_stats(h_vi)[:r], hindsight[:r]])
+        push!(flat_r_a, flatrate[:r_a])
     end
 
-    return (r=revenues, h=histories, mdp_mc=mdp_mc, mdp_vi=mdp_vi, policy = policy, planner = planner)
+    return (r=revenues, h=histories, mdp_mc=mdp_mc, mdp_vi=mdp_vi, policy = policy, planner = planner, flat_r_a = flat_r_a)
 end
