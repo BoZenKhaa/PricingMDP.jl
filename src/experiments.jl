@@ -8,7 +8,8 @@ function get_VI_policy(mdp::PMDPe)
 end
 
 function get_MCTS_planner(mdp::PMDPg, params_mcts::Dict)
-    solver = MCTSSolver(;params_mcts...)
+    solver_method = pop!(params_mcts, :solver)
+    solver = solver_method(;params_mcts...)
     planner = solve(solver, mdp)
     # s = PricingMDPv1.State(SA[1,1,1], 0, SA[1,0,0])
     # a = action(planner, s)

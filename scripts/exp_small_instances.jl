@@ -16,15 +16,17 @@ using DataFrames
 using POMDPSimulators
 
 mdp_params = Dict(:demand => Float64[4,4], :selling_horizon_end => [25,30], :actions=> [0,collect(15:45)...,1000])
-mcts_params = Dict(:n_iterations=>100, :depth=>30, :exploration_constant=>40.0)
+# mcts_params = Dict(:solver=> MCTSSolver, :n_iterations=>1000, :depth=>30, :exploration_constant=>40.0, :reuse_tree=>true)
+mcts_params = Dict(:solver=> DPWSolver, :n_iterations=>5000, :depth=>30, :exploration_constant=>40.0, :keep_tree=>true, :show_progress=>true)
 params = Dict(:mdp=>mdp_params, :mcts=>mcts_params)
 run_vi = true
 
 
-r,u, hs_mc, hs_vi, mmc, mvi, policy, planner, flat, rs, us = makesim(params; n_runs = 20, vi=run_vi);
+r,u, hs_mc, hs_vi, mmc, mvi, policy, planner, flat, rs, us = @time makesim(params; n_runs = 20, vi=run_vi);
 
-display(r)
-display(u)
+println()
+display("rewards: $r")
+display("utilization: $u")
 
 function get_trace(h)
     [rec for rec in collect(eachstep(h, "s, a, r, info")) if (sum(rec.s.p)>0 || rec.s.t==length(h)-1)]
