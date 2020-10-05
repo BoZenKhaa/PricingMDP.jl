@@ -29,7 +29,6 @@ function show(io::IO, s::State)
     print(io, "c:$(s.c)_t:$(s.t)_p:$(s.p)")
 end
 
-
 """
 Enumerates all states for MDP
 """
@@ -146,7 +145,6 @@ end
 function POMDPs.discount(m::PMDP)
     return 0.99
 end
-
 
 # reduce action set when no product is requested
 function POMDPs.actions(m::PMDP, s::State)

@@ -40,7 +40,6 @@ function MILP_hindsight_pricing(mdp::PMDP, h::SimHistory; optimization_goal="rev
         trace = collect(eachstep(h, "s, info"))
         requests = [rec for rec in trace if rec.s.p!=mdp.empty_product]
 
-
         # get data from trace
         request_edges = [[rec.s.p...] for rec in requests]
         request_budgets = [rec.info for rec in requests]
@@ -100,11 +99,14 @@ function MILP_hindsight_pricing(mdp::PMDP, h::SimHistory; optimization_goal="rev
         obj_val = objective_value(model)
         optimal_alloc = JuMP.value.(x)
 
+        # Calculate utilization
+        utilization = sum(sum([x*p for (x,p) in zip(optimal_alloc.data, request_edges)]))
+
         if verbose 
             print(output) 
             println("Allocation: ", optimal_alloc.data)
         end
 
-        return (r = obj_val, alloc = optimal_alloc)
+        return (r = obj_val, u = utilization, alloc = optimal_alloc)
     
 end
