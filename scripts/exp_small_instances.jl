@@ -30,9 +30,8 @@ function get_trace(h)
     [rec for rec in collect(eachstep(h, "s, a, r, info")) if (sum(rec.s.p)>0 || rec.s.t==length(h)-1)]
 end
 
-hi = nothing
+h_i = nothing
 if h_i ≠ nothing
-    h_i = 3
     h_mc = hs_mc[h_i]
     run_vi ? h_vi = hs_vi[h_i] : nothing
 
