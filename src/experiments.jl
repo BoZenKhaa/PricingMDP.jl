@@ -102,7 +102,7 @@ end
 """
 Run "n_runs" simulations. Evaluate each run with each benchmark and method. Collect statistics. 
 """
-function run_experiment(params_mdp::Dict, params_mcts::Dict; n_runs = 20, vi = true)
+function run_experiment(params_mdp::Dict, params_mcts::Dict; n_runs = 20, vi = true, save=:all)
     mdp_mc = PricingMDP.create_PMDP(PMDPg; params_mdp...) 
     planner = PricingMDP.get_MCTS_planner(mdp_mc, params_mcts)
     
@@ -128,7 +128,7 @@ function run_experiment(params_mdp::Dict, params_mcts::Dict; n_runs = 20, vi = t
         print(rng_seed)
         
         h_mc = run_sim(mdp_mc, planner; max_steps = max_steps, rng_seed = rng_seed)
-        push!(hs_mc, h_mc)
+        save==:all ? push!(hs_mc, h_mc) : nothing
         
         hindsight = PricingMDP.LP.MILP_hindsight_pricing(mdp_mc, h_mc; optimization_goal="revenue", verbose=false)
         flatrate = PricingMDP.flatrate_pricing(mdp_mc, h_mc)
@@ -137,7 +137,7 @@ function run_experiment(params_mdp::Dict, params_mcts::Dict; n_runs = 20, vi = t
         
         if vi
             h_vi = run_sim(mdp_mc, policy; max_steps = max_steps, rng_seed = rng_seed)
-            push!(hs_vi, h_vi)
+            save==:all ? push!(hs_vi, h_vi) : nothing
         end
         
         mc_stats = get_stats(h_mc)
@@ -155,13 +155,22 @@ function run_experiment(params_mdp::Dict, params_mcts::Dict; n_runs = 20, vi = t
     mc_r, vi_r, hind_r = sum(revenues)./length(revenues)
     mc_u, vi_u, hind_u = sum(utilizations)./length(utilizations)
     
-    return Dict(pairs((r=(flat = flat_r, mc = mc_r, vi = vi_r, hind = hind_r),  # Average revenue and utilization for each method
-            u = (flat = flat_u, mc = mc_u, vi = vi_u, hind = hind_u),  # Average utilization for each method
+    stats = Dict(pairs((r=(flat = flat_r, mc = mc_r, vi = vi_r, hind = hind_r),  # Average revenue and utilization for each method
+                        u = (flat = flat_u, mc = mc_u, vi = vi_u, hind = hind_u),
+                        flat = (r = flat_r, u = flat_u), # flat rate output arrays
+                        rs=revenues, us = utilizations, 
+                        mdp_mc=mdp_mc, mdp_vi=mdp_vi ))) # mdps
+
+    details = Dict(pairs((
             hs_mc=hs_mc, hs_vi = hs_vi, # Array of histories for mc and vi
-            mdp_mc=mdp_mc, mdp_vi=mdp_vi, # mdps
             policy = policy, planner = planner, # planners and policies
-            flat = (r = flat_r, u = flat_u), # flat rate output arrays
-            rs=revenues, us = utilizations,))) # revenues and utilizations for each method, except flatrate
+            ))) # revenues and utilizations for each method, except flatrate
+
+    if save==:stats
+        return stats
+    elseif save==:all
+        return merge(stats, details)
+    end
 end
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%% DrWatson %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

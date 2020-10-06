@@ -22,7 +22,7 @@ using BeliefUpdaters
 mdp_params = Dict(pairs( (n_edges = 2, c_init = 2, demand = Float64[4,4], selling_horizon_end = [25,30], actions = 15:45)))
 # mcts_params = Dict(solver= MCTSSolver, n_iterations=1000, depth=30, exploration_constant=40.0, reuse_tree=true)
 mcts_params = Dict(pairs( (solver= DPWSolver, n_iterations=10, depth=30, exploration_constant=40.0, keep_tree=true, show_progress=false)))
-exp_params = Dict(pairs((n_runs = 2, vi=true)))
+exp_params = Dict(pairs((n_runs = 2, vi=true, save=:stats)))
 params = Dict(:mdp=>mdp_params, :mcts=>mcts_params, :exp=>exp_params)
 
 result, filepath =  makesim(params);
