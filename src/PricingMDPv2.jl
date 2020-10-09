@@ -55,14 +55,16 @@ struct PMDPg <: PMDP{State, Action}
     empty_product::Product
     B::UserBudget # User budgets
     actions::Array{Action}
+    objective::Symbol
     # states::Array{State} # ONLY USEFUL FOR EXPLICIT
     
-    function PMDPg(E, P, λ, B, A)
+    function PMDPg(E, P, λ, B, A, objective)
         selling_period_ends = get_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
         # states = generate_states(E, P, selling_period_ends)
-        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product,B, A)
+        @assert objective in [:revenue, :utilization]
+        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product,B, A, objective)
     end
 end
 
@@ -82,14 +84,16 @@ struct PMDPe <: PMDP{State, Action}
     empty_product::Product
     actions::Array{Action}
     B::UserBudget # User budgets
+    objective::Symbol
     states::Array{State} # ONLY USEFUL FOR EXPLICIT
     
-    function PMDPe(E, P, λ, B, A)
+    function PMDPe(E, P, λ, B, A, objective)
         selling_period_ends = get_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
         states = generate_states(E, P, selling_period_ends)
-        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product, A, B, states)
+        @assert objective in [:revenue, :utilization]
+        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product, A, B, objective, states)
     end
 end
 
@@ -119,10 +123,17 @@ end
 function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
     b = sample_user_budget_linear(m, m.B, s.p, s.t, rng)
     if ~sale_impossible(m, s) && user_buy(a, b)
-        r = a
+        if m.objective == :revenue
+            r=a
+        elseif m.objective == :utilization
+            r=sum(s.p)
+        else
+             throw(ArgumentError(string("Unknown objective: ", m.objective)))
+        end
+        # r = a
         c = s.c-s.p
     else
-        r = 0
+        r = 0.
         c = s.c
     end
     prod = sample_next_request_and_update_probs(m, s.t, rng)
@@ -203,7 +214,11 @@ function POMDPs.transition(m::PMDPe, s::State, a::Action)
 end
 
 function POMDPs.reward(m::PMDPe, s::State, a::Action, sp::State)
-    s.c==sp.c ? 0. :  a
+    if m.objective==:reward
+        s.c==sp.c ? 0. :  a
+    elseif m.objective == :utilization
+        s.c==sp.c ? 0. :  sum(s.p)
+    end
 end
 
 function POMDPs.stateindex(m::PMDPe, s::State)

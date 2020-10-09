@@ -8,6 +8,10 @@ function get_VI_policy(mdp::PMDPe)
     policy = solve(solver, mdp)
 end
 
+function get_VI_policy(params::Dict)
+    Dict(:policy => get_VI_policy(params[:mdp]))
+end
+
 function get_MCTS_planner(mdp::PMDPg, params_mcts::Dict)
     mcts_params = copy(params_mcts)
     solver_method = pop!(mcts_params, :solver)
@@ -52,7 +56,7 @@ end
 
 function run_sim(mdp::PMDP, policy::Policy; max_steps=10, rng_seed=1234)
     rng = MersenneTwister(rng_seed)
-    hr = HistoryRecorder(max_steps=max_steps, capture_exception=true, rng=rng)
+    hr = HistoryRecorder(max_steps=max_steps, capture_exception=false, rng=rng)
     h = simulate(hr, mdp, policy)
     return h
     # collect(eachstep(h, "s, a, r, info"))
@@ -88,13 +92,27 @@ function get_stats(h::SimHistory)
     return (r=r, u = u, T=T, n_req=n_req)
 end
 
-"""Using an array of multiple simulation outputs from flatrate, calculate revenue and utilization"""
-function flatrate_stats(flat::NamedTuple)
-    r_sum = sum(flat[:r])/length(flat[:r])
-    flat_ai = argmax(r_sum)
+"""Using an array of multiple simulation outputs from flatrate, calculate revenue and utilization
 
-    flat_r = r_sum[flat_ai]
-    flat_u = (sum(flat[:u])/length(flat[:u]))[flat_ai]
+
+TODO: this benchmark is dependent on the number of simlations. It would be better to e.g. calculate the best price one subset of data and calculate revenue on another
+
+"""
+function flatrate_stats(flat::NamedTuple; objective::Symbol=:revenue)
+    if objective==:revenue
+        r_sum = sum(flat[:r])/length(flat[:r])
+        flat_ai = argmax(r_sum)
+
+        flat_r = r_sum[flat_ai]
+        flat_u = (sum(flat[:u])/length(flat[:u]))[flat_ai]
+    elseif objective ==:utilization
+        # Swap  ped meaning of :u and :r
+        r_sum = sum(flat[:u])/length(flat[:u])
+        flat_ai = argmax(r_sum)
+
+        flat_r = r_sum[flat_ai]
+        flat_u = (sum(flat[:r])/length(flat[:r]))[flat_ai]
+    end
     return (r = flat_r, u = flat_u)
 end
 
@@ -108,7 +126,7 @@ function run_experiment(params_mdp::Dict, params_mcts::Dict; n_runs = 20, vi = t
     
     if vi
         mdp_vi = PricingMDP.create_PMDP(PMDPe; params_mdp...)
-        policy = PricingMDP.get_VI_policy(mdp_vi)
+        policy = PricingMDP.vi_policy(params_mdp, mdp_vi)
     else
         mdp_vi = nothing
         policy = nothing
@@ -130,7 +148,7 @@ function run_experiment(params_mdp::Dict, params_mcts::Dict; n_runs = 20, vi = t
         h_mc = run_sim(mdp_mc, planner; max_steps = max_steps, rng_seed = rng_seed)
         save==:all ? push!(hs_mc, h_mc) : nothing
         
-        hindsight = PricingMDP.LP.MILP_hindsight_pricing(mdp_mc, h_mc; optimization_goal="revenue", verbose=false)
+        hindsight = PricingMDP.LP.MILP_hindsight_pricing(mdp_mc, h_mc; objective=mdp_mc.objective, verbose=false)
         flatrate = PricingMDP.flatrate_pricing(mdp_mc, h_mc)
         push!(flat_r, flatrate[:r_a])
         push!(flat_u, flatrate[:u_a])
@@ -151,7 +169,7 @@ function run_experiment(params_mdp::Dict, params_mcts::Dict; n_runs = 20, vi = t
         end
     end
     
-    flat_r, flat_u = flatrate_stats((r = flat_r, u = flat_u))
+    flat_r, flat_u = flatrate_stats((r = flat_r, u = flat_u); objective=mdp_mc.objective)
     mc_r, vi_r, hind_r = sum(revenues)./length(revenues)
     mc_u, vi_u, hind_u = sum(utilizations)./length(utilizations)
     
@@ -198,6 +216,24 @@ function timed_run_experiment(params::Dict)
     result[:bytes] = bytes
     result[:memallocs] = memallocs
     return result
+end
+
+function vi_policy(params_mdp::Dict, mdp_vi::PMDPe)
+    #policy = PricingMDP.get_VI_policy(mdp_vi)
+
+    # Some mdp params are long, I have to remove them to keep the paths shorter than 260 chars
+    h = string(hash(params_mdp), base=16)
+    file = fix_savename(join([savename(params_mdp),h], "_" ))
+
+    params = Dict(:params_mdp => params_mdp, :mdp => mdp_vi)
+
+    result, filepath = produce_or_load(
+        datadir("sims","vi_policies"),   # path
+        params,                     # container
+        PricingMDP.get_VI_policy,                               # function
+        prefix = file                # prefix for savename
+    )
+    return result[:policy]
 end
 
 function makesim(params::Dict)
