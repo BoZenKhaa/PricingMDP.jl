@@ -80,3 +80,12 @@ h = simulate(hr, mdp_mc, planner)
 #     any(ch[end][:s].c .< 0) ? break : continue
 # end
 # action(planner, s0)
+
+# params_mdp = Dict(pairs( (n_edges = 3, c_init = 2, demand = Float64[1.5,1.5,1.5], selling_horizon_end = [20,25,30], actions = 15:5:90)))
+params_mdp = Dict(pairs( (n_edges = 2, c_init = 1, demand = Float64[1,1], selling_horizon_end = [20,25], actions = 15:5:30)))
+
+mdp_vi = PricingMDP.create_PMDP(PMDPe; params_mdp...);
+policy = PricingMDP.get_VI_policy(mdp_vi);
+
+result, filepath = PricingMDP.vi_policy(params_mdp, mdp_vi)
+

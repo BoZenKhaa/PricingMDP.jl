@@ -19,20 +19,24 @@ using DrWatson
 using Distributions
 using BeliefUpdaters
 
-mdp_params = Dict(pairs( (n_edges = 2, c_init = 2, demand = Float64[4,4], selling_horizon_end = [25,30], actions = 15:45)))
-# mcts_params = Dict(solver= MCTSSolver, n_iterations=1000, depth=30, exploration_constant=40.0, reuse_tree=true)
-mcts_params = Dict(pairs( (solver= DPWSolver, n_iterations=10, depth=30, exploration_constant=40.0, keep_tree=true, show_progress=false)))
-exp_params = Dict(pairs((n_runs = 2, vi=true, save=:stats)))
-params = Dict(:mdp=>mdp_params, :mcts=>mcts_params, :exp=>exp_params)
+for d in 0.5:0.5:3
+    println("Processing $d")
+    mdp_params = Dict(pairs( (n_edges = 3, c_init = 2, demand = d*Float64[1,1,1], selling_horizon_end = [40,45,50], actions = 15:5:90, objective=:utilization)))
+    #mdp_params = Dict(pairs( (n_edges = 2, c_init = 1, demand = Float64[1,1], selling_horizon_end = [20,25], actions = 15:5:30)))
+    # mcts_params = Dict(solver= MCTSSolver, n_iterations=1000, depth=30, exploration_constant=40.0, reuse_tree=true)
+    mcts_params = Dict(pairs( (solver= DPWSolver, n_iterations=5000, depth=30, exploration_constant=40.0, enable_state_pw = true, keep_tree=true, show_progress=false)))
+    exp_params = Dict(pairs((n_runs = 10, vi=true, save=:stats)))
+    params = Dict(:mdp=>mdp_params, :mcts=>mcts_params, :exp=>exp_params)
 
-result, filepath =  makesim(params);
+    result, filepath =  makesim(params);
 
-r = result[:r] 
-u = result[:u]
-result[:t]
-println()
-display("rewards: $r")
-display("utilization: $u")
+    r = result[:r] 
+    u = result[:u]
+    result[:t]
+    println()
+    display("rewards: $r")
+    display("utilization: $u")
+end
 
 # function get_trace(h)
 #     [rec for rec in collect(eachstep(h, "s, a, r, info")) if (sum(rec.s.p)>0 || rec.s.t==length(h)-1)]
@@ -49,19 +53,19 @@ display("utilization: $u")
 # end
 
 # # Load results
-using Distributions
-using BeliefUpdaters
-mdp_dir = readdir(datadir("sims"))[1]
-exp = readdir(datadir("sims", mdp_dir))[1]
-res = wload(datadir("sims", mdp_dir, exp))
+# using Distributions
+# using BeliefUpdaters
+# res_foldername = readdir(datadir("sims", "exp_small_u"))[1]
+# exp_file = readdir(datadir("sims", "tst"))[1]
+# res = wload(datadir("sims", "tst", "tst.bson"))
 
-# # analyze results
-using DataFrames
+# # # analyze results
+# using DataFrames
 
-df = collect_results(
-    datadir("sims", mdp_dir);
-    white_list = [:r, :u, :t]
-)
+# df = collect_results(
+#     datadir("sims", "exp_small_u"),
+#     white_list = [:r, :u, :t, :params], subfolders=true
+# )
 
 
 # rng = MersenneTwister(123)
