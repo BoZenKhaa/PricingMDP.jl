@@ -214,7 +214,7 @@ function POMDPs.transition(m::PMDPe, s::State, a::Action)
 end
 
 function POMDPs.reward(m::PMDPe, s::State, a::Action, sp::State)
-    if m.objective==:reward
+    if m.objective == :revenue
         s.c==sp.c ? 0. :  a
     elseif m.objective == :utilization
         s.c==sp.c ? 0. :  sum(s.p)
