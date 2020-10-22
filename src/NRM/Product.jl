@@ -25,7 +25,7 @@ end
 """
 Returns nothing if p not in products
 """
-function prod2ind(p::Product{Size}, products::Array{Product, 1})
+function prod2ind(p::Product, products::Array{Product, 1})
     return indexin([p], products)[1]
 end
 

@@ -3,7 +3,7 @@ using POMDPSimulators
 using DrWatson
 
 function get_VI_policy(mdp::PMDPe)
-    solver = SparseValueIterationSolver(max_iterations=100, belres=1e-6, verbose=true)#, init_util=init_util) # creates the solver
+    solver = SparseValueIterationSolver(max_iterations=100, belres=1e-6, verbose=false)#, init_util=init_util) # creates the solver
     # POMDPs.@show_requirements POMDPs.solve(solver, mdp)
     policy = solve(solver, mdp)
 end
@@ -218,7 +218,7 @@ function timed_run_experiment(params::Dict)
     return result
 end
 
-function vi_policy(params_mdp::Dict, mdp_vi::PMDPe)
+function vi_policy(params_mdp::Dict, mdp_vi::PMDPe; force=false)
     #policy = PricingMDP.get_VI_policy(mdp_vi)
 
     # Some mdp params are long, I have to remove them to keep the paths shorter than 260 chars
@@ -231,7 +231,8 @@ function vi_policy(params_mdp::Dict, mdp_vi::PMDPe)
         datadir("sims","vi_policies"),   # path
         params,                     # container
         PricingMDP.get_VI_policy,                               # function
-        prefix = file                # prefix for savename
+        prefix = file,                # prefix for savename
+        force = force                  # force generation
     )
     return result[:policy]
 end

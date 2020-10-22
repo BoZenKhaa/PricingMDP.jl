@@ -2,6 +2,11 @@ const Product{n_edges} = SVector{n_edges,Bool}
 const Action = Float64
 const Timestep = Int64
 
+# struct Product{n_edges}
+#     p::SVector{n_edges,Bool}
+#     id::Int64
+# end
+
 struct Edge
     id::Int64
     c_init::Int64                    # initial capacity
@@ -221,16 +226,27 @@ function POMDPs.reward(m::PMDPe, s::State, a::Action, sp::State)
     end
 end
 
-function POMDPs.stateindex(m::PMDPe, s::State)
-    S = states(m)
-    cart_ind = findfirst(isequal(s), S)
+# function statecindex(s::State)
+#     return CartesianIndex((s.c.+1)..., s.t+1, prod2ind(s.p))
+# end
 
-    # ind = 
-    LinearIndices(S)[cart_ind]
-    # if ind===nothing
-    #     println(s, ind)
-    # end
-    # return ind
+function stateindices(m::PMDPe)
+    C_sizes = [e.c_init+1 for e in m.E]
+    T_size = m.T+1
+    prd_sizes = length(m.P)
+
+    LinearIndices((C_sizes..., T_size, prd_sizes))
+end
+
+
+
+function POMDPs.stateindex(m::PMDPe, s::State)
+    C_sizes = [e.c_init+1 for e in m.E]
+    T_size = m.T+1
+    prd_sizes = length(m.P)
+
+    ci = CartesianIndex((s.c.+1)..., s.t+1, prod2ind(s.p, m.P))
+    LinearIndices((C_sizes..., T_size, prd_sizes))[ci]
 end
 
 function POMDPs.actionindex(m::PMDP, a::Action)

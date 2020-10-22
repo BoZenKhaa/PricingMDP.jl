@@ -20,6 +20,9 @@ include("problems.jl")
 export run_sim, get_stats, makesim
 include("experiments.jl")
 
+export foo
+include("temp.jl")
+
 # export MILP_hindsight_pricing
 # include("milp_hindsight_pricing.jl")
 
