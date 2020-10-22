@@ -1,4 +1,5 @@
-using PricingMDP
+# using PricingMDP
+include("src/PricingMDP.jl")
 using BenchmarkTools
 using Profile
 using StatProfilerHTML #statprofilehtml() after profiling or @profilehtml macro
@@ -30,7 +31,7 @@ Original:
 Using Cartesian/Linear index:
 """
 mdp_params = Dict(pairs( (n_edges = 1, c_init = 1, demand = Float64[1], selling_horizon_end = [10], actions = [15., 25.], objective=:revenue)))
-mdp_vi = PricingMDP.create_PMDP(PMDPe; mdp_params...);
+mdp_vi = PricingMDP.create_PMDP(PricingMDP.PMDPe; mdp_params...);
 PricingMDP.get_VI_policy(mdp_vi)
 @benchmark PricingMDP.get_VI_policy($mdp_vi)
 @profilehtml PricingMDP.get_VI_policy(mdp_vi);
@@ -67,10 +68,22 @@ Using Cartesian/Linear index:
   --------------
   samples:          1
   evals/sample:     1
-  """
+
+Using Cartesian/Linear index, with indexers included in MDP struct:
+  memory estimate:  2.25 GiB
+  allocs estimate:  32984255
+  --------------
+  minimum time:     3.931 s (6.64% GC)
+  median time:      4.078 s (8.09% GC)
+  mean time:        4.078 s (8.09% GC)
+  maximum time:     4.226 s (9.45% GC)
+  --------------
+  samples:          2
+  evals/sample:     1
+"""
 mdp_params = Dict(pairs( (n_edges = 3, c_init = 2, demand = Float64[1,1,1], selling_horizon_end = [40,45,50], actions = 15:5:90, objective=:revenue)))
-mdp_vi = PricingMDP.create_PMDP(PMDPe; mdp_params...);
-@benchmark PricingMDP.get_VI_policy($mdp_vi)
+mdp_vi = PricingMDP.create_PMDP(PricingMDP.PMDPe; mdp_params...);
+@benchmark(PricingMDP.get_VI_policy($mdp_vi); samples=10)
 @profile PricingMDP.get_VI_policy(mdp_vi);
 statprofilehtml() # Profile.print()
 

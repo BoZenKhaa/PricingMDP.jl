@@ -2,8 +2,8 @@ const Product{n_edges} = SVector{n_edges,Bool}
 const Action = Float64
 const Timestep = Int64
 
-# struct Product{n_edges}
-#     p::SVector{n_edges,Bool}
+# struct ProductIndexed
+#     p::SVector{n_edges,Bool} where n_edges
 #     id::Int64
 # end
 
@@ -45,6 +45,20 @@ end
 
 abstract type PMDP{State, Action} <: MDP{State, Action} end
 
+
+function stateindices(E::Array{Edge}, T::Timestep, P::Array{Product{N}, 1} where N)
+    C_sizes = [e.c_init+1 for e in E]
+    T_size = T+1
+    prd_sizes = length(P)
+
+    LinearIndices((C_sizes..., T_size, prd_sizes))
+end
+
+function productindices(P::Array{Product{n_edges}} where n_edges)
+    Dict(zip(P, 1:length(P)))
+end
+
+
 """
 m = PMDPg(edges, products, λ)
 
@@ -69,7 +83,8 @@ struct PMDPg <: PMDP{State, Action}
         empty_product=P[1]
         # states = generate_states(E, P, selling_period_ends)
         @assert objective in [:revenue, :utilization]
-        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product,B, A, objective)
+        # sli = stateindices(E, T, P)
+        return new(length(E), T,E,P,λ, selling_period_ends, empty_product,B, A, objective)
     end
 end
 
@@ -78,7 +93,6 @@ m = PMDPe(edges, products, λ)
 
 PMDP for explicit interface
 """
-
 struct PMDPe <: PMDP{State, Action}
     n_edges::Int64
     T::Timestep                  # max timestep
@@ -90,15 +104,19 @@ struct PMDPe <: PMDP{State, Action}
     actions::Array{Action}
     B::UserBudget # User budgets
     objective::Symbol
-    states::Array{State} # ONLY USEFUL FOR EXPLICIT
+    statelinearindices::LinearIndices # ONLY FOR EXPLICIT, replaces need for states array
+    productindices::Dict
+    # states::Array{State} # ONLY USEFUL FOR EXPLICIT
     
     function PMDPe(E, P, λ, B, A, objective)
         selling_period_ends = get_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
-        states = generate_states(E, P, selling_period_ends)
         @assert objective in [:revenue, :utilization]
-        return new(length(empty_product), T,E,P,λ, selling_period_ends, empty_product, A, B, objective, states)
+        # states = generate_states(E, P, selling_period_ends)
+        sli = stateindices(E, T, P)
+        pi = productindices(P)
+        return new(length(E), T,E,P,λ, selling_period_ends, empty_product, A, B, objective, sli, pi)
     end
 end
 
@@ -226,30 +244,14 @@ function POMDPs.reward(m::PMDPe, s::State, a::Action, sp::State)
     end
 end
 
-# function statecindex(s::State)
-#     return CartesianIndex((s.c.+1)..., s.t+1, prod2ind(s.p))
-# end
-
-function stateindices(m::PMDPe)
-    C_sizes = [e.c_init+1 for e in m.E]
-    T_size = m.T+1
-    prd_sizes = length(m.P)
-
-    LinearIndices((C_sizes..., T_size, prd_sizes))
-end
-
-
+index(m::PMDPe, p::Product) = m.productindices[p]
 
 function POMDPs.stateindex(m::PMDPe, s::State)
-    C_sizes = [e.c_init+1 for e in m.E]
-    T_size = m.T+1
-    prd_sizes = length(m.P)
-
-    ci = CartesianIndex((s.c.+1)..., s.t+1, prod2ind(s.p, m.P))
-    LinearIndices((C_sizes..., T_size, prd_sizes))[ci]
+    ci = CartesianIndex((s.c.+1)..., s.t+1, index(m, s.p))
+    m.statelinearindices[ci]
 end
 
-function POMDPs.actionindex(m::PMDP, a::Action)
+function POMDPs.actionindex(m::PMDPe, a::Action)
     # ind = 
     return findfirst(isequal(a), actions(m))
     # if ind===nothing
@@ -259,7 +261,8 @@ function POMDPs.actionindex(m::PMDP, a::Action)
 end
 
 function POMDPs.states(m::PMDPe)
-    m.states
+    generate_states(m.E, m.P, m.selling_period_ends)
+    # m.states
 end
 
 # function POMDPs.states(m::PMDP)
