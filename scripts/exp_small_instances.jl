@@ -19,7 +19,7 @@ using DrWatson
 using Distributions
 using BeliefUpdaters
 
-for d in 3:1:10
+for d in 3:1:3
     println("Processing $d")
     mdp_params = Dict(pairs( (n_edges = 3, c_init = 2, demand = d*Float64[1,1,1], selling_horizon_end = [40,45,50], actions = 15:5:90, objective=:revenue)))
     #mdp_params = Dict(pairs( (n_edges = 2, c_init = 1, demand = Float64[1,1], selling_horizon_end = [20,25], actions = 15:5:30)))
