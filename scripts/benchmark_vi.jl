@@ -1,5 +1,4 @@
 # using PricingMDP
-include("src/PricingMDP.jl")
 using BenchmarkTools
 using Profile
 using StatProfilerHTML #statprofilehtml() after profiling or @profilehtml macro

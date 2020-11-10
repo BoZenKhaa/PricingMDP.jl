@@ -9,8 +9,12 @@ using Combinatorics
 
 import Base.show
 
+
 export PMDP, PMDPe, PMDPg, State, Action, create_continuous_products, create_edges, create_λ
-include("PricingMDPv2.jl")
+include("PMDP/PDMP.jl")
+include("PMDP/PMDPg.jl")
+include("PMDP/PMDPe.jl")
+
 include("NRM/NRMProblem.jl")
 include("NRM/Product.jl")
 include("NRM/Demand.jl")
