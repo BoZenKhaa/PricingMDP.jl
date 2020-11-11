@@ -1,5 +1,9 @@
 using Distributions
 
+struct BudgetPerUnit <: UserBudget
+    β::Distribution
+end
+
 """
     pwl(10, slope_start=5., slope_end=30.)
 

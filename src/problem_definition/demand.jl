@@ -1,5 +1,11 @@
 """
-Requests for each product is generated poisson process (fast coin tossing) with intensity λ. 
+Tools for generating demand distributions
+"""
+
+
+
+"""
+Requests for each product is generated with Poisson process (fast coin tossing) with intensity λ. 
 We consider the time interval of each selling period to be (0,1), so that for each product, expected number of requests is λ.
 Because we discretize the time interval (0,1) into 'm' steps, we are approximate the Poisson distribution with Bernouli distribution. 
 As such, we have λ~mp where p is the probability of success (success is request arrival in one timestep).

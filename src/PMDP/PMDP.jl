@@ -22,10 +22,6 @@ abstract type UserBudget end
 
 abstract type PMDP{State, Action} <: MDP{State, Action} end
 
-struct BudgetPerUnit <: UserBudget
-    β::Distribution
-end
-
 function State(c::Array, t::Timestep, product::Array)
     size = length(c)
     State{size}(SVector{size}(c), t, SVector{size}(product))
@@ -75,5 +71,16 @@ function POMDPs.initialstate(m::PMDP)
     Deterministic(State{m.n_edges}(SVector([e.c_init for e in m.E]...), 0, m.empty_product))
 end
 
-# include("PMDPe.jl")
-# include("PMDPg.jl")
+
+"""
+Given an array of graph edges and products, return a selling period end for each product. 
+"""
+function get_product_selling_period_ends(E::Array{Edge}, P::Array{Product{n_edges}}) where n_edges
+    selling_period_ends = zeros(Int64, length(P))
+    for i in 2:length(P)
+        prod = P[i]
+        selling_period_ends[i] = minimum([e.selling_period_end for e in E[prod]])
+    end
+    selling_period_ends[1] = maximum(selling_period_ends[2:end])
+    return selling_period_ends
+end

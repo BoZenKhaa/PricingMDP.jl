@@ -1,4 +1,8 @@
-function create_PMDP(mdp_type::Type;
+"""
+Functions to generate PMDP instances
+"""
+
+function linear_PMDP(mdp_type::Type;
         n_edges = 2, 
         c_init = 2,  
         selling_horizon_end = [10,10], 
@@ -15,14 +19,14 @@ function create_PMDP(mdp_type::Type;
     mdp = mdp_type(edges, products, λ, user_budgets, all_actions, objective)
 end
 
-create_PMDPe2(mdp_type::Type) = create_PMDP(mdp_type)
-create_PMDPe3(mdp_type::Type) = create_PMDP(mdp_type; n_edges = 3,
+linear_PMDPe2(mdp_type::Type) = linear_PMDP(mdp_type)
+linear_PMDPe3(mdp_type::Type) = linear_PMDP(mdp_type; n_edges = 3,
     c_init = 2, selling_horizon_end = [50,60,70], 
     demand = Float64[5,3,1], actions = Action[15,30,45,60,75])
-create_PMDPe5(mdp_type::Type) = create_PMDP(mdp_type;
+linear_PMDPe5(mdp_type::Type) = linear_PMDP(mdp_type;
     n_edges = 5, c_init = 4, selling_horizon_end = [50,60,70,80,90], 
     demand = Float64[10,3,3,5,4], actions = Action[5:5:100;])
 
-create_PMDPe10(mdp_type::Type) = create_PMDP(mdp_type;
+linear_PMDPe10(mdp_type::Type) = linear_PMDP(mdp_type;
 n_edges = 10, c_init = 30, selling_horizon_end = [910,920,930,940,950,960,970,980,990,1000], 
 demand = Float64[1,1,1,1,1,1,1,1,1,20], actions = Action[5:5:100;])    

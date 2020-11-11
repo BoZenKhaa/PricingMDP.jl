@@ -44,7 +44,7 @@ struct PMDPe <: PMDP{State, Action}
     # states::Array{State} # ONLY USEFUL FOR EXPLICIT
     
     function PMDPe(E, P, λ, B, A, objective)
-        selling_period_ends = get_selling_period_ends(E, P)
+        selling_period_ends = get_product_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
         @assert objective in [:revenue, :utilization]
@@ -53,6 +53,27 @@ struct PMDPe <: PMDP{State, Action}
         pi = productindices(P)
         return new(length(E), T,E,P,λ, selling_period_ends, empty_product, A, B, objective, sli, pi)
     end
+end
+
+"""
+Get product arrival probablities from homogenous Pois. proc. intensities λ, 
+while considering the product selling periods.
+
+Given λ, the expected number of request in period (0,1), 
+the probability of request arrivel in given timestep is given by λ~mp where m is the number of timesteps in period (0,1).
+"""
+function calculate_product_request_probs(t::Timestep,  λ::Array{Float64}, selling_period_ends::Array{Timestep})
+    product_request_probs = Array{Float64, 1}(undef, length(λ))
+    for i in 2:length(λ)
+        if t>selling_period_ends[i]
+            product_request_probs[i]=0
+        else
+            product_request_probs[i]=λ[i]/selling_period_ends[i]
+        end
+    end
+    product_request_probs[1] = 1.0-sum(product_request_probs[2:end])
+    @assert 0. <= product_request_probs[1] <= 1. "The non-empty product request probabilities sum is > 1, finer time discretization needed."
+    return product_request_probs
 end
 
 function POMDPs.transition(m::PMDPe, s::State, a::Action)

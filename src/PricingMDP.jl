@@ -12,17 +12,16 @@ import Base.show
 
 #Model definition
 export PMDP, PMDPe, PMDPg, State, Action
-include("PMDP/PDMP.jl")
+include("PMDP/PMDP.jl")
 include("PMDP/PMDPg.jl")
 include("PMDP/PMDPe.jl")
 
 
 #Tools for defining problem instances
-export create_continuous_products, create_edges, create_λ
-include("problem_definition/Problem.jl")
-include("problem_definition/Product.jl")
-include("problem_definition/Demand.jl")
-include("problem_definition/User.jl")
+include("problem_definition/graph.jl")
+include("problem_definition/product.jl")
+include("problem_definition/demand.jl")
+include("problem_definition/user.jl")
 include("problem_definition/problems.jl")
 
 

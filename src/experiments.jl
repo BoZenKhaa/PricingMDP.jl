@@ -121,11 +121,11 @@ end
 Run "n_runs" simulations. Evaluate each run with each benchmark and method. Collect statistics. 
 """
 function run_experiment(params_mdp::Dict, params_mcts::Dict; n_runs = 20, vi = true, save=:all)
-    mdp_mc = PricingMDP.create_PMDP(PMDPg; params_mdp...) 
+    mdp_mc = PricingMDP.linear_PMDP(PMDPg; params_mdp...) 
     planner = PricingMDP.get_MCTS_planner(mdp_mc, params_mcts)
     
     if vi
-        mdp_vi = PricingMDP.create_PMDP(PMDPe; params_mdp...)
+        mdp_vi = PricingMDP.linear_PMDP(PMDPe; params_mdp...)
         policy = PricingMDP.vi_policy(params_mdp, mdp_vi)
     else
         mdp_vi = nothing
