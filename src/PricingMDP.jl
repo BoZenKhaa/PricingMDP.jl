@@ -10,34 +10,31 @@ using Combinatorics
 import Base.show
 
 
-export PMDP, PMDPe, PMDPg, State, Action, create_continuous_products, create_edges, create_λ
+#Model definition
+export PMDP, PMDPe, PMDPg, State, Action
 include("PMDP/PDMP.jl")
 include("PMDP/PMDPg.jl")
 include("PMDP/PMDPe.jl")
 
-include("NRM/NRMProblem.jl")
-include("NRM/Product.jl")
-include("NRM/Demand.jl")
-include("NRM/User.jl")
-include("problems.jl")
 
+#Tools for defining problem instances
+export create_continuous_products, create_edges, create_λ
+include("problem_definition/Problem.jl")
+include("problem_definition/Product.jl")
+include("problem_definition/Demand.jl")
+include("problem_definition/User.jl")
+include("problem_definition/problems.jl")
+
+
+# Simulation tools
 export run_sim, get_stats, makesim
 include("experiments.jl")
 
-# export MILP_hindsight_pricing
-# include("milp_hindsight_pricing.jl")
 
-# flatrate baseline
+# Benchmarks
 include("flatrate_baseline.jl")
-
-# Subpackages
-# export MILP_hindsight_pricing
-# export LP.MILP_hindsight_pricing
 module LP
-# export MILP_hindsight_pricing
-include("LP.jl")
+    include("LP.jl")
 end
 
-# include("SimplestPricingMDP.jl")
-# include("PricingMDPv1.jl")
 end

@@ -1,4 +1,8 @@
 """
+Structures and functions for the EXPLICIT POMDPs.jl interface of the Pricing MDP
+"""
+
+"""
 Enumerates all states for MDP
 """
 function generate_states(E, P, selling_period_ends)

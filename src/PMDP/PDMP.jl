@@ -1,3 +1,7 @@
+"""
+Common definitions for the Pricing MDP
+"""
+
 const Product{n_edges} = SVector{n_edges,Bool}
 const Action = Float64
 const Timestep = Int64
@@ -71,5 +75,5 @@ function POMDPs.initialstate(m::PMDP)
     Deterministic(State{m.n_edges}(SVector([e.c_init for e in m.E]...), 0, m.empty_product))
 end
 
-include("PMDPe.jl")
-include("PMDPg.jl")
+# include("PMDPe.jl")
+# include("PMDPg.jl")

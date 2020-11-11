@@ -1,4 +1,8 @@
 """
+Structures and functions for the GENERATIVE POMDPs.jl interface of the Pricing MDP
+"""
+
+"""
 m = PMDPg(edges, products, λ)
 
 PMDP for generative interface
