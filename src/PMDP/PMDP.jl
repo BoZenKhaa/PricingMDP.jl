@@ -18,6 +18,7 @@ struct State{n_edges}
     p::Product{n_edges}         # Requested product
 end
 
+
 abstract type UserBudget end
 
 abstract type PMDP{State, Action} <: MDP{State, Action} end
@@ -41,6 +42,20 @@ end
 function sale_impossible(m::PMDP, c, p::Product)
     all(c .== 0) || p==m.empty_product || any((c - p) .<0.)
 end
+
+"""
+    sale_prob(m::PMDP, s::State, a::Action)
+
+Return the sale probability of product requested in state `s` given action `a`
+"""
+function sale_prob end 
+
+"""
+    sample_customer_budget(m::PMDP, s::State, rng::AbstractRNG)
+
+Return sampled value of customer budget for product requested in state `s`
+"""
+function sample_customer_budget end
 
 function POMDPs.isterminal(m::PMDP, s::State)
     if s.t >= m.T || all(s.c .<= 0) 
@@ -69,6 +84,14 @@ POMDPs.actions(m::PMDP) = m.actions
 
 function POMDPs.initialstate(m::PMDP) 
     Deterministic(State{m.n_edges}(SVector([e.c_init for e in m.E]...), 0, m.empty_product))
+end
+
+"""
+Returns user buy or no buy decision given agent selected action and user budget.
+Probability is based linear in the size of the product, i.e. based on the unit price.
+"""
+function user_buy(a::Action, budget::Float64)
+    a<=budget
 end
 
 

@@ -21,7 +21,7 @@ struct PMDPg <: PMDP{State, Action}
     # states::Array{State} # ONLY USEFUL FOR EXPLICIT
     
     function PMDPg(E, P, λ, B, A, objective)
-        selling_period_ends = get_selling_period_ends(E, P)
+        selling_period_ends = get_product_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
         # states = generate_states(E, P, selling_period_ends)
