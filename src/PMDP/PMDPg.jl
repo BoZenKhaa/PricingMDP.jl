@@ -15,18 +15,15 @@ struct PMDPg <: PMDP{State, Action}
     λ::Array{Float64} # Demand vector (expected number of requests for each product = λ, we assume time interval (0,1))
     selling_period_ends::Array{Timestep} # Selling period end for each product
     empty_product::Product
-    B::UserBudget # User budgets
+    B::Array{Distribution} # User budgets
     actions::Array{Action}
     objective::Symbol
-    # states::Array{State} # ONLY USEFUL FOR EXPLICIT
     
     function PMDPg(E, P, λ, B, A, objective)
         selling_period_ends = get_product_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
-        # states = generate_states(E, P, selling_period_ends)
         @assert objective in [:revenue, :utilization]
-        # sli = stateindices(E, T, P)
         return new(length(E), T,E,P,λ, selling_period_ends, empty_product,B, A, objective)
     end
 end

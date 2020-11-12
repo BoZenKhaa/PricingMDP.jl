@@ -27,13 +27,14 @@ include("problem_definition/problems.jl")
 
 # Simulation tools
 export run_sim, get_stats, makesim
-include("experiments.jl")
+include("simulations/simtools.jl")
+include("simulations/experiments.jl")
 
 
 # Benchmarks
-include("flatrate_baseline.jl")
+include("baselines/flatrate_baseline.jl")
 module LP
-    include("LP.jl")
+    include("baselines/LP.jl")
 end
 
 end

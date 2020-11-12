@@ -16,8 +16,8 @@ using DataFrames
 using POMDPSimulators
 
 
-mdp_vi = PricingMDP.create_PMDP(PMDPe)
-mdp_mc = PricingMDP.create_PMDP(PMDPg) 
+mdp_vi = PricingMDP.linear_PMDP(PMDPe)
+mdp_mc = PricingMDP.linear_PMDP(PMDPg) 
 
 policy = PricingMDP.get_VI_policy(mdp_vi)
 planner = PricingMDP.get_MCTS_planner(mdp_mc)

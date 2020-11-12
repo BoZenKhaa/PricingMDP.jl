@@ -19,7 +19,7 @@ struct State{n_edges}
 end
 
 
-abstract type UserBudget end
+abstract type AbstractUserBudget end
 
 abstract type PMDP{State, Action} <: MDP{State, Action} end
 

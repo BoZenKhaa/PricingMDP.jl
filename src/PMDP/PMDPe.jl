@@ -37,18 +37,16 @@ struct PMDPe <: PMDP{State, Action}
     selling_period_ends::Array{Timestep} # Selling period end for each product
     empty_product::Product
     actions::Array{Action}
-    B::UserBudget # User budgets
+    B::Array{Distribution} # User budgets
     objective::Symbol
     statelinearindices::LinearIndices # ONLY FOR EXPLICIT, replaces need for states array
     productindices::Dict
-    # states::Array{State} # ONLY USEFUL FOR EXPLICIT
     
     function PMDPe(E, P, λ, B, A, objective)
         selling_period_ends = get_product_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
         @assert objective in [:revenue, :utilization]
-        # states = generate_states(E, P, selling_period_ends)
         sli = stateindices(E, T, P)
         pi = productindices(P)
         return new(length(E), T,E,P,λ, selling_period_ends, empty_product, A, B, objective, sli, pi)
