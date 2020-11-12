@@ -2,8 +2,6 @@
 Tools for generating demand distributions
 """
 
-
-
 """
 Requests for each product is generated with Poisson process (fast coin tossing) with intensity λ. 
 We consider the time interval of each selling period to be (0,1), so that for each product, expected number of requests is λ.

@@ -42,7 +42,7 @@ function sample_next_request_and_update_probs(m::PMDPg, t::Timestep, rng::Abstra
 end
 
 function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
-    b = sample_user_budget_linear(m, m.B, s.p, s.t, rng)
+    b = sample_customer_budget(m, s, rng)
     if ~sale_impossible(m, s) && user_buy(a, b)
         if m.objective == :revenue
             r=a

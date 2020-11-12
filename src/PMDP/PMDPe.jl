@@ -91,7 +91,7 @@ function POMDPs.transition(m::PMDPe, s::State, a::Action)
             probs = product_request_probs
             # transitions = SparseCat(sps, probs)
         else
-            prob_sale = get_sale_prob(m.B, s, a)
+            prob_sale = sale_prob(m, s, a)
 
             # sufficient capacity for sale and non-empty request
             sps_nosale = [State(s.c, s.t+1, prod) for prod in m.P]
