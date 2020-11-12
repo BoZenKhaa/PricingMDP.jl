@@ -19,6 +19,6 @@ julia> edges = create_edges(5, 2, [50,60,70,80,90])
  PricingMDP.Edge(5, 2, 90)
 ```
 """
-function create_edges(n_edges::Int64, c::Int64, selling_horizon_ends::Array{Timestep})
+function create_linear_graph(n_edges::Int64, c::Int64, selling_horizon_ends::Array{Timestep})
     [Edge(i, c, selling_horizon_ends[i]) for i in 1:n_edges]
 end

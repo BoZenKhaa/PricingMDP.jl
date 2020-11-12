@@ -21,7 +21,7 @@ include("PMDP/PMDPe.jl")
 include("problem_definition/graph.jl")
 include("problem_definition/product.jl")
 include("problem_definition/demand.jl")
-include("problem_definition/user.jl")
+include("problem_definition/user_budgets.jl")
 include("problem_definition/problems.jl")
 
 

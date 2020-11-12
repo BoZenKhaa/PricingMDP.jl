@@ -11,9 +11,9 @@ function linear_PMDP(mdp_type::Type;
         actions =  Action[15,30,45], 
         objective = :revenue)  
         
-    edges = create_edges(n_edges, c_init, selling_horizon_end)
+    edges = create_linear_graph(n_edges, c_init, selling_horizon_end)
     products = create_continuous_products(edges)
-    λ = create_λ(demand, products)
+    λ = create_uniform_λ_per_resource(demand, products)
     
     all_actions = [0, collect(actions)..., 10000]
     mdp = mdp_type(edges, products, λ, user_budgets, all_actions, objective)

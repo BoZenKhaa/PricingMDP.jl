@@ -38,7 +38,7 @@ function sample_next_request_and_update_probs(m::PMDPg, t::Timestep, rng::Abstra
     product_request_probs = calculate_product_request_probs(t, m.λ, m.selling_period_ends)
     d_demand_model = Categorical(product_request_probs)
     prod_index = rand(rng, d_demand_model)
-    return ind2prod(prod_index, m.P)
+    return m.P[prod_index]
 end
 
 function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
