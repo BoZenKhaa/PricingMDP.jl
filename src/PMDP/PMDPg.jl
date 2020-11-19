@@ -18,13 +18,15 @@ struct PMDPg <: PMDP{State, Action}
     B::Array{Distribution} # User budgets
     actions::Array{Action}
     objective::Symbol
+    productindices::Dict
     
     function PMDPg(E, P, λ, B, A, objective)
         selling_period_ends = get_product_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
         @assert objective in [:revenue, :utilization]
-        return new(length(E), T,E,P,λ, selling_period_ends, empty_product,B, A, objective)
+        pi = productindices(P)
+        return new(length(E), T,E,P,λ, selling_period_ends, empty_product,B, A, objective, pi)
     end
 end
 

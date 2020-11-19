@@ -2,9 +2,17 @@
 Common definitions for the Pricing MDP
 """
 
+
+# TODO: expand Product to contain id selling period end, ... 
 const Product{n_edges} = SVector{n_edges,Bool}
 const Action = Float64
 const Timestep = Int64
+
+# struct Product{n_edges}
+#     id::Int64
+#     edges::SVector{n_edges,Bool}
+#     selling_period_end::Timestep
+# end
 
 struct Edge
     id::Int64
@@ -36,11 +44,7 @@ end
 Given state s, determine whether a sale of product s.p is impossible
 """
 function sale_impossible(m::PMDP, s::State)::Bool
-    sale_impossible(m, s.c, s.p)
-end
-
-function sale_impossible(m::PMDP, c, p::Product)
-    all(c .== 0) || p==m.empty_product || any((c - p) .<0.)
+    s.p==m.empty_product || any((s.c - s.p) .<0.) ||  m.selling_period_ends[index(m, s.p)]>=s.t
 end
 
 """
@@ -107,3 +111,10 @@ function get_product_selling_period_ends(E::Array{Edge}, P::Array{Product{n_edge
     selling_period_ends[1] = maximum(selling_period_ends[2:end])
     return selling_period_ends
 end
+
+
+function productindices(P::Array{Product{n_edges}} where n_edges)
+    Dict(zip(P, 1:length(P)))
+end
+
+index(m::PMDP, p::Product) = m.productindices[p]

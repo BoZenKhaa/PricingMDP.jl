@@ -19,9 +19,7 @@ function stateindices(E::Array{Edge}, T::Timestep, P::Array{Product{N}, 1} where
     LinearIndices((C_sizes..., T_size, prd_sizes))
 end
 
-function productindices(P::Array{Product{n_edges}} where n_edges)
-    Dict(zip(P, 1:length(P)))
-end
+
 
 """
 m = PMDPe(edges, products, λ)
@@ -116,7 +114,6 @@ function POMDPs.reward(m::PMDPe, s::State, a::Action, sp::State)
     end
 end
 
-index(m::PMDPe, p::Product) = m.productindices[p]
 
 function POMDPs.stateindex(m::PMDPe, s::State)
     ci = CartesianIndex((s.c.+1)..., s.t+1, index(m, s.p))
