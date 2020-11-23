@@ -44,7 +44,7 @@ end
 Given state s, determine whether a sale of product s.p is impossible
 """
 function sale_impossible(m::PMDP, s::State)::Bool
-    s.p==m.empty_product || any((s.c - s.p) .<0.) ||  m.selling_period_ends[index(m, s.p)]>=s.t
+    s.p==m.empty_product || any((s.c - s.p) .<0.) ||  s.t >= m.selling_period_ends[index(m, s.p)]
 end
 
 """

@@ -44,7 +44,7 @@ using POMDPs
        
        # timestep over T
        s_t = PricingMDP.State(SA[2,3], 8, SA[true, true])
-       @test PricingMDP.sale_impossible(mg, s_t) == false
+       @test PricingMDP.sale_impossible(mg, s_t) == true
        @test PricingMDP.isterminal(mg, s_t) == true    
        
        # some 0 capacity
