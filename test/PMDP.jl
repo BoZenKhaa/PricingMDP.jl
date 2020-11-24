@@ -9,25 +9,11 @@ using POMDPs
     #     β::Distribution
     # end
 
-    β = DiscreteNonParametric([10.], [1.])
+    mg, me = dead_simple_mdps()
 
-    E = [PricingMDP.Edge(1, 2, 6), # id, c
-        PricingMDP.Edge(2, 3, 8)]
-    # edge_selling_period_ends = [6,8]
-    P = [SA[false, false], 
-        SA[true, false], 
-        SA[false, true], 
-        SA[true, true]]
-    λ = [3.,3.,3.,3.]
-    B = [β, β, β, β]
-    A = [0., 5., 10., 15., 1000.]
-    objective = :revenue
-
-    mg = PMDPg(E, P, λ, B, A, objective)
-    me = PMDPe(E, P, λ, B, A, objective)
 
     for m in [mg, me]
-        @test POMDPs.actions(m) == A
+        @test POMDPs.actions(m) == mg.actions
         @test typeof(m) <:PMDP
     end
 
@@ -36,7 +22,6 @@ using POMDPs
        @test PricingMDP.sale_impossible(mg, s) == false
        @test PricingMDP.isterminal(mg, s) == false
 
-       # TODO: Should sale_impossible check selling_period_end?
        # timestep over selling_period_end
        s_afterspe = PricingMDP.State(SA[2,3], 7, SA[true, true])
        @test PricingMDP.sale_impossible(mg, s_afterspe) == true

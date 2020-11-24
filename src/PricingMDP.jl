@@ -26,10 +26,10 @@ include("problem_definition/problems.jl")
 
 
 # Simulation tools
-export run_sim, get_stats, makesim
+export run_sim, get_stats, makesim, simulate_trace
 include("simulations/simtools.jl")
 include("simulations/experiments.jl")
-
+include("simulations/trace_generation.jl")
 
 # Benchmarks
 include("baselines/flatrate_baseline.jl")

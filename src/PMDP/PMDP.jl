@@ -3,7 +3,7 @@ Common definitions for the Pricing MDP
 """
 
 
-# TODO: expand Product to contain id selling period end, ... 
+# TODO: maybe? expand Product to contain id selling period end, ... 
 const Product{n_edges} = SVector{n_edges,Bool}
 const Action = Float64
 const Timestep = Int64

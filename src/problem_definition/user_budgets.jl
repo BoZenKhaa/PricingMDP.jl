@@ -40,7 +40,7 @@ Given budget per unit, calculate price per unit and determine probability of sal
 function sale_prob(m::PMDP, s::State, a::Action)
     prod_size = sum(s.p)
     @assert prod_size>0
-    ccdf(m.B[index(s.p)], a/prod_size)
+    ccdf(m.B[index(m, s.p)], a/prod_size)
 end
 
 """
@@ -51,7 +51,7 @@ TODO: Add functionality for non-linear user budget
 function sample_customer_budget(m::PMDP, s::State, rng::AbstractRNG)::Float64
     # local b::Float64
     if s.p != m.P[1]
-        budget_distribution = m.B[index(s.p)]
+        budget_distribution = m.B[index(m, s.p)]
         budget = rand(rng, budget_distribution)
     else
         budget = -1.
