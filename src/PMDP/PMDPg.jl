@@ -40,6 +40,13 @@ function sample_next_request_and_update_probs(m::PMDPg, t::Timestep, rng::Abstra
     return m.P[prod_index]
 end
 
+"""
+Returns the next state from given 
+    - state 
+    - action 
+by sampling the MDP distributions. 
+The most important function in the interface used by the search methods.
+"""
 function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
     b = sample_customer_budget(m, s, rng)
     if ~sale_impossible(m, s) && user_buy(a, b)
@@ -51,7 +58,7 @@ function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
              throw(ArgumentError(string("Unknown objective: ", m.objective)))
         end
         # r = a
-        c = s.c-s.p
+        c = reduce_capacities(s.c, s.p)
     else
         r = 0.
         c = s.c
@@ -64,3 +71,12 @@ function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
     end
     return (sp = State(c, s.t+Δt, prod), r = r, info=b)
 end
+
+"""
+Returns the next state from given 
+ - state, 
+ - action, 
+ - request user budget.
+This method is only useful for evaluation on existing set of customer requests.
+"""
+

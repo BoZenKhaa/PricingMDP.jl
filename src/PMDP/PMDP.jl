@@ -98,6 +98,10 @@ function user_buy(a::Action, budget::Float64)
     a<=budget
 end
 
+function reduce_capacities(c::SVector, p::Product)
+    c .- p 
+end
+
 
 """
 Given an array of graph edges and products, return a selling period end for each product. 

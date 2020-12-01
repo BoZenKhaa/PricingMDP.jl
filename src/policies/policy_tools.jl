@@ -22,6 +22,4 @@ function get_MCTS_planner(mdp::PMDPg; params_mcts::Dict=Dict())
     solver = solver_method(;mcts_params...)
     
     planner = solve(solver, mdp)
-    # s = PricingMDPv1.State(SA[1,1,1], 0, SA[1,0,0])
-    # a = action(planner, s)
 end
