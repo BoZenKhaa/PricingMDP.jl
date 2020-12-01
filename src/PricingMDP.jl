@@ -24,17 +24,20 @@ include("problem_definition/demand.jl")
 include("problem_definition/user_budgets.jl")
 include("problem_definition/problems.jl")
 
-
 # Simulation tools
 export run_sim, get_stats, makesim, simulate_trace
 include("simulations/simtools.jl")
 include("simulations/experiments.jl")
 include("simulations/trace_generation.jl")
 
-# Benchmarks
-include("baselines/flatrate_baseline.jl")
+# evaluators
+include("eval/evaluation.jl")
+
+# Policies
+include("policies/policy_tools.jl")
+include("policies/flatrate_baseline.jl")
 module LP
-    include("baselines/LP.jl")
+    include("policies/LP.jl")
 end
 
 end

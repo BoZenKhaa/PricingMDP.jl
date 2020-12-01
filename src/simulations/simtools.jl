@@ -1,25 +1,7 @@
-using MCTS, DiscreteValueIteration 
+
 using POMDPSimulators
 using DrWatson
 
-function get_VI_policy(mdp::PMDPe)
-    solver = SparseValueIterationSolver(max_iterations=100, belres=1e-6, verbose=false)#, init_util=init_util) # creates the solver
-    # POMDPs.@show_requirements POMDPs.solve(solver, mdp)
-    policy = solve(solver, mdp)
-end
-
-function get_VI_policy(params::Dict)
-    Dict(:policy => get_VI_policy(params[:mdp]))
-end
-
-function get_MCTS_planner(mdp::PMDPg, params_mcts::Dict)
-    mcts_params = copy(params_mcts)
-    solver_method = pop!(mcts_params, :solver)
-    solver = solver_method(;mcts_params...)
-    planner = solve(solver, mdp)
-    # s = PricingMDPv1.State(SA[1,1,1], 0, SA[1,0,0])
-    # a = action(planner, s)
-end
 
 """
 Compare actions given by VI and MCTS across all states in the MDP
