@@ -1,5 +1,7 @@
 using Random
 using POMDPSimulators
+# using POMDPPolicies
+using PricingMDP.LP
 
 @testset "HistoryReplayer.jl" begin
     mg, me = dead_simple_mdps()
@@ -27,16 +29,26 @@ using POMDPSimulators
     # test the new trace matches the old
     t = PricingMDP.simulate_trace(hrpl, MersenneTwister(321))
     @test t == requests    
-    
-    # evaluate VI and MCTS with HistoryReplayer
-    policy = PricingMDP.get_VI_policy(me)
+
+
     hrec = HistoryRecorder(max_steps = mg.T, rng = MersenneTwister(4321)) 
+    
+    # test VI with HistoryReplayer
+    policy = PricingMDP.get_VI_policy(me)
     hᵥ = simulate(hrec, hrpl, policy)
     @test length(hᵥ) == length(requests)
     @test sum(collect(hᵥ[:r])) > 0.
 
+    # test MCTS with historyReplayer
     planner = PricingMDP.get_MCTS_planner(mg; params_mcts = Dict(:rng=>MersenneTwister(1)))
     hₘ = simulate(hrec, hrpl, planner)
     @test length(hₘ) == length(requests)
     @test sum(collect(hₘ[:r])) > 0.
+
+    # test hindsight with historyReplayer
+    hindsight = PricingMDP.LP.get_MILP_hindsight_policy(mg, requests)
+    hₕ = simulate(hrec, hrpl, hindsight)
+    @test length(hₕ) == length(requests)
+    @test sum(collect(hₕ[:r])) > 0.   
+
 end

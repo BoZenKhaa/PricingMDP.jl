@@ -15,7 +15,7 @@ function flatrate_pricing(mdp::PMDP, h::SimHistory)
         c = copy(c_init)
         r_a = 0
         for i in 1:length(requests)
-            if ~PricingMDP.sale_impossible(mdp, c, requests[i].s.p) && flatrate < request_budgets[i]
+            if ~PricingMDP.sale_impossible(mdp, requests[i].s) && flatrate < request_budgets[i]
                 c -= requests[i].s.p
                 r_a +=flatrate
             end
