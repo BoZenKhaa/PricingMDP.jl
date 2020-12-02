@@ -10,7 +10,3 @@ include("mdp_instances.jl")
     include("HistoryReplayer.jl")
     include("evaluation.jl")
 end
-
-# @testset "Method consistency" begin
-#     include("test_consistency.jl")
-# end
