@@ -1,6 +1,5 @@
 using Random
 using POMDPSimulators
-# using POMDPPolicies
 using PricingMDP.LP
 
 @testset "HistoryReplayer.jl" begin
@@ -50,5 +49,12 @@ using PricingMDP.LP
     hₕ = simulate(hrec, hrpl, hindsight)
     @test length(hₕ) == length(requests)
     @test sum(collect(hₕ[:r])) > 0.   
+
+    # test flatrate with historyReplayer
+    # R, U = PricingMDP.optimize_flatrate_policy(mg, [requests, requests])
+    flatrate = PricingMDP.get_flatrate_policy(mg, [requests, requests])
+    hᵣ = simulate(hrec, hrpl, flatrate)
+    @test length(hᵣ) == length(requests)
+    @test sum(collect(hᵣ[:r])) > 0.   
 
 end

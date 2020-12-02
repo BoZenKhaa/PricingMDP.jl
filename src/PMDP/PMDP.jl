@@ -116,6 +116,7 @@ function user_buy(a::Action, budget::Float64)
     a<=budget
 end
 
+# TODO: Could work inplace
 function reduce_capacities(c::SVector, p::Product)
     c .- p 
 end
