@@ -1,24 +1,30 @@
 using POMDPSimulators
+using DataFrames
 
-"""
-First attempt. I think this thing should actually return histories. 
-Easiest way would be to implement another PMDP that has distributions given by some history.
-"""
-# function evaluate_policy(m::PMDP, requests::AbstractSimHistory, policy::Policy)
-#     s₀ = rand(POMDPs.initialstate(m))    
-#     c = s₀.c
-#     reward = 0.
-#     sales = 0
-#     actions = Array{Action}
-#     for r in requests
-#         s = PricingMDP.State(c, r.s.t, r.s.p)
-#         a = action(policy, s)
-#         if PricingMDP.user_buy(a, r.info)
-#             reward+=a
-#             sales+=1
-#             c = PricingMDP.reduce_capacities(c, r.s.p) 
-#         end
-#     end
+function replay(hrpl::HistoryReplayer, policy::Policy, rng::AbstractRNG)::AbstractSimHistory
+    
+    hrec = HistoryRecorder(max_steps = timestep_limit(hrpl), rng = rng) 
+    h = simulate(hrec, hrpl, policy)
 
-#     return (reard = reward, sales = sales)
-# end
+    return h
+end
+
+function get_metrics(h::AbstractSimHistory)::NamedTuple
+    revenue = sum(h[:r])
+    sold_products = [e.s.p for e in h if e.r>0]
+    n_sales = length(sold_products)
+    utilization = sum(sum(sold_products))
+    (r = revenue, u = utilization, n = n_sales)
+end
+
+function eval(m::PMDP, requests::AbstractSimHistory, policies::NamedTuple, rng::AbstractRNG)
+    hrpl = HistoryReplayer(m, requests)
+
+    # metrics = DataFrame()
+
+    for (name, policy) in pairs(policies)
+        h = replay(hrpl, policy, rng)
+         get_metrics(h)
+    end
+    # return metrics
+end
