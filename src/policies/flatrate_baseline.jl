@@ -16,7 +16,7 @@ function flatrate_analysis(mdp::PMDP, h::AbstractSimHistory)
 
     # get data from trace
     request_edges = [[rec.s.p...] for rec in requests]
-    request_budgets = [rec.info for rec in requests]
+    request_budgets = [rec.info.b for rec in requests]
 
     # Chech revenue of each flatrate
     r_as = PricingMDP.Action[] # array containing total revenue for each possible flatrat

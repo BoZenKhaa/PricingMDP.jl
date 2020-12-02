@@ -45,7 +45,7 @@ function sample_customer_budget(hr::HistoryReplayer, s::State, rng::AbstractRNG)
     if history_index === nothing
         budget = -1.
     else
-        budget = hr.h[history_index].info
+        budget = hr.h[history_index].info.b
     end
     return budget
 end

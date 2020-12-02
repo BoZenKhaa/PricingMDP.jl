@@ -46,7 +46,7 @@ function MILP_hindsight_pricing(mdp::PMDP, h::AbstractSimHistory; objective=:rev
 
     # get data from trace
     request_edges = [[rec.s.p...] for rec in requests]
-    request_budgets = [rec.info for rec in requests]
+    request_budgets = [rec.info.b for rec in requests]
 
     # prepare data
     """ E: Matrix that has requests as rows and columns as capacity edges

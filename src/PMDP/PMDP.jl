@@ -186,6 +186,6 @@ function POMDPs.gen(m::PMDP, s::State, a::Action, rng::AbstractRNG)
         Δt += 1
         prod = sample_request(m, s.t+Δt, rng)
     end
-    return (sp = State(c, s.t+Δt, prod), r = r, info=b)
+    return (sp = State(c, s.t+Δt, prod), r = r, info=(b=b,))
 end
 
