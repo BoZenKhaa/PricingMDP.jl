@@ -29,32 +29,12 @@ using POMDPPolicies
                 hind = PricingMDP.LP.get_MILP_hindsight_policy(mg, requests),
                 flat =  PricingMDP.get_flatrate_policy(mg, [requests, requests]) 
                 )
-    PricingMDP.eval(mg, requests, policies, MersenneTwister(1))
+    metrics = PricingMDP.eval(mg, requests, policies, MersenneTwister(1))
+    @test isa(metrics, DataFrame)
+    @test size(metrics)==(length(policies),6)
 
-    # test evaluation of VI
-    # policy = PricingMDP.get_VI_policy(me)
-    
-    # hᵥ = simulate(hrec, hrpl, policy)
-    # @test length(hᵥ) == length(requests)
-    # @test sum(collect(hᵥ[:r])) > 0.
 
-    # # test MCTS with historyReplayer
-    # planner = PricingMDP.get_MCTS_planner(mg; params_mcts = Dict(:rng=>MersenneTwister(1)))
-    # hₘ = simulate(hrec, hrpl, planner)
-    # @test length(hₘ) == length(requests)
-    # @test sum(collect(hₘ[:r])) > 0.
-
-    # # test hindsight with historyReplayer
-    # hindsight = PricingMDP.LP.get_MILP_hindsight_policy(mg, requests)
-    # hₕ = simulate(hrec, hrpl, hindsight)
-    # @test length(hₕ) == length(requests)
-    # @test sum(collect(hₕ[:r])) > 0.   
-
-    # # test flatrate with historyReplayer
-    # # R, U = PricingMDP.optimize_flatrate_policy(mg, [requests, requests])
-    # flatrate = PricingMDP.get_flatrate_policy(mg, [requests, requests])
-    # hᵣ = simulate(hrec, hrpl, flatrate)
-    # @test length(hᵣ) == length(requests)
-    # @test sum(collect(hᵣ[:r])) > 0.   
-
+    metrics_all = PricingMDP.eval(mg, [requests, requests], policies, MersenneTwister(1))
+    @test isa(metrics_all, DataFrame)
+    @test size(metrics_all)==(length(policies)*2,6)
 end

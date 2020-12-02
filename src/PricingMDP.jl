@@ -31,8 +31,8 @@ include("simulations/experiments.jl")
 include("simulations/trace_generation.jl")
 
 # evaluators
-include("eval/evaluation.jl")
 include("eval/HistoryReplayer.jl")
+include("eval/evaluation.jl")
 
 # Policies
 include("policies/policy_tools.jl")

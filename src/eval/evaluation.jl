@@ -1,4 +1,5 @@
 using POMDPSimulators
+using POMDPPolicies
 using DataFrames
 
 function replay(hrpl::HistoryReplayer, policy::Policy, rng::AbstractRNG)::AbstractSimHistory
@@ -17,14 +18,26 @@ function get_metrics(h::AbstractSimHistory)::NamedTuple
     (r = revenue, u = utilization, n = n_sales)
 end
 
-function eval(m::PMDP, requests::AbstractSimHistory, policies::NamedTuple, rng::AbstractRNG)
+function eval(m::PMDP, requests::AbstractSimHistory, policies::NamedTuple, 
+              rng::AbstractRNG)
     hrpl = HistoryReplayer(m, requests)
 
-    # metrics = DataFrame()
+    metrics = DataFrame()
 
     for (name, policy) in pairs(policies)
         h = replay(hrpl, policy, rng)
-         get_metrics(h)
+        m = get_metrics(h)
+        push!(metrics, (m..., name=name, sequence=hash(requests), replay_rng_seed=rng.seed))
     end
-    # return metrics
+    return metrics
+end
+
+function eval(mdp::PMDP, request_sequences::Array{<:AbstractSimHistory}, 
+              policies::NamedTuple, rng::AbstractRNG)
+    metrics = DataFrame()
+    for sequence in request_sequences
+        mₛ = eval(mdp, sequence, policies, rng)
+        metrics = vcat(metrics, mₛ)
+    end
+    return metrics
 end
