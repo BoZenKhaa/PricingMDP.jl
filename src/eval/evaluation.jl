@@ -6,7 +6,7 @@ using DataFrames
 """
 Run policy on a history loaded in HistoryReplayer and return a new history
 """
-function replay(hrpl::HistoryReplayer, policy::Policy, rng::AbstractRNG)::AbstractSimHistory
+function replay(hrpl::HistoryReplayer, policy::Policy, rng::AbstractRNG)::SimHistory
     
     hrec = HistoryRecorder(max_steps = timestep_limit(hrpl), rng = rng) 
     h = simulate(hrec, hrpl, policy)
