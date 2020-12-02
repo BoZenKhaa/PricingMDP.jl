@@ -6,10 +6,6 @@ using PricingMDP.LP
     mg, me = dead_simple_mdps()
     requests = PricingMDP.simulate_trace(mg, MersenneTwister(123))
     
-    
-    # reward, sales = PricingMDP.evaluate_policy(mg, requests, policy)
-    
-    
     hrpl = PricingMDP.HistoryReplayer(mg, requests)
     
     # Test basic properties
@@ -25,10 +21,11 @@ using PricingMDP.LP
     
     s = PricingMDP.State(SA[2,3], 5, SA[true, true])
     
-    # test the new trace matches the old
+    # test that the new trace from replayer matches the input trace
     t = PricingMDP.simulate_trace(hrpl, MersenneTwister(321))
     @test t == requests    
 
+    # TODO: The following should likely be tested in tests of the specific policies
 
     hrec = HistoryRecorder(max_steps = mg.T, rng = MersenneTwister(4321)) 
     
