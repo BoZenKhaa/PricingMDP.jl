@@ -14,7 +14,7 @@ function get_MCTS_planner(mdp::PMDPg; params_mcts::Dict=Dict())
     mcts_defaults = Dict(pairs( (
                  solver= DPWSolver, n_iterations=50, depth=30, 
                  exploration_constant=40.0, enable_state_pw = true, 
-                 keep_tree=true, show_progress=false)))
+                 keep_tree=true, show_progress=false, rng=MersenneTwister())))
 
     mcts_params = merge(mcts_defaults, params_mcts)
     
