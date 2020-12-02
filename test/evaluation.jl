@@ -6,7 +6,6 @@ using POMDPPolicies
     # Three non-zero requests with budget 10
     
     hrpl = PricingMDP.HistoryReplayer(mg, requests)
-    
     hrec = HistoryRecorder(max_steps = mg.T, rng = MersenneTwister(4321)) 
     
     # test replay()
@@ -21,7 +20,7 @@ using POMDPPolicies
 
     accept =  FunctionPolicy(x->5.)
     hₐ = PricingMDP.replay(hrpl, accept, MersenneTwister(123))
-    @test PricingMDP.get_metrics(hₐ) == (r=15., u=3, n=3)
+    @test PricingMDP.get_metrics(hₐ) == (r=15., u=3, nₛ=3, nᵣ=3)
 
     # test eval()
     policies = (vi = PricingMDP.get_VI_policy(me), 
@@ -31,10 +30,10 @@ using POMDPPolicies
                 )
     metrics = PricingMDP.eval(mg, requests, policies, MersenneTwister(1))
     @test isa(metrics, DataFrame)
-    @test size(metrics)==(length(policies),6)
+    @test size(metrics)==(length(policies),7)
 
 
     metrics_all = PricingMDP.eval(mg, [requests, requests], policies, MersenneTwister(1))
     @test isa(metrics_all, DataFrame)
-    @test size(metrics_all)==(length(policies)*2,6)
+    @test size(metrics_all)==(length(policies)*2,7)
 end

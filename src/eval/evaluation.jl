@@ -15,14 +15,21 @@ function replay(hrpl::HistoryReplayer, policy::Policy, rng::AbstractRNG)::Abstra
 end
 
 """
-Get NamedTuple of metrics (revenue, utilization, number of sold products) of a SimHistory
+Get NamedTuple of metrics:
+    :r revenue, 
+    :u utilization, 
+    :nₛ number of sold products, 
+    :nᵣ number of non-empty requests
+ for given SimHistory
 """
 function get_metrics(h::AbstractSimHistory)::NamedTuple
     revenue = sum(h[:r])
     sold_products = [e.s.p for e in h if e.r>0]
     n_sales = length(sold_products)
+    n_requests = length([e for e in h if sum(e.s.p)>0])
     utilization = sum(sum(sold_products))
-    (r = revenue, u = utilization, n = n_sales)
+    @assert utilization == sum(h[1].s.c - h[end].sp.c)
+    (r = revenue, u = utilization, nₛ = n_sales, nᵣ = n_requests)
 end
 
 

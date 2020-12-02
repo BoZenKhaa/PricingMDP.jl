@@ -46,34 +46,6 @@ function run_sim(mdp::PMDP, policy::Policy; max_steps=10, rng_seed=1234)
 end
 
 
-"""
-Calculate, how many resources were utilized in simulation run
-
-get_utilization(h_mc)
-"""
-function get_utilization(h::AbstractSimHistory)
-    s = collect(h[:s])
-    u = sum(s[1].c - s[end].c)
-    return u
-end
-
-
-"""
-Get stats for given sim history, 
-    :r revenue
-    :T nunber of steps
-    :n_req number of non empty requests
-    :u utilization
-"""
-function get_stats(h::SimHistory)
-    n_req = sum(sum(s.p)>0 for s in h[:s])
-    T = length(h)
-    r = sum(h[:r])
-    u = get_utilization(h)
-
-    return (r=r, u = u, T=T, n_req=n_req)
-end
-
 """Using an array of multiple simulation outputs from flatrate, calculate revenue and utilization
 
 

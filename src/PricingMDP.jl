@@ -41,4 +41,7 @@ module LP
     include("policies/LP.jl")
 end
 
+# Problem definitions
+include("problem_instances/linear_problem.jl")
+
 end
