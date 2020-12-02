@@ -42,19 +42,3 @@ function sale_prob(m::PMDP, s::State, a::Action)
     @assert prod_size>0
     ccdf(m.B[index(m, s.p)], a/prod_size)
 end
-
-"""
-Sample user budget Budget is linear in the size of the product, i.e. based on the unit price.
-
-TODO: Add functionality for non-linear user budget
-"""
-function sample_customer_budget(m::PMDP, s::State, rng::AbstractRNG)::Float64
-    # local b::Float64
-    if s.p != m.P[1]
-        budget_distribution = m.B[index(m, s.p)]
-        budget = rand(rng, budget_distribution)
-    else
-        budget = -1.
-    end
-    return budget
-end

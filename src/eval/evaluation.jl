@@ -1,5 +1,9 @@
 using POMDPSimulators
 
+"""
+First attempt. I think this thing should actually return histories. 
+Easiest way would be to implement another PMDP that has distributions given by some history.
+"""
 
 function evaluate_policy(m::PMDP, requests::AbstractSimHistory, policy::Policy)
     s₀ = rand(POMDPs.initialstate(m))    
@@ -10,7 +14,6 @@ function evaluate_policy(m::PMDP, requests::AbstractSimHistory, policy::Policy)
     for r in requests
         s = PricingMDP.State(c, r.s.t, r.s.p)
         a = action(policy, s)
-        @show s, a
         if PricingMDP.user_buy(a, r.info)
             reward+=a
             sales+=1

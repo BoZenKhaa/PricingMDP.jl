@@ -32,8 +32,10 @@ end
 
 """
 Returns next requested product. If in given timestep one of the prodcuts has selling period end, update the product request probs.
+
+TODO: Potential speedup if product_request_probs are not recalculated at every step
 """
-function sample_next_request_and_update_probs(m::PMDPg, t::Timestep, rng::AbstractRNG)
+function sample_request(m::PMDPg, t::Timestep, rng::AbstractRNG)
     product_request_probs = calculate_product_request_probs(t, m.λ, m.selling_period_ends)
     d_demand_model = Categorical(product_request_probs)
     prod_index = rand(rng, d_demand_model)
@@ -41,42 +43,16 @@ function sample_next_request_and_update_probs(m::PMDPg, t::Timestep, rng::Abstra
 end
 
 """
-Returns the next state from given 
-    - state 
-    - action 
-by sampling the MDP distributions. 
-The most important function in the interface used by the search methods.
+Sample user budget Budget for product requested in state s.
 """
-function POMDPs.gen(m::PMDPg, s::State, a::Action, rng::AbstractRNG)
-    b = sample_customer_budget(m, s, rng)
-    if ~sale_impossible(m, s) && user_buy(a, b)
-        if m.objective == :revenue
-            r=a
-        elseif m.objective == :utilization
-            r=sum(s.p)
-        else
-             throw(ArgumentError(string("Unknown objective: ", m.objective)))
-        end
-        # r = a
-        c = reduce_capacities(s.c, s.p)
+function sample_customer_budget(m::PMDPg, s::State, rng::AbstractRNG)::Float64
+    # local b::Float64
+    if s.p != m.P[1]
+        budget_distribution = m.B[index(m, s.p)]
+        budget = rand(rng, budget_distribution)
     else
-        r = 0.
-        c = s.c
+        budget = -1.
     end
-    prod = sample_next_request_and_update_probs(m, s.t, rng)
-    Δt = 1
-    while sum(prod)==0 #Empty product
-        prod = sample_next_request_and_update_probs(m, s.t, rng)
-        Δt += 1
-    end
-    return (sp = State(c, s.t+Δt, prod), r = r, info=b)
+    return budget
 end
-
-"""
-Returns the next state from given 
- - state, 
- - action, 
- - request user budget.
-This method is only useful for evaluation on existing set of customer requests.
-"""
 

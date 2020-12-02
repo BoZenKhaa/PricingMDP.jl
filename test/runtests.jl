@@ -7,6 +7,7 @@ include("mdp_instances.jl")
     include("PMDP.jl")
     include("trace_generation.jl")
     include("policy_tools.jl")
+    println("the bullshit test")
     include("evaluation.jl")
 end
 

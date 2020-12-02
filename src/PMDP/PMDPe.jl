@@ -51,27 +51,6 @@ struct PMDPe <: PMDP{State, Action}
     end
 end
 
-"""
-Get product arrival probablities from homogenous Pois. proc. intensities λ, 
-while considering the product selling periods.
-
-Given λ, the expected number of request in period (0,1), 
-the probability of request arrivel in given timestep is given by λ~mp where m is the number of timesteps in period (0,1).
-"""
-function calculate_product_request_probs(t::Timestep,  λ::Array{Float64}, selling_period_ends::Array{Timestep})
-    product_request_probs = Array{Float64, 1}(undef, length(λ))
-    for i in 2:length(λ)
-        if t>selling_period_ends[i]
-            product_request_probs[i]=0
-        else
-            product_request_probs[i]=λ[i]/selling_period_ends[i]
-        end
-    end
-    product_request_probs[1] = 1.0-sum(product_request_probs[2:end])
-    @assert 0. <= product_request_probs[1] <= 1. "The non-empty product request probabilities sum is > 1, finer time discretization needed."
-    return product_request_probs
-end
-
 function POMDPs.transition(m::PMDPe, s::State, a::Action)
     # if s.t>=m.T
         # sps = [s]
@@ -107,9 +86,9 @@ function POMDPs.transition(m::PMDPe, s::State, a::Action)
 end
 
 function POMDPs.reward(m::PMDPe, s::State, a::Action, sp::State)
-    if m.objective == :revenue
+    if objective(m) == :revenue
         s.c==sp.c ? 0. :  a
-    elseif m.objective == :utilization
+    elseif objective(m) == :utilization
         s.c==sp.c ? 0. :  sum(s.p)
     end
 end
@@ -120,7 +99,7 @@ function POMDPs.stateindex(m::PMDPe, s::State)
     m.statelinearindices[ci]
 end
 
-function POMDPs.actionindex(m::PMDPe, a::Action)
+function POMDPs.actionindex(m::PMDP, a::Action)
     # ind = 
     return findfirst(isequal(a), actions(m))
     # if ind===nothing
