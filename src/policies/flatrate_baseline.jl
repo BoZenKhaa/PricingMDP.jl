@@ -38,7 +38,7 @@ function flatrate_analysis(mdp::PMDP, h::AbstractSimHistory)
     return (r_a = r_as, u_a = u_as)
 end
 
-function optimize_flatrate_policy(mdp::PMDP, training_histories::AbstractArray)
+function optimize_flatrate_policy(mdp::PMDP, training_histories::AbstractArray{<:AbstractSimHistory})::Tuple
 
     # row index labels are mdp actions, column index labels are training histories
     R = []
@@ -52,7 +52,10 @@ function optimize_flatrate_policy(mdp::PMDP, training_histories::AbstractArray)
     return hcat(R...), hcat(U...)
 end
 
-function get_flatrate_policy(mdp::PMDP, training_histories::AbstractArray; objective=:revenue)
+"""
+Get training policy from a training set of histories
+"""
+function get_flatrate_policy(mdp::PMDP, training_histories::Array{<:AbstractSimHistory}; objective=:revenue)::Policy
     R, U = optimize_flatrate_policy(mdp, training_histories)
     
     if objective==:revenue

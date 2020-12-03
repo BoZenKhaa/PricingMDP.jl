@@ -22,7 +22,6 @@ include("problem_definition/graph.jl")
 include("problem_definition/product.jl")
 include("problem_definition/demand.jl")
 include("problem_definition/user_budgets.jl")
-include("problem_definition/problems.jl")
 
 # Simulation tools
 export run_sim, get_stats, makesim, simulate_trace
@@ -38,10 +37,11 @@ include("eval/evaluation.jl")
 include("policies/policy_tools.jl")
 include("policies/flatrate_baseline.jl")
 module LP
-    include("policies/LP.jl")
+include("policies/LP.jl")
 end
 
 # Problem definitions
 include("problem_instances/linear_problem.jl")
+include("problem_instances/problems.jl")
 
 end

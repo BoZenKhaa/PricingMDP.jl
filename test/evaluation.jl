@@ -1,5 +1,5 @@
 using POMDPPolicies
-
+using DataFrames
 @testset "evaluation.jl" begin
     mg, me = dead_simple_mdps()
     requests = PricingMDP.simulate_trace(mg, MersenneTwister(123))
