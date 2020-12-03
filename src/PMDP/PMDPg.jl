@@ -36,8 +36,7 @@ Returns next requested product. If in given timestep one of the prodcuts has sel
 TODO: Potential speedup if product_request_probs are not recalculated at every step
 """
 function sample_request(m::PMDPg, t::Timestep, rng::AbstractRNG)::Product
-    product_request_probs = calculate_product_request_probs(t, m.λ, selling_period_ends(m))
-    d_demand_model = Categorical(product_request_probs)
+    d_demand_model = product_request_dist(t, m.λ, selling_period_ends(m))
     prod_index = rand(rng, d_demand_model)
     return products(m)[prod_index]
 end

@@ -10,6 +10,12 @@ How should it look?
 Functions to generate PMDP instances
 """
 
+
+
+
+
+
+
 function simplified_linear_PMDP(mdp_type::Type;
         n_edges = 2, 
         c_init = 2,  

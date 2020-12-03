@@ -16,7 +16,12 @@ How show this be defined? I see two options:
 Conclusion: I will give it a go.
 """
 
+
+"""
+Types used in the PMDP
+"""
 # TODO: maybe? expand Product to contain id selling period end, ... 
+# TODO: maybe product should be an array of edges directly, i.e. a dict or something?
 const Product{n_edges} = SVector{n_edges,Bool}
 const Action = Float64
 const Timestep = Int64
@@ -33,8 +38,6 @@ struct State{n_edges}
     p::Product{n_edges}         # Requested product
 end
 
-abstract type PMDP{State, Action} <: MDP{State, Action} end
-
 function State(c::Array, t::Timestep, product::Array)
     size = length(c)
     State{size}(SVector{size}(c), t, SVector{size}(product))
@@ -44,20 +47,16 @@ function show(io::IO, s::State)
     print(io, "c:$(s.c)_t:$(s.t)_p:$(s.p)")
 end
 
+abstract type PMDP{State, Action} <: MDP{State, Action} end
 
 """
-sale_prob(m::PMDP, s::State, a::Action)
+Values needed for defining PMDP instance
+ - objective - optimization goal in the PMDP
+ - edges - edges of the underlying resource graph
+ - products - products are combinations of the resource edges
+ - selling_period_ends - 
 
-Return the sale probability (Float64) of product requested in state `s` given action `a`
 """
-function sale_prob end
-
-"""
-sample_customer_budget(m::PMDP, s::State, rng::AbstractRNG)
-
-Return sampled value (of type Action) of customer budget for product requested in state `s`
-"""
-function sample_customer_budget end
 
 objective(m::PMDP) = m.objective
 n_edges(m::PMDP) = m.n_edges
@@ -72,6 +71,20 @@ index(m::PMDP, p::Product) = m.productindices[p]
 empty_product(m::PMDP) = products(m)[1]
 selling_period_end(m::PMDP, p::Product) = selling_period_ends(m)[index(m, p)]
 budget()
+
+"""
+sale_prob(m::PMDP, s::State, a::Action)
+
+Return the sale probability (Float64) of product requested in state `s` given action `a`
+"""
+function sale_prob end
+
+"""
+sample_customer_budget(m::PMDP, s::State, rng::AbstractRNG)
+
+Return sampled value (of type Action) of customer budget for product requested in state `s`
+"""
+function sample_customer_budget end
 
 """
 Returns user buy or no buy decision given agent selected action and user budget.
@@ -143,7 +156,7 @@ while considering the product selling periods.
 Given λ, the expected number of request in period (0,1), 
 the probability of request arrivel in given timestep is given by λ~mp where m is the number of timesteps in period (0,1).
 """
-function calculate_product_request_probs(t::Timestep,  λ::Array{Float64}, selling_period_ends::Array{Timestep})
+function product_request_dist(t::Timestep,  λ::Array{Float64}, selling_period_ends::Array{Timestep})::Distribution
     product_request_probs = Array{Float64, 1}(undef, length(λ))
     for i in 2:length(λ)
         if t>selling_period_ends[i]
@@ -154,7 +167,8 @@ function calculate_product_request_probs(t::Timestep,  λ::Array{Float64}, selli
     end
     product_request_probs[1] = 1.0-sum(product_request_probs[2:end])
     @assert 0. <= product_request_probs[1] <= 1. "The non-empty product request probabilities sum is > 1, finer time discretization needed."
-    return product_request_probs
+    product_request_probs = calculate_product_request_probs(t, m.λ, selling_period_ends(m))
+    return Categorical(product_request_probs)  
 end
 
 """
