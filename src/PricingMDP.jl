@@ -42,6 +42,5 @@ end
 
 # Problem definitions
 include("problem_instances/linear_problem.jl")
-include("problem_instances/problems.jl")
 
 end

@@ -52,22 +52,22 @@ end
 
 function POMDPs.transition(m::PMDPe, s::State, a::Action)
     # --- Request arrival probs
-    product_request_probs = calculate_product_request_probs(s.t, m.λ, m.selling_period_ends)
+    product_request_d = product_request_dist(s.t, m.λ, m.selling_period_ends)
     
     # NEXT STATES
     # No sale due to no request or due to insufficient capacity
     if  sale_impossible(m, s) 
         sps = [State(s.c, s.t+1, prod) for prod in m.P]
-        probs = product_request_probs
+        probs = product_request_d.p
     else
         prob_sale = sale_prob(m, s, a)
 
         # sufficient capacity for sale and non-empty request
         sps_nosale = [State(s.c, s.t+1, prod) for prod in m.P]
-        probs_nosale = product_request_probs.*(1-prob_sale)
+        probs_nosale = product_request_d.p .* (1-prob_sale)
 
         sps_sale = [State(s.c-s.p, s.t+1, prod) for prod in m.P]
-        probs_sale = product_request_probs.*prob_sale
+        probs_sale = product_request_d.p .* prob_sale
 
         sps = vcat(sps_nosale, sps_sale)
         probs = vcat(probs_nosale, probs_sale)

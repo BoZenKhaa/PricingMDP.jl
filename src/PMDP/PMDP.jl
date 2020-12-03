@@ -70,7 +70,7 @@ POMDPs.discount(m::PMDP) = 0.99
 index(m::PMDP, p::Product) = m.productindices[p]
 empty_product(m::PMDP) = products(m)[1]
 selling_period_end(m::PMDP, p::Product) = selling_period_ends(m)[index(m, p)]
-budget()
+# budget()
 
 """
 sale_prob(m::PMDP, s::State, a::Action)
@@ -167,7 +167,7 @@ function product_request_dist(t::Timestep,  λ::Array{Float64}, selling_period_e
     end
     product_request_probs[1] = 1.0-sum(product_request_probs[2:end])
     @assert 0. <= product_request_probs[1] <= 1. "The non-empty product request probabilities sum is > 1, finer time discretization needed."
-    product_request_probs = calculate_product_request_probs(t, m.λ, selling_period_ends(m))
+    # product_request_probs = calculate_product_request_probs(t, λ, selling_period_ends(m))
     return Categorical(product_request_probs)  
 end
 
