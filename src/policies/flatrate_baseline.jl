@@ -53,7 +53,7 @@ function optimize_flatrate_policy(mdp::PMDP, training_histories::AbstractArray{<
 end
 
 """
-Get training policy from a training set of histories
+Get flatrate policy from a training set of histories
 """
 function get_flatrate_policy(mdp::PMDP, training_histories::Array{<:AbstractSimHistory}; objective=:revenue)::Policy
     R, U = optimize_flatrate_policy(mdp, training_histories)
