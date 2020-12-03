@@ -20,7 +20,6 @@ function stateindices(E::Array{Edge}, T::Timestep, P::Array{Product{N}, 1} where
 end
 
 
-
 """
 m = PMDPe(edges, products, λ)
 
@@ -52,33 +51,27 @@ struct PMDPe <: PMDP{State, Action}
 end
 
 function POMDPs.transition(m::PMDPe, s::State, a::Action)
-    # if s.t>=m.T
-        # sps = [s]
-        # probs = [1.]
-    # else # t<T
-        # --- Request arrival probs
-        product_request_probs = calculate_product_request_probs(s.t, m.λ, m.selling_period_ends)
-        
-        # NEXT STATES
-        # No sale due to no request or due to insufficient capacity
-        if  sale_impossible(m, s) 
-            sps = [State(s.c, s.t+1, prod) for prod in m.P]
-            probs = product_request_probs
-            # transitions = SparseCat(sps, probs)
-        else
-            prob_sale = sale_prob(m, s, a)
+    # --- Request arrival probs
+    product_request_probs = calculate_product_request_probs(s.t, m.λ, m.selling_period_ends)
+    
+    # NEXT STATES
+    # No sale due to no request or due to insufficient capacity
+    if  sale_impossible(m, s) 
+        sps = [State(s.c, s.t+1, prod) for prod in m.P]
+        probs = product_request_probs
+    else
+        prob_sale = sale_prob(m, s, a)
 
-            # sufficient capacity for sale and non-empty request
-            sps_nosale = [State(s.c, s.t+1, prod) for prod in m.P]
-            probs_nosale = product_request_probs.*(1-prob_sale)
+        # sufficient capacity for sale and non-empty request
+        sps_nosale = [State(s.c, s.t+1, prod) for prod in m.P]
+        probs_nosale = product_request_probs.*(1-prob_sale)
 
-            sps_sale = [State(s.c-s.p, s.t+1, prod) for prod in m.P]
-            probs_sale = product_request_probs.*prob_sale
+        sps_sale = [State(s.c-s.p, s.t+1, prod) for prod in m.P]
+        probs_sale = product_request_probs.*prob_sale
 
-            sps = vcat(sps_nosale, sps_sale)
-            probs = vcat(probs_nosale, probs_sale)
-        end
-    # end
+        sps = vcat(sps_nosale, sps_sale)
+        probs = vcat(probs_nosale, probs_sale)
+    end
 
     @assert sum(probs) ≈ 1.
     

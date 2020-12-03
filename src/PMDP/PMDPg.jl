@@ -35,19 +35,19 @@ Returns next requested product. If in given timestep one of the prodcuts has sel
 
 TODO: Potential speedup if product_request_probs are not recalculated at every step
 """
-function sample_request(m::PMDPg, t::Timestep, rng::AbstractRNG)
-    product_request_probs = calculate_product_request_probs(t, m.λ, m.selling_period_ends)
+function sample_request(m::PMDPg, t::Timestep, rng::AbstractRNG)::Product
+    product_request_probs = calculate_product_request_probs(t, m.λ, selling_period_ends(m))
     d_demand_model = Categorical(product_request_probs)
     prod_index = rand(rng, d_demand_model)
-    return m.P[prod_index]
+    return products(m)[prod_index]
 end
 
 """
 Sample user budget Budget for product requested in state s.
 """
-function sample_customer_budget(m::PMDPg, s::State, rng::AbstractRNG)::Float64
+function sample_customer_budget(m::PMDPg, s::State, rng::AbstractRNG)::Action
     # local b::Float64
-    if s.p != m.P[1]
+    if s.p != empty_product(m)
         budget_distribution = m.B[index(m, s.p)]
         budget = rand(rng, budget_distribution)
     else
