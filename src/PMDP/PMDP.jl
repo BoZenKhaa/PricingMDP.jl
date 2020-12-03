@@ -1,5 +1,19 @@
 """
 Definitions of the Pricing MDP
+
+How show this be defined? I see two options:
+ - CLASSICAL (Python?) WAY: each PMDP is given given by struct of the same type that is built 
+   using helper functions and stores the problem information inside the struct. (<-- What I have right now)
+    - (+) I have it already this way
+    - (+) I can easily have multiple instances side by side (I can have that with the other one as well)
+    - (-) I am already deviating from this in HistoryReplayer, which seems it could have been a lot easier in the second option
+ - MULTIPLE DISPATCH WAY: each PMDP instance is its own subtype of PMDP and to 
+   define a problem instance, you have to redefine abstract PMDP methods
+    - (+) Seems like a natural way to write Julia
+    - (+) Better decoupling of logic and instance data
+    - (-) sounds like work to rewrite the code this way
+
+Conclusion: I will give it a go.
 """
 
 # TODO: maybe? expand Product to contain id selling period end, ... 
