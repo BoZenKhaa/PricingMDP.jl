@@ -11,6 +11,8 @@ How show this be defined? I see two options:
    define a problem instance, you have to redefine abstract PMDP methods
     - (+) Seems like a natural way to write Julia
     - (+) Better decoupling of logic and instance data
+    - (-) if replacing struct field (e.g. λ) with a method, the method cannot be defined by a function call (e.g. λ() = get_λ(arg) ) as that 
+    would call the function each time λ() is accessed. This can be addressed by putting stuff into variables and then assigning them to functions.
     - (-) sounds like work to rewrite the code this way
 
 Conclusion: I will give it a go.
