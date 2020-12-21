@@ -1,4 +1,5 @@
 # Assigning concrete function call to a method saves the function, not the result.
+module functions
 function factorial(n)
     if n>1
         return n*factorial(n-1)
@@ -20,6 +21,9 @@ special2() = fn
 @benchmark special()
 @benchmark special2()
 
+end
+
+
 # define vector interface for custom struct
 module vectorinterface_poc
 
@@ -39,4 +43,20 @@ a = mysv{2}(SVector(false, false), "aha")
 b = SVector(true, true)
 
 @show b+a
+end
+
+# traits
+module traits
+using SimpleTraits
+
+abstract type Superbtype end
+
+struct maintype <: Superbtype 
+    a::Int
+end
+
+struct otherype <: Superbtype 
+    a::Int
+    b::String
+end
 end

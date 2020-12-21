@@ -8,26 +8,33 @@ m = PMDPg(edges, products, λ)
 PMDP for generative interface
 """
 struct PMDPg <: PMDP{State, Action}
-    n_edges::Int64
-    T::Timestep                  # max timestep
-    E::Array{Edge}
-    P::Array{Product}
-    λ::Array{Float64} # Demand vector (expected number of requests for each product = λ, we assume time interval (0,1))
-    selling_period_ends::Array{Timestep} # Selling period end for each product
+    pp::PMDPProblem
+    n_res::Int64
+    # T::Timestep                  # max timestep
+    # E::Array{Edge}
+    # P::Array{Product}
+    # λ::Array{Float64} # Demand vector (expected number of requests for each product = λ, we assume time interval (0,1))
+    # selling_period_ends::Array{Timestep} # Selling period end for each product
     empty_product::Product
-    B::Array{Distribution} # User budgets
-    actions::Array{Action}
-    objective::Symbol
+    # B::Array{Distribution} # User budgets
+    # actions::Array{Action}
+    # objective::Symbol
     productindices::Dict
     
-    function PMDPg(E, P, λ, B, A, objective)
-        selling_period_ends = get_product_selling_period_ends(E, P)
-        T = selling_period_ends[1]
-        empty_product=P[1]
-        @assert objective in [:revenue, :utilization]
-        pi = productindices(P)
-        return new(length(E), T,E,P,λ, selling_period_ends, empty_product,B, A, objective, pi)
+    function PMDPg(pp)
+        empty_product = Product(falses(length(pp.C)), selling_period_end(pp))
+        new(pp, length(pp.C), empty_product)
     end
+
+
+    # function PMDPg(E, P, λ, B, A, objective)
+    #     # selling_period_ends = get_product_selling_period_ends(E, P)
+    #     T = selling_period_ends[1]
+    #     empty_product=P[1]
+    #     @assert objective in [:revenue, :utilization]
+    #     pi = productindices(P)
+    #     return new(length(E), T,E,P,λ, selling_period_ends, empty_product,B, A, objective, pi)
+    # end
 end
 
 """

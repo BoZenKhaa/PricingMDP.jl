@@ -19,25 +19,16 @@ Conclusion: I will give it a go.
 """
 
 
-"""
-Types used in the PMDP
-"""
-# TODO: maybe? expand Product to contain id selling period end, ... 
-# TODO: maybe product should be an array of edges directly, i.e. a dict or something?
-const Product{n_edges} = SVector{n_edges,Bool}
-const Action = Float64
-const Timestep = Int64
-
 struct Edge
     id::Int64
     c_init::Int64               # initial capacity
     selling_period_end::Timestep  
 end
 
-struct State{n_edges}
-    c::SVector{n_edges,Int64}   # Capacity vector
-    t::Timestep                 # Timestep
-    p::Product{n_edges}         # Requested product
+struct State{n_res}
+    c::SVector{n_res,Int64}   # Capacity vector
+    t::Timestep               # Timestep
+    p::Product{n_res}         # Requested product
 end
 
 function State(c::Array, t::Timestep, product::Array)
@@ -60,18 +51,20 @@ Values needed for defining PMDP instance
 
 """
 
-objective(m::PMDP) = m.objective
-n_edges(m::PMDP) = m.n_edges
-edges(m::PMDP) = m.E
-timestep_limit(m::PMDP) = m.T
-selling_period_ends(m::PMDP) = m.selling_period_ends
-products(m::PMDP) = m.P
+problem(m::PMDP) = m.pp
+
+objective(m::PMDP) = problem(m).objective
+timestep_limit(m::PMDP) = problem(m).T
+products(m::PMDP) = problem(m).P
+n_res(m::PMDP) = m.n_res
+# edges(m::PMDP) = m.E
+# selling_period_ends(m::PMDP) = m.selling_period_ends
 POMDPs.actions(m::PMDP) = m.actions
 POMDPs.discount(m::PMDP) = 0.99
 
 index(m::PMDP, p::Product) = m.productindices[p]
-empty_product(m::PMDP) = products(m)[1]
-selling_period_end(m::PMDP, p::Product) = selling_period_ends(m)[index(m, p)]
+empty_product(m::PMDP) = m.empty_product
+# selling_period_end(m::PMDP, p::Product) = selling_period_ends(m)[index(m, p)]
 # budget()
 
 """
@@ -88,11 +81,16 @@ Return sampled value (of type Action) of customer budget for product requested i
 """
 function sample_customer_budget end
 
+
 """
 Returns user buy or no buy decision given agent selected action and user budget.
 """
 user_buy(a::Action, budget::Action)::Bool = a<=budget
 
+
+"""
+Returns new vector of resource capacites after sale of product p
+"""
 # TODO: Could work inplace
 reduce_capacities(c::SVector, p::Product) = c .- p
 
@@ -100,7 +98,7 @@ reduce_capacities(c::SVector, p::Product) = c .- p
 Given state s, determine whether a sale of product s.p is impossible
 """
 function sale_impossible(m::PMDP, s::State)::Bool
-    s.p==empty_product(m) || any((s.c - s.p) .<0.) ||  s.t >= selling_period_end(m, s.p)
+    s.p==empty_product(m) || any((s.c - s.p) .<0.) ||  s.t >= selling_period_end(s.p)
 end
 
 """
@@ -133,23 +131,10 @@ function POMDPs.actions(m::PMDP, s::State)::AbstractArray{Action}
     return actions
 end
 
-productindices(P::Array{Product{n_edges}} where n_edges) = Dict(zip(P, 1:length(P)))
+productindices(P::Array{Product{n_res}} where n_res) = Dict(zip(P, 1:length(P)))
 
-POMDPs.initialstate(m::PMDP) = Deterministic(State{n_edges(m)}(SVector([e.c_init for e in edges(m)]...), 0, empty_product(m)))
+POMDPs.initialstate(m::PMDP) = Deterministic(State{n_res(m)}(SVector([e.c_init for e in edges(m)]...), 0, empty_product(m)))
 
-
-"""
-Given an array of graph edges and products, return a selling period end for each product. 
-"""
-function get_product_selling_period_ends(E::Array{Edge}, P::Array{Product{n_edges}}) where n_edges
-    selling_period_ends = zeros(Int64, length(P))
-    for i in 2:length(P)
-        prod = P[i]
-        selling_period_ends[i] = minimum([e.selling_period_end for e in E[prod]])
-    end
-    selling_period_ends[1] = maximum(selling_period_ends[2:end])
-    return selling_period_ends
-end
 
 """
 Get product arrival probablities from homogenous Pois. proc. intensities λ, 
@@ -160,17 +145,17 @@ the probability of request arrivel in given timestep is given by λ~mp where m i
 """
 function product_request_dist(t::Timestep,  λ::Array{Float64}, selling_period_ends::Array{Timestep})::Distribution
     product_request_probs = Array{Float64, 1}(undef, length(λ))
-    for i in 2:length(λ)
+    for i in 1:length(λ)
         if t>selling_period_ends[i]
             product_request_probs[i]=0
         else
             product_request_probs[i]=λ[i]/selling_period_ends[i]
         end
     end
-    product_request_probs[1] = 1.0-sum(product_request_probs[2:end])
-    @assert 0. <= product_request_probs[1] <= 1. "The non-empty product request probabilities sum is > 1, finer time discretization needed."
+    empty_product_request_prob = 1.0-sum(product_request_probs)
+    @assert 0. <= empty_product_request_prob <= 1. "The non-empty product request probabilities sum is > 1, finer time discretization needed."
     # product_request_probs = calculate_product_request_probs(t, λ, selling_period_ends(m))
-    return Categorical(product_request_probs)  
+    return Categorical([empty_product_request_prob, product_request_probs...])  
 end
 
 """

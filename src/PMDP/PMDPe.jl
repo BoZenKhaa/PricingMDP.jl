@@ -31,7 +31,7 @@ struct PMDPe <: PMDP{State, Action}
     E::Array{Edge}
     P::Array{Product}
     λ::Array{Float64} # Demand vector (expected number of requests for each product = λ, we assume time interval (0,1))
-    selling_period_ends::Array{Timestep} # Selling period end for each product
+    # selling_period_ends::Array{Timestep} # Selling period end for each product
     empty_product::Product
     actions::Array{Action}
     B::Array{Distribution} # User budgets
@@ -40,7 +40,7 @@ struct PMDPe <: PMDP{State, Action}
     productindices::Dict
     
     function PMDPe(E, P, λ, B, A, objective)
-        selling_period_ends = get_product_selling_period_ends(E, P)
+        # selling_period_ends = get_product_selling_period_ends(E, P)
         T = selling_period_ends[1]
         empty_product=P[1]
         @assert objective in [:revenue, :utilization]

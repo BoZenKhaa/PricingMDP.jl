@@ -32,3 +32,17 @@ function create_continuous_products(edges::Array{Edge})
     end
     return products
 end
+
+"""
+Given an array of graph edges and products, return a selling period end for each product. 
+"""
+function get_product_selling_period_ends(E::Array{Edge}, P::Array{Product{n_edges}}) where n_edges
+    selling_period_ends = zeros(Int64, length(P))
+    for i in 2:length(P)
+        prod = P[i]
+        selling_period_ends[i] = minimum([e.selling_period_end for e in E[prod]])
+    end
+    selling_period_ends[1] = maximum(selling_period_ends[2:end])
+    return selling_period_ends
+end
+
