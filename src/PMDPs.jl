@@ -1,4 +1,4 @@
-module PMDP
+module PMDPs
 
 using POMDPs
 using StaticArrays
