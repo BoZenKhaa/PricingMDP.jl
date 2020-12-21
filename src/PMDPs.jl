@@ -1,4 +1,4 @@
-module PricingMDP
+module PMDP
 
 using POMDPs
 using StaticArrays
@@ -12,10 +12,10 @@ import Base.show
 
 
 #Model definition
-# export PMDP, PMDPe, PMDPg, State, Action
+# export PMDP, PMDPg, State, Action
 include("PMDP/PMDPProblem.jl")
-# include("PMDP/PMDP.jl")
-# include("PMDP/PMDPg.jl")
+include("PMDP/PMDP.jl")
+include("PMDP/PMDPg.jl")
 # include("PMDP/PMDPe.jl")
 
 

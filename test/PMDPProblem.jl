@@ -4,10 +4,10 @@
 using StaticArrays
 using Distributions
 
-@testset "PricingProblem.jl" begin
-    P = SA[ PricingMDP.Product(SA[true, false], 6), 
-            PricingMDP.Product(SA[false, true], 8), 
-            PricingMDP.Product(SA[true, true], 6)]
+function simple_pp()
+    P = SA[ PMDPs.Product(SA[true, false], 6), 
+            PMDPs.Product(SA[false, true], 8), 
+            PMDPs.Product(SA[true, true], 6)]
     D = [1.,1.,1.]
     β = DiscreteNonParametric([10.], [1.])
     B = [β, β, β]
@@ -15,8 +15,13 @@ using Distributions
     A = [0., 5., 10., 15., 1000.]
     objective = :revenue
 
-    pp = PricingMDP.PMDPProblem(P, C₀, D, B, A, objective)
+    pp = PMDPs.PMDPProblem(P, C₀, D, B, A, objective)
+end
 
-    @test isa(pp, PricingMDP.PMDPProblem)
-    @test PricingMDP.selling_period_end(pp)==8
+
+@testset "PricingProblem.jl" begin
+    pp = simple_pp()
+
+    @test isa(pp, PMDPs.PMDPProblem)
+    @test PMDPs.selling_period_end(pp)==8
 end
