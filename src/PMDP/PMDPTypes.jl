@@ -12,3 +12,5 @@ struct State{n_res}
 end
 
 abstract type PMDP{State, Action} <: MDP{State, Action} end
+
+const EMPTY_PRODUCT_USER_BUDGET = -1.

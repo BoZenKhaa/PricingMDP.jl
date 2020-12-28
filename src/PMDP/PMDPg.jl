@@ -58,7 +58,7 @@ function sample_customer_budget(m::PMDPg, s::State, rng::AbstractRNG)::Action
         budget_distribution = budgets(m)[s.iₚ]
         budget = rand(rng, budget_distribution)
     else
-        budget = -1.
+        budget = EMPTY_PRODUCT_USER_BUDGET
     end
     return budget
 end
