@@ -60,3 +60,20 @@ struct otherype <: Superbtype
     b::String
 end
 end
+
+# Comparing speed of rng
+using Random
+using RandomNumbers.Xorshifts
+using BenchmarkTools
+
+rngm = MersenneTwister(1)
+rngx = Xorshift128Plus(1)
+rngx2 = Xorshift1024Plus(1)
+
+@benchmark MersenneTwister(1)
+@benchmark Xorshift128Plus(1)
+@benchmark Xorshift1024Plus(1)
+
+@benchmark rand(rngm)
+@benchmark rand(rngx)
+@benchmark rand(rngx2)
