@@ -35,11 +35,13 @@ products(m::PMDP) = problem(m).P
 timestep_limit(m::PMDP) = problem(m).T
 budgets(m::PMDP) = problem(m).B
 demand(m::PMDP) = problem(m).D
-POMDPs.actions(m::PMDP) = problem(m).actions
+POMDPs.actions(m::PMDP) = problem(m).A
 objective(m::PMDP) = problem(m).objective
 
-n_res(m::PMDP) = m.n_res
+n_res(m::PMDP) = size(problem(m))[2]
 empty_product(m::PMDP) = m.empty_product
+empty_product_id(m::PMDP) = m.empty_product_id
+
 POMDPs.discount(m::PMDP) = 0.99
 
 index(m::PMDP, p::Product) = m.productindices[p]
@@ -75,7 +77,8 @@ reduce_capacities(c::SVector, p::Product) = c .- p
 Given state s, determine whether a sale of product s.p is impossible
 """
 function sale_impossible(m::PMDP, s::State)::Bool
-    s.p==empty_product(m) || any((s.c - s.p) .<0.) ||  s.t >= selling_period_end(s.p)
+    p = product(m, s)
+    p==empty_product(m) || any((s.c - p) .<0.) ||  s.t >= selling_period_end(p)
 end
 
 """

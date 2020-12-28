@@ -38,6 +38,7 @@ struct PMDPProblem{nₚ, nᵣ}
    end
 end
 
+"""Read number of resources and products from type parameters"""
 Base.size(pp::PMDPProblem{nₚ, nᵣ}) where {nₚ, nᵣ} = (nₚ, nᵣ)
 n_products(pp::PMDPProblem) = size(pp)[1]
 

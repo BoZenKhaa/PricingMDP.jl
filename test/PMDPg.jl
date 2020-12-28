@@ -14,7 +14,7 @@ using RandomNumbers.Xorshifts
    
     s = PMDPs.State(pp.c₀, 1, 1)
     @test typeof(PMDPs.sample_customer_budget(mg, s, rng)) == Float64
-    @test minimum(pp.B[1])<=PMDPs.sample_customer_budget(mg.s.rng)<=maximum(pp.B[1])
+    @test minimum(pp.B[1])<=PMDPs.sample_customer_budget(mg, s, rng)<=maximum(pp.B[1])
 
     sₑ = PMDPs.State(pp.c₀, 1, mg.empty_product_id)
     @test PMDPs.sample_customer_budget(mg, sₑ, rng)==PMDPs.EMPTY_PRODUCT_USER_BUDGET

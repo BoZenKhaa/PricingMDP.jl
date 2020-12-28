@@ -3,14 +3,14 @@ function State(c::AbstractArray, t::Timestep, iₚ::Integer)
     State{size}(SVector{size}(c), t, iₚ) 
 end
 
-function State(m::PMDP, c::AbstractArray, t::Timestep, product::Array)
+function State(m::PMDP, c::AbstractArray, t::Timestep, product::AbstractArray)
     size = length(c)
-    iₚ = findfirst(x-> x==product, products(m))
+    product==empty_product(m) ? iₚ = empty_product_id(m) : iₚ = findfirst(x-> x.res==product, products(m))
     State{size}(SVector{size}(c), t, iₚ)
 end
 
 function product(m::PMDP, s::State)
-    products(m)[s.iₚ]
+    s.iₚ==empty_product_id(m) ? empty_product(m) : products(m)[s.iₚ]
 end
 
 function show(io::IO, s::State)
