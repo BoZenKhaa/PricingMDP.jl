@@ -10,10 +10,15 @@ using Combinatorics
 
 import Base.show
 
+# Counting processes submodule
+include("CountingProcesses/CountingProcesses.jl")
 
+using .CountingProcesses
 #Model definition
 # export PMDP, PMDPg, State, Action
+include("PMDP/PMDPTypes.jl")
 include("PMDP/PMDPProblem.jl")
+include("PMDP/State.jl")
 include("PMDP/PMDP.jl")
 include("PMDP/PMDPg.jl")
 # include("PMDP/PMDPe.jl")

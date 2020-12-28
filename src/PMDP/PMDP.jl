@@ -19,28 +19,6 @@ Conclusion: I will give it a go.
 """
 
 
-struct Edge
-    id::Int64
-    c_init::Int64               # initial capacity
-    selling_period_end::Timestep  
-end
-
-struct State{n_res}
-    c::SVector{n_res,Int64}   # Capacity vector
-    t::Timestep               # Timestep
-    p::Product{n_res}         # Requested product
-end
-
-function State(c::Array, t::Timestep, product::Array)
-    size = length(c)
-    State{size}(SVector{size}(c), t, SVector{size}(product))
-end
-
-function show(io::IO, s::State)
-    print(io, "c:$(s.c)_t:$(s.t)_p:$(s.p)")
-end
-
-abstract type PMDP{State, Action} <: MDP{State, Action} end
 
 """
 Values needed for defining PMDP instance
@@ -53,19 +31,18 @@ Values needed for defining PMDP instance
 
 problem(m::PMDP) = m.pp
 
-objective(m::PMDP) = problem(m).objective
-timestep_limit(m::PMDP) = problem(m).T
 products(m::PMDP) = problem(m).P
+timestep_limit(m::PMDP) = problem(m).T
+budgets(m::PMDP) = problem(m).B
+demand(m::PMDP) = problem(m).D
+POMDPs.actions(m::PMDP) = problem(m).actions
+objective(m::PMDP) = problem(m).objective
+
 n_res(m::PMDP) = m.n_res
-# edges(m::PMDP) = m.E
-# selling_period_ends(m::PMDP) = m.selling_period_ends
-POMDPs.actions(m::PMDP) = m.actions
+empty_product(m::PMDP) = m.empty_product
 POMDPs.discount(m::PMDP) = 0.99
 
 index(m::PMDP, p::Product) = m.productindices[p]
-empty_product(m::PMDP) = m.empty_product
-# selling_period_end(m::PMDP, p::Product) = selling_period_ends(m)[index(m, p)]
-# budget()
 
 """
 sale_prob(m::PMDP, s::State, a::Action)

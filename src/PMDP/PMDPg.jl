@@ -8,24 +8,25 @@ m = PMDPg(edges, products, λ)
 PMDP for generative interface
 """
 struct PMDPg <: PMDP{State, Action}
-    pp::PMDPProblem
-    n_res::Int64
+    pp::PMDPProblem                # Pricing Problem
+    nᵣ::Int64
     # T::Timestep                  # max timestep
     # E::Array{Edge}
     # P::Array{Product}
     # λ::Array{Float64} # Demand vector (expected number of requests for each product = λ, we assume time interval (0,1))
     # selling_period_ends::Array{Timestep} # Selling period end for each product
     empty_product::Product
+    empty_product_id::Int64
     # B::Array{Distribution} # User budgets
     # actions::Array{Action}
     # objective::Symbol
-    productindices::Dict
+    # productindices::Dict
     
     function PMDPg(pp)
-        empty_product = Product(falses(length(pp.C)), selling_period_end(pp))
-        new(pp, length(pp.C), empty_product)
+        nᵣ = size(pp.c₀)[1]
+        empty_product = Product(falses(nᵣ), selling_period_end(pp))
+        new(pp, nᵣ, empty_product, n_products(pp)+1)
     end
-
 
     # function PMDPg(E, P, λ, B, A, objective)
     #     # selling_period_ends = get_product_selling_period_ends(E, P)
@@ -43,9 +44,9 @@ Returns next requested product. If in given timestep one of the prodcuts has sel
 TODO: Potential speedup if product_request_probs are not recalculated at every step
 """
 function sample_request(m::PMDPg, t::Timestep, rng::AbstractRNG)::Product
-    d_demand_model = product_request_dist(t, m.λ, selling_period_ends(m))
-    prod_index = rand(rng, d_demand_model)
-    return products(m)[prod_index]
+    prod_index = rand(rng, demand(m)[t])
+    prod_index == n_products(problem(m))+1 ? p = empty_product(m) : p = products(m)[prod_index]
+    return p
 end
 
 """
@@ -53,8 +54,8 @@ Sample user budget Budget for product requested in state s.
 """
 function sample_customer_budget(m::PMDPg, s::State, rng::AbstractRNG)::Action
     # local b::Float64
-    if s.p != empty_product(m)
-        budget_distribution = m.B[index(m, s.p)]
+    if s.iₚ != m.empty_product_id
+        budget_distribution = budgets(m)[s.iₚ]
         budget = rand(rng, budget_distribution)
     else
         budget = -1.

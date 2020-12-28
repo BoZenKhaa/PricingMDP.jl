@@ -5,6 +5,7 @@ using Test
 include("mdp_instances.jl")
 
 @testset "PricingMDP.jl" begin
+    include("CountingProcesses/runtest.jl")
     include("PMDPProblem.jl")
     include("PMDPg.jl")
     # include("PMDP.jl")
