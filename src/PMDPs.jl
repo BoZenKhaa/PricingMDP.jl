@@ -17,8 +17,9 @@ using .CountingProcesses
 #Model definition
 # export PMDP, PMDPg, State, Action
 include("PMDP/PMDPTypes.jl")
+include("PMDP/product.jl")
 include("PMDP/PMDPProblem.jl")
-include("PMDP/State.jl")
+include("PMDP/state.jl")
 include("PMDP/PMDP.jl")
 include("PMDP/PMDPg.jl")
 # include("PMDP/PMDPe.jl")

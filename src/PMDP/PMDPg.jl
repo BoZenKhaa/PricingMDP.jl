@@ -10,21 +10,12 @@ PMDP for generative interface
 struct PMDPg <: PMDP{State, Action}
     pp::PMDPProblem                # Pricing Problem
     nᵣ::Int64
-    # T::Timestep                  # max timestep
-    # E::Array{Edge}
-    # P::Array{Product}
-    # λ::Array{Float64} # Demand vector (expected number of requests for each product = λ, we assume time interval (0,1))
-    # selling_period_ends::Array{Timestep} # Selling period end for each product
     empty_product::Product
     empty_product_id::Int64
-    # B::Array{Distribution} # User budgets
-    # actions::Array{Action}
-    # objective::Symbol
-    # productindices::Dict
     
-    function PMDPg(pp)
+    function PMDPg(pp::PMDPProblem)
         nᵣ = size(pp.c₀)[1]
-        empty_product = Product(falses(nᵣ), selling_period_end(pp))
+        
         new(pp, nᵣ, empty_product, n_products(pp)+1)
     end
 
