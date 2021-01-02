@@ -41,12 +41,12 @@ end
 Run "n_runs" simulations. Evaluate each run with each benchmark and method. Collect statistics. 
 """
 function run_experiment(params_mdp::Dict, params_mcts::Dict; n_runs = 20, vi = true, save=:all)
-    mdp_mc = PricingMDP.linear_PMDP(PMDPg; params_mdp...) 
-    planner = PricingMDP.get_MCTS_planner(mdp_mc, params_mcts)
+    mdp_mc = PMDPs.linear_PMDP(PMDPg; params_mdp...) 
+    planner = PMDPs.get_MCTS_planner(mdp_mc, params_mcts)
     
     if vi
-        mdp_vi = PricingMDP.linear_PMDP(PMDPe; params_mdp...)
-        policy = PricingMDP.vi_policy(params_mdp, mdp_vi)
+        mdp_vi = PMDPs.linear_PMDP(PMDPe; params_mdp...)
+        policy = PMDPs.vi_policy(params_mdp, mdp_vi)
     else
         mdp_vi = nothing
         policy = nothing
@@ -68,8 +68,8 @@ function run_experiment(params_mdp::Dict, params_mcts::Dict; n_runs = 20, vi = t
         h_mc = run_sim(mdp_mc, planner; max_steps = max_steps, rng_seed = rng_seed)
         save==:all ? push!(hs_mc, h_mc) : nothing
         
-        hindsight = PricingMDP.LP.MILP_hindsight_pricing(mdp_mc, h_mc; objective=mdp_mc.objective, verbose=false)
-        flatrate = PricingMDP.flatrate_pricing(mdp_mc, h_mc)
+        hindsight = PMDPs.LP.MILP_hindsight_pricing(mdp_mc, h_mc; objective=mdp_mc.objective, verbose=false)
+        flatrate = PMDPs.flatrate_pricing(mdp_mc, h_mc)
         push!(flat_r, flatrate[:r_a])
         push!(flat_u, flatrate[:u_a])
         
@@ -139,7 +139,7 @@ function timed_run_experiment(params::Dict)
 end
 
 function vi_policy(params_mdp::Dict, mdp_vi::PMDPe; force=false)
-    #policy = PricingMDP.get_VI_policy(mdp_vi)
+    #policy = PMDPs.get_VI_policy(mdp_vi)
 
     # Some mdp params are long, I have to remove them to keep the paths shorter than 260 chars
     h = string(hash(params_mdp), base=16)
@@ -150,7 +150,7 @@ function vi_policy(params_mdp::Dict, mdp_vi::PMDPe; force=false)
     result, filepath = produce_or_load(
         datadir("sims","vi_policies"),   # path
         params,                     # container
-        PricingMDP.get_VI_policy,                               # function
+        PMDPs.get_VI_policy,                               # function
         prefix = file,                # prefix for savename
         force = force                  # force generation
     )

@@ -1,6 +1,6 @@
 using Gurobi
 using JuMP
-using PricingMDP
+using PMDPs
 using POMDPSimulators
 using POMDPPolicies
 using Suppressor
@@ -26,8 +26,8 @@ Optimization goal can be either "revenue" or "utilization".
 Return the optimal allocation and the value of the objective.
 Usage: 
 
-mdp_mc = PricingMDP.create_PMDP(PMDPg) 
-planner = PricingMDP.get_MCTS_planner(mdp_mc)
+mdp_mc = PMDPs.create_PMDP(PMDPg) 
+planner = PMDPs.get_MCTS_planner(mdp_mc)
 
 rng = MersenneTwister(123)
 hr = HistoryRecorder(max_steps=100, capture_exception=false, rng=rng)
@@ -39,7 +39,7 @@ function MILP_hindsight_pricing(mdp::PMDP, h::AbstractSimHistory; objective=:rev
 
     # extract request trace from history
     trace = collect(eachstep(h, "s, info"))
-    requests = [rec for rec in trace if rec.s.p!=PricingMDP.empty_product(mdp)]
+    requests = [rec for rec in trace if rec.s.p!=PMDPs.empty_product(mdp)]
     if length(requests)==0
         return (r = 0., u = 0., alloc = [])
     end
@@ -123,7 +123,7 @@ Returns hindsight based policy for given history.
 This is the preffered interface to getting the hindsight actions.
 """
 function get_MILP_hindsight_policy(mdp::PMDP, h::AbstractSimHistory)
-    r, u, alloc, action_seq = PricingMDP.LP.MILP_hindsight_pricing(mdp, h; objective=PricingMDP.objective(mdp))
+    r, u, alloc, action_seq = PMDPs.LP.MILP_hindsight_pricing(mdp, h; objective=PMDPs.objective(mdp))
     
     timesteps = collect([s.t for s in h[:s]])
     acts = prepend!(action_seq,0)

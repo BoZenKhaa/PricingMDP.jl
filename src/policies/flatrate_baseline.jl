@@ -12,22 +12,22 @@ Used to select the best flatrate.
 function flatrate_analysis(mdp::PMDP, h::AbstractSimHistory)
     # extract request trace from history
     trace = collect(eachstep(h, "s, info"))
-    requests = [rec for rec in trace if rec.s.p!=PricingMDP.empty_product(mdp)]
+    requests = [rec for rec in trace if rec.s.p!=PMDPs.empty_product(mdp)]
 
     # get data from trace
     request_edges = [[rec.s.p...] for rec in requests]
     request_budgets = [rec.info.b for rec in requests]
 
     # Chech revenue of each flatrate
-    r_as = PricingMDP.Action[] # array containing total revenue for each possible flatrat
+    r_as = PMDPs.Action[] # array containing total revenue for each possible flatrat
     u_as = Int64[] # array of final capacity for each flatrate
     for flatrate in POMDPs.actions(mdp)
-        c_init = SVector{PricingMDP.n_edges(mdp)}([e.c_init for e in PricingMDP.edges(mdp)])
+        c_init = SVector{PMDPs.n_edges(mdp)}([e.c_init for e in PMDPs.edges(mdp)])
         c = copy(c_init)
         r_a = 0.
         for i in 1:length(requests)
-            if ~PricingMDP.sale_impossible(mdp, requests[i].s) && PricingMDP.user_buy(flatrate, request_budgets[i])
-                c = PricingMDP.reduce_capacities(c, requests[i].s.p)
+            if ~PMDPs.sale_impossible(mdp, requests[i].s) && PMDPs.user_buy(flatrate, request_budgets[i])
+                c = PMDPs.reduce_capacities(c, requests[i].s.p)
                 r_a +=flatrate
             end
         end

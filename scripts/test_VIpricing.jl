@@ -1,4 +1,4 @@
-using PricingMDP
+using PMDPs
 
 using StaticArrays
 using POMDPs
@@ -17,7 +17,7 @@ using Traceur
 using XLSX
 using BSON
 
-mdp = PricingMDP.create_PMDP(PMDPe)
+mdp = PMDPs.create_PMDP(PMDPe)
 
 # POMDPLinter.@requirements_info SparseValueIterationSolver() mdp
 # @requirements_info ValueIterationSolver() mdp

@@ -1,4 +1,4 @@
-using PricingMDP
+using PMDPs
 using Test
 using POMDPSimulators
 
@@ -29,8 +29,8 @@ actions =  Action[0,15,30,45,1000]
 """
 # params_mcts = Dict(pairs((solver= DPWSolver, n_iterations=1, depth=100, exploration_constant=40.0, keep_tree=true, show_progress=false)))
 # params_mdp = Dict(pairs( (n_edges = 10, c_init = 30,  demand = 5*Float64[1,1,1,1,1,1,1,1,1,1], selling_horizon_end = collect(155:5:200), actions= 15:2:300, objective=:revenue)))
-# mdp_mc = PricingMDP.create_PMDP(PMDPg; params_mdp...) 
-# planner = PricingMDP.get_MCTS_planner(mdp_mc, params_mcts)
+# mdp_mc = PMDPs.create_PMDP(PMDPg; params_mdp...) 
+# planner = PMDPs.get_MCTS_planner(mdp_mc, params_mcts)
 # h_mc = run_sim(mdp_mc, planner; max_steps = 201, rng_seed = 1)
 
 

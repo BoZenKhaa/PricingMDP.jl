@@ -33,9 +33,9 @@ include("PMDP/PMDPe.jl")
 
 # # Simulation tools
 # export run_sim, get_stats, makesim, simulate_trace
-# include("simulations/simtools.jl")
-# include("simulations/experiments.jl")
-# include("simulations/trace_generation.jl")
+include("simulations/simtools.jl")
+include("simulations/experiments.jl")
+include("simulations/trace_generation.jl")
 
 # # evaluators
 # include("eval/HistoryReplayer.jl")

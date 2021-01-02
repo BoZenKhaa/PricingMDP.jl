@@ -1,4 +1,4 @@
-# using PricingMDP
+# using PMDPs
 # using Test
 
 using StaticArrays

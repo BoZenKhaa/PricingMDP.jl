@@ -1,4 +1,4 @@
-using PricingMDP
+using PMDPs
 
 using StaticArrays
 using POMDPs

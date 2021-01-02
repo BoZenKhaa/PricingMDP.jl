@@ -1,12 +1,12 @@
 using Random
 using POMDPSimulators
-using PricingMDP.LP
+using PMDPs.LP
 
 @testset "HistoryReplayer.jl" begin
     mg, me = dead_simple_mdps()
-    requests = PricingMDP.simulate_trace(mg, MersenneTwister(123))
+    requests = PMDPs.simulate_trace(mg, MersenneTwister(123))
     
-    hrpl = PricingMDP.HistoryReplayer(mg, requests)
+    hrpl = PMDPs.HistoryReplayer(mg, requests)
     
     # Test basic properties
     @test POMDPs.actions(hrpl) == mg.actions
@@ -19,10 +19,10 @@ using PricingMDP.LP
     @test r == 0.
     @test info == requests[1].info
     
-    s = PricingMDP.State(SA[2,3], 5, SA[true, true])
+    s = PMDPs.State(SA[2,3], 5, SA[true, true])
     
     # test that the new trace from replayer matches the input trace
-    t = PricingMDP.simulate_trace(hrpl, MersenneTwister(321))
+    t = PMDPs.simulate_trace(hrpl, MersenneTwister(321))
     @test t == requests    
 
     # TODO: The following should likely be tested in tests of the specific policies
@@ -30,26 +30,26 @@ using PricingMDP.LP
     hrec = HistoryRecorder(max_steps = mg.T, rng = MersenneTwister(4321)) 
     
     # test VI with HistoryReplayer
-    policy = PricingMDP.get_VI_policy(me)
+    policy = PMDPs.get_VI_policy(me)
     hᵥ = simulate(hrec, hrpl, policy)
     @test length(hᵥ) == length(requests)
     @test sum(collect(hᵥ[:r])) > 0.
 
     # test MCTS with historyReplayer
-    planner = PricingMDP.get_MCTS_planner(mg; params_mcts = Dict(:rng=>MersenneTwister(1)))
+    planner = PMDPs.get_MCTS_planner(mg; params_mcts = Dict(:rng=>MersenneTwister(1)))
     hₘ = simulate(hrec, hrpl, planner)
     @test length(hₘ) == length(requests)
     @test sum(collect(hₘ[:r])) > 0.
 
     # test hindsight with historyReplayer
-    hindsight = PricingMDP.LP.get_MILP_hindsight_policy(mg, requests)
+    hindsight = PMDPs.LP.get_MILP_hindsight_policy(mg, requests)
     hₕ = simulate(hrec, hrpl, hindsight)
     @test length(hₕ) == length(requests)
     @test sum(collect(hₕ[:r])) > 0.   
 
     # test flatrate with historyReplayer
-    # R, U = PricingMDP.optimize_flatrate_policy(mg, [requests, requests])
-    flatrate = PricingMDP.get_flatrate_policy(mg, [requests, requests])
+    # R, U = PMDPs.optimize_flatrate_policy(mg, [requests, requests])
+    flatrate = PMDPs.get_flatrate_policy(mg, [requests, requests])
     hᵣ = simulate(hrec, hrpl, flatrate)
     @test length(hᵣ) == length(requests)
     @test sum(collect(hᵣ[:r])) > 0.   

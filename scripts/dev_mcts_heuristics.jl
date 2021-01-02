@@ -1,4 +1,4 @@
-using PricingMDP
+using PMDPs
 using Test
 using POMDPSimulators
 
@@ -22,11 +22,11 @@ Options
 """
 
 
-mdp_vi = PricingMDP.create_PMDP(PMDPe)
-mdp_mc = PricingMDP.create_PMDP(PMDPg) 
+mdp_vi = PMDPs.create_PMDP(PMDPe)
+mdp_mc = PMDPs.create_PMDP(PMDPg) 
 
-policy = PricingMDP.get_VI_policy(mdp_vi)
-# planner = PricingMDP.get_MCTS_planner(mdp_mc)
+policy = PMDPs.get_VI_policy(mdp_vi)
+# planner = PMDPs.get_MCTS_planner(mdp_mc)
 
 solver = MCTSSolver(n_iterations=5000,
                     depth=4, 
@@ -36,9 +36,9 @@ planner = solve(solver, mdp_mc);
 
 rng = MersenneTwister(1234)
 
-PricingMDP.compare_actions(mdp_vi, policy, planner; rng_seed=123, verbose=true)
+PMDPs.compare_actions(mdp_vi, policy, planner; rng_seed=123, verbose=true)
 
-mdp_mc = PricingMDP.create_PMDPe10(PMDPg) 
+mdp_mc = PMDPs.create_PMDPe10(PMDPg) 
 s0 = rand(rng, initialstate(mdp_mc))
 solver = MCTSSolver(n_iterations=5000,
                     depth=1, 
@@ -51,7 +51,7 @@ rng = MersenneTwister(123)
 hr = HistoryRecorder(max_steps=1000, capture_exception=true, rng=rng)
 h = simulate(hr, mdp_mc, planner)
 
-# PricingMDP.run_sim(mdp_mc, planner)
+# PMDPs.run_sim(mdp_mc, planner)
 # s0 = rand(rng, initialstate(mdp_mc))
 
 # function run_sim(mdp::PMDP, policy::Policy; rng_seed=1234)
@@ -84,8 +84,8 @@ h = simulate(hr, mdp_mc, planner)
 # params_mdp = Dict(pairs( (n_edges = 3, c_init = 2, demand = Float64[1.5,1.5,1.5], selling_horizon_end = [20,25,30], actions = 15:5:90)))
 params_mdp = Dict(pairs( (n_edges = 2, c_init = 1, demand = Float64[1,1], selling_horizon_end = [20,25], actions = 15:5:30)))
 
-mdp_vi = PricingMDP.create_PMDP(PMDPe; params_mdp...);
-policy = PricingMDP.get_VI_policy(mdp_vi);
+mdp_vi = PMDPs.create_PMDP(PMDPe; params_mdp...);
+policy = PMDPs.get_VI_policy(mdp_vi);
 
-result, filepath = PricingMDP.vi_policy(params_mdp, mdp_vi)
+result, filepath = PMDPs.vi_policy(params_mdp, mdp_vi)
 

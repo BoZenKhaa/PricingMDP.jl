@@ -1,3 +1,3 @@
-using PricingMDP
+using PMDPs
 
-PricingMDP.run_small_instances()
+PMDPs.run_small_instances()

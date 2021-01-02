@@ -11,12 +11,12 @@ Create `n_edges` pricing problem edges for linear pricing problem with given cap
 # Example
 ```
 julia> edges = create_edges(5, 2, [50,60,70,80,90])
-5-element Array{PricingMDP.Edge,1}:
- PricingMDP.Edge(1, 2, 50)
- PricingMDP.Edge(2, 2, 60)
- PricingMDP.Edge(3, 2, 70)
- PricingMDP.Edge(4, 2, 80)
- PricingMDP.Edge(5, 2, 90)
+5-element Array{PMDPs.Edge,1}:
+ PMDPs.Edge(1, 2, 50)
+ PMDPs.Edge(2, 2, 60)
+ PMDPs.Edge(3, 2, 70)
+ PMDPs.Edge(4, 2, 80)
+ PMDPs.Edge(5, 2, 90)
 ```
 """
 function create_linear_graph(n_edges::Int64, c::Int64, selling_horizon_ends::Array{Timestep})
