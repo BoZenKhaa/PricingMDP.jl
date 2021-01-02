@@ -33,8 +33,9 @@ using DataFrames
                 flat =  PMDPs.get_flatrate_policy(mg, [trace, trace]) 
                 )
 
+    # Every policy should give optimal allocation for provided trace
     for policy in policies
-        display(PMDPs.replay(hrpl, policy, MersenneTwister(1)))
+        @test PMDPs.get_metrics(hrpl, PMDPs.replay(hrpl, policy, MersenneTwister(1))) == (r=30., u=3, nₛ=3, nᵣ=3) 
     end
 
     metrics = PMDPs.eval(mg, trace, policies, MersenneTwister(1))
