@@ -9,14 +9,11 @@ PMDP for generative interface
 """
 struct PMDPg <: PMDP{State, Action}
     pp::PMDPProblem                # Pricing Problem
-    nᵣ::Int64
     empty_product::Product
     empty_product_id::Int64
     
     function PMDPg(pp::PMDPProblem)
-        nᵣ = size(pp.c₀)[1]
-        
-        new(pp, nᵣ, empty_product, n_products(pp)+1)
+        new(pp, empty_product(pp), n_products(pp)+1)
     end
 
     # function PMDPg(E, P, λ, B, A, objective)
@@ -34,10 +31,10 @@ Returns next requested product. If in given timestep one of the prodcuts has sel
 
 TODO: Potential speedup if product_request_probs are not recalculated at every step
 """
-function sample_request(m::PMDPg, t::Timestep, rng::AbstractRNG)::Product
-    prod_index = rand(rng, demand(m)[t])
-    prod_index == n_products(problem(m))+1 ? p = empty_product(m) : p = products(m)[prod_index]
-    return p
+function sample_request(m::PMDPg, t::Timestep, rng::AbstractRNG)::Int64
+    iₚ = rand(rng, demand(m)[t])
+    # prod_index == n_products(problem(m))+1 ? p = empty_product(m) : p = products(m)[prod_index]
+    # return p
 end
 
 """

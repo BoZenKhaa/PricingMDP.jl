@@ -32,13 +32,16 @@ Values needed for defining PMDP instance
 problem(m::PMDP) = m.pp
 
 products(m::PMDP) = problem(m).P
-timestep_limit(m::PMDP) = problem(m).T
+selling_period_end(m::PMDP) = selling_period_end(problem(m))
 budgets(m::PMDP) = problem(m).B
 demand(m::PMDP) = problem(m).D
 POMDPs.actions(m::PMDP) = problem(m).A
 objective(m::PMDP) = problem(m).objective
 
-n_res(m::PMDP) = size(problem(m))[2]
+n_resources(m::PMDP) = n_resources(problem(m))
+n_products(m::PMDP) = n_products(problem(m))
+n_actions(m::PMDP) = n_actions(problem(m))
+
 empty_product(m::PMDP) = m.empty_product
 empty_product_id(m::PMDP) = m.empty_product_id
 
@@ -76,9 +79,9 @@ reduce_capacities(c::SVector, p::Product) = c .- p
 """
 Given state s, determine whether a sale of product s.p is impossible
 """
-function sale_impossible(m::PMDP, s::State)::Bool
+function sale_impossible(m::PMDP, s::State, a::Action)::Bool
     p = product(m, s)
-    p==empty_product(m) || any((s.c - p) .<0.) ||  s.t >= selling_period_end(p)
+    a==REJECT_ACTION || s.iₚ==empty_product_id(m) || any((s.c - p) .<0.) ||  s.t >= selling_period_end(p)
 end
 
 """
@@ -88,7 +91,7 @@ State is terminal if it's timestep is over the timestep limit
 or if the capacity of all resources is 0.
 """
 function POMDPs.isterminal(m::PMDP, s::State)::Bool
-    if s.t >= timestep_limit(m) || all(s.c .<= 0) 
+    if s.t >= selling_period_end(m) || all(s.c .<= 0) 
         return true
     else
         return false
@@ -113,30 +116,7 @@ end
 
 productindices(P::Array{Product{n_res}} where n_res) = Dict(zip(P, 1:length(P)))
 
-POMDPs.initialstate(m::PMDP) = Deterministic(State{n_res(m)}(SVector([e.c_init for e in edges(m)]...), 0, empty_product(m)))
-
-
-"""
-Get product arrival probablities from homogenous Pois. proc. intensities λ, 
-while considering the product selling periods.
-
-Given λ, the expected number of request in period (0,1), 
-the probability of request arrivel in given timestep is given by λ~mp where m is the number of timesteps in period (0,1).
-"""
-function product_request_dist(t::Timestep,  λ::Array{Float64}, selling_period_ends::Array{Timestep})::Distribution
-    product_request_probs = Array{Float64, 1}(undef, length(λ))
-    for i in 1:length(λ)
-        if t>selling_period_ends[i]
-            product_request_probs[i]=0
-        else
-            product_request_probs[i]=λ[i]/selling_period_ends[i]
-        end
-    end
-    empty_product_request_prob = 1.0-sum(product_request_probs)
-    @assert 0. <= empty_product_request_prob <= 1. "The non-empty product request probabilities sum is > 1, finer time discretization needed."
-    # product_request_probs = calculate_product_request_probs(t, λ, selling_period_ends(m))
-    return Categorical([empty_product_request_prob, product_request_probs...])  
-end
+POMDPs.initialstate(m::PMDP) = Deterministic(State{n_resources(m)}(SVector([e.c_init for e in edges(m)]...), 0, empty_product(m)))
 
 """
 Returns the next state from given 
@@ -147,26 +127,26 @@ The most important function in the interface used by the search methods.
 """
 function POMDPs.gen(m::PMDP, s::State, a::Action, rng::AbstractRNG)
     b = sample_customer_budget(m, s, rng)
-    if ~sale_impossible(m, s) && user_buy(a, b)
+    if ~sale_impossible(m, s, a) && user_buy(a, b)
         if objective(m) == :revenue
             r=a
         elseif objective(m) == :utilization
-            r=sum(s.p)
+            r=sum(product(m, s))
         else
             throw(ArgumentError(string("Unknown objective: ", objective(m))))
         end
         # r = a
-        c = reduce_capacities(s.c, s.p)
+        c = reduce_capacities(s.c, product(m, s))
     else
         r = 0.
         c = s.c
     end
     Δt = 1
-    prod = sample_request(m, s.t+Δt, rng)
-    while sum(prod)==0 && s.t + Δt < timestep_limit(m)  #Empty product
+    iₚ = sample_request(m, s.t+Δt, rng)
+    while iₚ==m.empty_product_id && s.t + Δt < selling_period_end(m)  #Empty product
         Δt += 1
-        prod = sample_request(m, s.t+Δt, rng)
+        iₚ = sample_request(m, s.t+Δt, rng)
     end
-    return (sp = State(c, s.t+Δt, prod), r = r, info=(b=b,))
+    return (sp = State(c, s.t+Δt, iₚ), r = r, info=(b=b,))
 end
 

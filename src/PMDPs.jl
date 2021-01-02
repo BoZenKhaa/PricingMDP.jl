@@ -22,7 +22,7 @@ include("PMDP/PMDPProblem.jl")
 include("PMDP/state.jl")
 include("PMDP/PMDP.jl")
 include("PMDP/PMDPg.jl")
-# include("PMDP/PMDPe.jl")
+include("PMDP/PMDPe.jl")
 
 
 #Tools for defining problem instances
