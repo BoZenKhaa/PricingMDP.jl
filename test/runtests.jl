@@ -1,4 +1,5 @@
 using PMDPs
+using POMDPs
 using Test
 
 # Testing utility code
@@ -12,7 +13,7 @@ include("mdp_instances.jl")
     include("PMDPe.jl")
     include("PMDP.jl")
     include("trace_generation.jl")
-    # include("policy_tools.jl")
+    include("policy_tools.jl")
     # include("HistoryReplayer.jl")
     # include("evaluation.jl")
     # include("linear_problem.jl")

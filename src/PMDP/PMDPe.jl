@@ -6,19 +6,18 @@ Structures and functions for the EXPLICIT POMDPs.jl interface of the Pricing MDP
 Enumerates all states for MDP
 """
 function generate_states(pp::PMDPProblem)::AbstractArray{<:State}
-    c_it = Iterators.product(pp.c₀...)
-    s_it = Iterators.product(c_it, selling_period_end(pp), pp.P)
-    states = [State(SVector(args[1]), args[2], args[3]) for args in s_it]
+    c_it = Iterators.product([0:cᵣ for cᵣ in pp.c₀]...)
+    s_it = Iterators.product(c_it, 1:selling_period_end(pp), 1:(n_products(pp)+1)) # +1 for empty_product
+    states = [State(SVector(args[1]...), args[2], args[3]) for args in s_it]
 end
 
 function stateindices(pp::PMDPProblem)::LinearIndices
-    C_sizes = pp.c₀
+    C_sizes = pp.c₀ .+ 1                # +1 for 0 capacity
     T_size = selling_period_end(pp)     # timestep starts at t=1 and goes up to t=T
     prd_sizes = n_products(pp)+1        # +1 for empty product
 
     LinearIndices((C_sizes..., T_size, prd_sizes))
 end
-
 
 """
 m = PMDPe(edges, products, λ)
@@ -37,13 +36,17 @@ struct PMDPe <: PMDP{State, Action}
     end
 end
 
+
+"""
+Works only for un-empty product
+"""
 function sale_prob(budget_distributions::AbstractArray{<:Distribution}, s::State, a::Action)
     # cdf is probabulity that the sample from distribution is below the asking price a
     1-cdf(budget_distributions[s.iₚ], a)
 end
 
 function next_states(m::PMDP, s::State, new_c::AbstractArray{<:Number})::Array{State}
-    sps = [State(new_c, s.t+1, iₚ) for iₚ in 1:n_products(m)+1]
+    sps = [State(new_c, s.t+1, iₚ) for iₚ in 1:n_products(m)+1] # +1 for empty_product
 end
 
 function POMDPs.transition(m::PMDPe, s::State, a::Action)
@@ -51,11 +54,13 @@ function POMDPs.transition(m::PMDPe, s::State, a::Action)
     product_request_probs = demand(m)[s.t].p
     
     # NEXT STATES
-    # No sale due to no request or due to insufficient capacity
-    if  sale_impossible(m, s, a) 
+    # if s.t == selling_period_end(m)
+    #     sps = [s]
+    #     probs = [1.]
+    if sale_impossible(m, s, a) 
         sps = next_states(m, s, s.c)
         probs = product_request_probs
-    else
+    else # sale possible
         prob_sale = sale_prob(budgets(m), s, a)
 
         # sufficient capacity for sale and non-empty request
@@ -84,7 +89,7 @@ end
 
 
 function POMDPs.stateindex(m::PMDPe, s::State)
-    ci = CartesianIndex((s.c.+1)..., s.t+1, s.iₚ)
+    ci = CartesianIndex((s.c .+ 1)..., s.t, s.iₚ) # +1 for capacity because capaciteus go from 0..c₀
     m.statelinearindices[ci]
 end
 

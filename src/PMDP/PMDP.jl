@@ -95,11 +95,7 @@ State is terminal if it's timestep is over the timestep limit
 or if the capacity of all resources is 0.
 """
 function POMDPs.isterminal(m::PMDP, s::State)::Bool
-    if s.t >= selling_period_end(m) || all(s.c .<= 0) 
-        return true
-    else
-        return false
-    end
+    s.t >= selling_period_end(m) || all(s.c .<= 0) 
 end
 
 """

@@ -1,4 +1,4 @@
-# function dead_simple_mdps()
+# function simple_mdps()
 #     β = DiscreteNonParametric([10.], [1.])
 
 #     E = [PMDPs.Edge(1, 2, 6), # id, c

@@ -2,8 +2,13 @@ using Random
 # using POMDPSimulators
 using MCTS
 
+function simple_mdps()
+    pp = simple_pp()
+    PMDPs.PMDPg(pp), PMDPs.PMDPe(pp)
+end
+
 @testset "policy_tools.jl" begin
-    mg, me = dead_simple_mdps()
+    mg, me = simple_mdps()
     s₀ = rand(POMDPs.initialstate(mg))
     
     policy = PMDPs.get_VI_policy(me)

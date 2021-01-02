@@ -42,11 +42,11 @@ include("simulations/trace_generation.jl")
 # include("eval/evaluation.jl")
 
 # # Policies
-# include("policies/policy_tools.jl")
+include("policies/policy_tools.jl")
 # include("policies/flatrate_baseline.jl")
-# module LP
-# include("policies/LP.jl")
-# end
+module LP
+    # include("policies/LP.jl")
+end
 
 # # Problem definitions
 # include("problem_instances/linear_problem.jl")

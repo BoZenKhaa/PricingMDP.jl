@@ -2,7 +2,7 @@ using POMDPPolicies
 using DataFrames
 
 @testset "evaluation.jl" begin
-    mg, me = dead_simple_mdps()
+    mg, me = simple_mdps()
     requests = PMDPs.simulate_trace(mg, MersenneTwister(123))
     # Three non-zero requests with budget 10
     

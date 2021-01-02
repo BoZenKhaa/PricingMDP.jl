@@ -3,7 +3,7 @@ using POMDPSimulators
 using PMDPs.LP
 
 @testset "HistoryReplayer.jl" begin
-    mg, me = dead_simple_mdps()
+    mg, me = simple_mdps()
     requests = PMDPs.simulate_trace(mg, MersenneTwister(123))
     
     hrpl = PMDPs.HistoryReplayer(mg, requests)
