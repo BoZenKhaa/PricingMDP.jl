@@ -38,14 +38,14 @@ include("simulations/experiments.jl")
 include("simulations/trace_generation.jl")
 
 # # evaluators
-# include("eval/HistoryReplayer.jl")
-# include("eval/evaluation.jl")
+include("eval/HistoryReplayer.jl")
+include("eval/evaluation.jl")
 
 # # Policies
 include("policies/policy_tools.jl")
-# include("policies/flatrate_baseline.jl")
+include("policies/flatrate_baseline.jl")
 module LP
-    # include("policies/LP.jl")
+    include("policies/LP.jl")
 end
 
 # # Problem definitions

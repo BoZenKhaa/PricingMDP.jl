@@ -3,12 +3,13 @@ using JuMP
 using PMDPs
 using POMDPSimulators
 using POMDPPolicies
+using POMDPs
 using Suppressor
 
 """
 Get maximal action value that is below the budget b.
 """
-function optimal_price(b::Float64, actions::Array{Action})::Action
+function optimal_price(b::Float64, actions::AbstractArray{<:Number})::PMDPs.Action
     best_action = actions[1]
     for a in actions
         if a > b
@@ -35,17 +36,17 @@ h = simulate(hr, mdp_mc, planner)
 
 MILP_hindsight_pricing(mdp_mc, h)
 """
-function MILP_hindsight_pricing(mdp::PMDP, h::AbstractSimHistory; objective=:revenue, verbose=false)
+function MILP_hindsight_pricing(mdp::PMDPs.PMDP, h::AbstractSimHistory; objective=:revenue, verbose=false)
 
     # extract request trace from history
     trace = collect(eachstep(h, "s, info"))
-    requests = [rec for rec in trace if rec.s.p!=PMDPs.empty_product(mdp)]
+    requests = [rec for rec in trace if rec.s.iₚ != PMDPs.empty_product_id(mdp)]
     if length(requests)==0
         return (r = 0., u = 0., alloc = [])
     end
 
     # get data from trace
-    request_edges = [[rec.s.p...] for rec in requests]
+    request_edges = [[PMDPs.product(mdp, rec.s)...] for rec in requests]
     request_budgets = [rec.info.b for rec in requests]
 
     # prepare data
@@ -60,9 +61,9 @@ function MILP_hindsight_pricing(mdp::PMDP, h::AbstractSimHistory; objective=:rev
     capacity_constraints = [3,3,3]
     """
     E = request_edges
-    R = [optimal_price(b, mdp.actions) for b in request_budgets]
+    R = [optimal_price(b, POMDPs.actions(mdp)) for b in request_budgets]
 
-    capacity_constraints = [e.c_init for e in mdp.E]
+    capacity_constraints = [PMDPs.problem(mdp).c₀...]
 
     request_ind = 1:length(request_edges)
     capacity_ind = 1:length(capacity_constraints)
@@ -122,7 +123,7 @@ Returns hindsight based policy for given history.
 
 This is the preffered interface to getting the hindsight actions.
 """
-function get_MILP_hindsight_policy(mdp::PMDP, h::AbstractSimHistory)
+function get_MILP_hindsight_policy(mdp::PMDPs.PMDP, h::AbstractSimHistory)
     r, u, alloc, action_seq = PMDPs.LP.MILP_hindsight_pricing(mdp, h; objective=PMDPs.objective(mdp))
     
     timesteps = collect([s.t for s in h[:s]])

@@ -14,7 +14,7 @@ include("mdp_instances.jl")
     include("PMDP.jl")
     include("trace_generation.jl")
     include("policy_tools.jl")
-    # include("HistoryReplayer.jl")
+    include("HistoryReplayer.jl")
     # include("evaluation.jl")
     # include("linear_problem.jl")
 end
