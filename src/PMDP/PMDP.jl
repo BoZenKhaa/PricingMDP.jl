@@ -79,9 +79,13 @@ reduce_capacities(c::SVector, p::Product) = c .- p
 """
 Given state s, determine whether a sale of product s.p is impossible
 """
-function sale_impossible(m::PMDP, s::State, a::Action)::Bool
+function sale_impossible(m::PMDP, s::State)::Bool
     p = product(m, s)
-    a==REJECT_ACTION || s.iₚ==empty_product_id(m) || any((s.c - p) .<0.) ||  s.t >= selling_period_end(p)
+    s.iₚ==empty_product_id(m) || any((s.c - p) .<0.) ||  s.t >= selling_period_end(p)
+end
+
+function sale_impossible(m::PMDP, s::State, a::Action)::Bool
+    a==REJECT_ACTION || sale_impossible(m, s) 
 end
 
 """
@@ -116,7 +120,7 @@ end
 
 productindices(P::Array{Product{n_res}} where n_res) = Dict(zip(P, 1:length(P)))
 
-POMDPs.initialstate(m::PMDP) = Deterministic(State{n_resources(m)}(SVector([e.c_init for e in edges(m)]...), 0, empty_product(m)))
+POMDPs.initialstate(m::PMDP) = Deterministic(State(problem(m).c₀, 1, rand(demand(m)[1])))
 
 """
 Returns the next state from given 
