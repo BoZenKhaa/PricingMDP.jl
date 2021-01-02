@@ -17,11 +17,7 @@ struct HistoryReplayer <: PMDP{State, Action}
     end
 end
 
-# objective(hr::HistoryReplayer) = objective(hr.m)
-# empty_product(hr::HistoryReplayer) = empty_product(hr.m)
-# empty_product_id(hr::HistoryReplayer) = empty_product_id(hr.m)
-# selling_period_end(hr::HistoryReplayer) = selling_period_end(hr.m)
-# POMDPs.actions(hr::HistoryReplayer) = POMDPs.actions(hr.m)
+POMDPs.initialstate(hr::HistoryReplayer) = Deterministic(hr.h[1].s)
 
 """
 Returns next requested product. If in given timestep one of the prodcuts has selling period end, update the product request probs.

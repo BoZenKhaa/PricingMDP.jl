@@ -2,19 +2,22 @@ using Random
 using POMDPSimulators
 using PMDPs.LP
 
+function simple_trace(pp::PMDPs.PMDPProblem)
+    SimHistory([
+        (s = PMDPs.State(pp.c₀, 1, 1), info = (b=10.,)),
+        (s = PMDPs.State(pp.c₀, 3, 2), info = (b=10.,)),
+        (s = PMDPs.State(pp.c₀, 5, 2), info = (b=10.,))
+    ], 1., nothing, nothing)
+end
+
 @testset "HistoryReplayer.jl" begin
     mg, me = simple_mdps()
     pp = PMDPs.problem(mg)
 
     # History replayer takes either full SimulationHistory structure
     simhistory = PMDPs.simulate_trace(mg, MersenneTwister(1))
-
     # Or more limited structure containing Abstract Arrays of NamedTuples that contain state and info fields.
-    trace = SimHistory([
-        (s = PMDPs.State(pp.c₀, 1, 1), info = (b=10.,)),
-        (s = PMDPs.State(pp.c₀, 3, 2), info = (b=10.,)),
-        (s = PMDPs.State(pp.c₀, 5, 2), info = (b=10.,))
-    ], 1., nothing, nothing)
+    trace = simple_trace(pp)
 
     @test isa(PMDPs.HistoryReplayer(mg, simhistory), PMDPs.PMDP)
     @test isa(PMDPs.HistoryReplayer(mg, trace), PMDPs.PMDP)

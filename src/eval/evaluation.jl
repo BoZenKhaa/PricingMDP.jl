@@ -22,13 +22,13 @@ Get NamedTuple of metrics:
     :nᵣ number of non-empty requests
  for given SimHistory
 """
-function get_metrics(h::AbstractSimHistory)::NamedTuple
+function get_metrics(m::PMDP, h::AbstractSimHistory)::NamedTuple
     revenue = sum(h[:r])
-    sold_products = [e.s.p for e in h if e.r>0]
-    n_sales = length(sold_products)
-    n_requests = length([e for e in h if sum(e.s.p)>0])
-    utilization = sum(sum(sold_products))
-    @assert utilization == sum(h[1].s.c - h[end].sp.c)
+    sold_product_sizes::Array{Int64,1} = [sum(product(m, e.s)) for e in h if e.s.c!=e.sp.c]
+    n_sales = length(sold_product_sizes)
+    n_requests = length([e for e in h if e.s.iₚ!=PMDPs.empty_product_id(m)])
+    utilization = sum(sold_product_sizes)
+    @assert utilization == sum(h[1].s.c - h[end].sp.c) string("utilization ", utilization, " is not ", h[1].s.c, " - ", h[end].sp.c, h)
     (r = revenue, u = utilization, nₛ = n_sales, nᵣ = n_requests)
 end
 
@@ -38,15 +38,15 @@ Return DataFrame of evaluation metrics from running given policies on a given hi
 
 In addition to the metrics, save the name of the policy, hash of the request sequence and seed used in the replay. 
 """
-function eval(m::PMDP, requests::AbstractSimHistory, policies::NamedTuple, 
+function eval(mdp::PMDP, requests::AbstractSimHistory, policies::NamedTuple, 
               rng::AbstractRNG)::DataFrame
-    hrpl = HistoryReplayer(m, requests)
+    hrpl = HistoryReplayer(mdp, requests)
 
     metrics = DataFrame()
 
     for (name, policy) in pairs(policies)
         h = replay(hrpl, policy, rng)
-        m = get_metrics(h)
+        m = get_metrics(mdp, h)
         push!(metrics, (m..., name=name, sequence=hash(requests), replay_rng_seed=rng.seed))
     end
     return metrics

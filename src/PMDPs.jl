@@ -49,6 +49,6 @@ module LP
 end
 
 # # Problem definitions
-# include("problem_instances/linear_problem.jl")
+include("problem_instances/linear_problem.jl")
 
 end

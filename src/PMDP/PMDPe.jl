@@ -41,8 +41,10 @@ end
 Works only for un-empty product
 """
 function sale_prob(budget_distributions::AbstractArray{<:Distribution}, s::State, a::Action)
-    # cdf is probabulity that the sample from distribution is below the asking price a
-    1-cdf(budget_distributions[s.iₚ], a)
+    # cdf is probabulity that the sample from distribution is below or equal (≤) the asking price a
+    # we want probability that sample is below the asking price (<). 
+    # This is only issue with discrete distributions, for those, I will subtract ϵ from a.
+    1-cdf(budget_distributions[s.iₚ], a-ϵ)
 end
 
 function next_states(m::PMDP, s::State, new_c::AbstractArray{<:Number})::Array{State}

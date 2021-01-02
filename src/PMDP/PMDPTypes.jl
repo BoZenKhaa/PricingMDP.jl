@@ -17,3 +17,4 @@ abstract type PMDP{State, Action} <: MDP{State, Action} end
 
 const EMPTY_PRODUCT_USER_BUDGET = -1.
 const REJECT_ACTION = floatmax()
+const ϵ = 10^-12

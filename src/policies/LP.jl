@@ -127,8 +127,7 @@ function get_MILP_hindsight_policy(mdp::PMDPs.PMDP, h::AbstractSimHistory)
     r, u, alloc, action_seq = PMDPs.LP.MILP_hindsight_pricing(mdp, h; objective=PMDPs.objective(mdp))
     
     timesteps = collect([s.t for s in h[:s]])
-    acts = prepend!(action_seq,0)
-    pd = Dict(zip(timesteps, acts))
+    pd = Dict(zip(timesteps, action_seq))
 
     hp = FunctionPolicy(s -> pd[s.t])
 end

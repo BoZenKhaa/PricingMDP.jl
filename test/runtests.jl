@@ -2,6 +2,8 @@ using PMDPs
 using POMDPs
 using Test
 
+run(`clear`)
+
 # Testing utility code
 include("mdp_instances.jl")
 
@@ -15,6 +17,6 @@ include("mdp_instances.jl")
     include("trace_generation.jl")
     include("policy_tools.jl")
     include("HistoryReplayer.jl")
-    # include("evaluation.jl")
-    # include("linear_problem.jl")
+    include("evaluation.jl")
+    include("linear_problem.jl")
 end
