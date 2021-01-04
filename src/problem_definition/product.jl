@@ -2,47 +2,33 @@
 """
 Create product that is continuous in the linear graph, i.e. the edges are connected in a line.
 """
-function create_continuos_product(start_edge_id::Int64, len::Int64, total_n_edges::Int64)
-    product = zeros(Bool, total_n_edges)
-    for i in start_edge_id:(start_edge_id+len-1)
+function create_continuous_linear_product(start_res_id::Int64, len::Int64, n_res::Int64, resource_selling_period_ends::Array{Int64})
+    product = zeros(Bool, n_res)
+    spe = typemax(Int64)
+    for i in start_res_id:(start_res_id+len-1)
         product[i]=true
+        spe = minimum([spe, resource_selling_period_ends[i]])
     end
-    return Product{total_n_edges}(product)
+    return Product{n_res}(product, spe)
 end
 
 """
-    create_continuos_products(E)
+    create_continuos_products(resource_selling_period_ends)
 
-Create an array of continous products from a linear problem graph given by the array of Edges `E`.
+Create an array of continous products from a linear problem graph given by the array of resources
 
 # Examples
 ```
-products = create_continuous_products(edges)
+products = create_continuous_products(resources)
 ````
 """
-function create_continuous_products(edges::Array{Edge})
-    # n_products = convert(Int64,(length(edges)+1)length(edges)/2)
-    n_edges = length(edges)
-    products = Product{n_edges}[]
-    push!(products, Product{n_edges}(zeros(Bool, length(edges)))) # Empty product
-    for len in 1:length(edges)
-        for start in 1:(length(edges)+1-len)
-            push!(products, create_continuos_product(start, len, length(edges)))
+function create_continuous_linear_products(resource_selling_period_ends::Array{Int64})
+    n_res = length(resource_selling_period_ends)
+    products = Product{n_res}[]
+    for len in 1:n_res
+        for start in 1:(n_res+1-len)
+            push!(products, create_continuous_linear_product(start, len, n_res, resource_selling_period_ends))
         end     
     end
     return products
 end
-
-"""
-Given an array of graph edges and products, return a selling period end for each product. 
-"""
-function get_product_selling_period_ends(E::Array{Edge}, P::Array{Product{n_edges}}) where n_edges
-    selling_period_ends = zeros(Int64, length(P))
-    for i in 2:length(P)
-        prod = P[i]
-        selling_period_ends[i] = minimum([e.selling_period_end for e in E[prod]])
-    end
-    selling_period_ends[1] = maximum(selling_period_ends[2:end])
-    return selling_period_ends
-end
-

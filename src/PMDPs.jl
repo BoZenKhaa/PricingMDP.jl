@@ -26,10 +26,9 @@ include("PMDP/PMDPe.jl")
 
 
 #Tools for defining problem instances
-# include("problem_definition/graph.jl")
-# include("problem_definition/product.jl")
+include("problem_definition/product.jl")
 # include("problem_definition/demand.jl")
-# include("problem_definition/user_budgets.jl")
+include("problem_definition/user_budgets.jl")
 
 # # Simulation tools
 # export run_sim, get_stats, makesim, simulate_trace

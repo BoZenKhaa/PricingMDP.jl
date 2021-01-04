@@ -1,8 +1,13 @@
+using PMDPs.CountingProcesses
+using Distributions
+
 @testset "linear_problem.jl" begin
 
-    # Prepare an instance using utility methods and test that it gets solved
-    # mg = PMDPs.simple_linear_PMDP(PMDPg)
-    # @test isa(mg, PMDPg)
+   pp1 = PMDPs.linear_pp(3)
+   PMDPs.PMDPg(pp1)
+   
+   @test isa(pp2, PMDPs.PMDPProblem)
 
-
+   pp2 = PMDPs.linear_pp(10; c=5, T=100, expected_res=100., res_budget_μ=5.)
+   @test isa(pp2, PMDPs.PMDPProblem) 
 end

@@ -1,44 +1,11 @@
 using Distributions
 
 """
-    pwl(10, slope_start=5., slope_end=30.)
-
-PieceWise Linear "step" function with slope in the middle, like so:
-  1-|-----\\
-    |      \\
-    |       \\
-  0-|-----|--\\------
-    0  start end
-
-TODO: Handle better configuration of user model in problem, now its hardcoded here.
+Create normal budget distribution for each product with mean given by
+the number of resources in the product.
 """
-function pwl(x::Number;
-            slope_start::Float64=5.,
-            slope_end::Float64=30.)
-    if x<slope_start
-        return 1.
-    elseif x>slope_end
-        return 0.
-    else
-        return (x-slope_end)/(slope_start-slope_end)
-    end
-end
-
-
-"""
-Probability of sale which is linear in the size of the product
-"""
-function prob_sale_linear(product::Product, a::Action)
-    unit_price = a/sum(product)
-    pwl(unit_price)
-end
-
-"""
-Given budget per unit, calculate price per unit and determine probability of sale using complementary cdf of user budgets.
-
-"""
-function sale_prob(m::PMDP, s::State, a::Action)
-    prod_size = sum(s.p)
-    @assert prod_size>0
-    ccdf(m.B[index(m, s.p)], a/prod_size)
+function normal_budgets_per_resource(P::AbstractArray{<:Product}, resource_budget_μ ::Float64, σ::Float64)
+    P_sizes = Float64[sum(p) for p in P]
+    budget_means = P_sizes .* resource_budget_μ
+    [Normal(μ, σ) for μ in budget_means]    
 end
