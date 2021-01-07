@@ -46,7 +46,7 @@ function MILP_hindsight_pricing(mdp::PMDPs.PMDP, h::AbstractSimHistory; objectiv
     end
 
     # get data from trace
-    request_edges = [[PMDPs.product(mdp, rec.s)...] for rec in requests]
+    request_resources = [[PMDPs.product(mdp, rec.s)...] for rec in requests]
     request_budgets = [rec.info.b for rec in requests]
 
     # prepare data
@@ -60,12 +60,12 @@ function MILP_hindsight_pricing(mdp::PMDPs.PMDP, h::AbstractSimHistory; objectiv
     R = [20, 10, 30, 10]
     capacity_constraints = [3,3,3]
     """
-    E = request_edges
+    E = request_resources
     R = [optimal_price(b, POMDPs.actions(mdp)) for b in request_budgets]
 
     capacity_constraints = [PMDPs.problem(mdp).c₀...]
 
-    request_ind = 1:length(request_edges)
+    request_ind = 1:length(request_resources)
     capacity_ind = 1:length(capacity_constraints)
 
     local model
@@ -105,7 +105,7 @@ function MILP_hindsight_pricing(mdp::PMDPs.PMDP, h::AbstractSimHistory; objectiv
     optimal_alloc = JuMP.value.(x)
 
     # Calculate utilization
-    utilization = sum(sum([x*p for (x,p) in zip(optimal_alloc.data, request_edges)]))
+    utilization = sum(sum([x*p for (x,p) in zip(optimal_alloc.data, request_resources)]))
 
     if verbose 
         print(output) 
@@ -113,7 +113,7 @@ function MILP_hindsight_pricing(mdp::PMDPs.PMDP, h::AbstractSimHistory; objectiv
     end
 
     return (r = obj_val, u = utilization, alloc = optimal_alloc.data, 
-            action_seq = optimal_alloc.data.*R)
+            action_seq = optimal_alloc.data.*R, requests=requests)
     
 end
 
@@ -124,10 +124,10 @@ Returns hindsight based policy for given history.
 This is the preffered interface to getting the hindsight actions.
 """
 function get_MILP_hindsight_policy(mdp::PMDPs.PMDP, h::AbstractSimHistory)
-    r, u, alloc, action_seq = PMDPs.LP.MILP_hindsight_pricing(mdp, h; objective=PMDPs.objective(mdp))
+    r, u, alloc, action_seq, requests = PMDPs.LP.MILP_hindsight_pricing(mdp, h; objective=PMDPs.objective(mdp))
     
-    timesteps = collect([s.t for s in h[:s]])
+    timesteps = collect([req[:s].t for req in requests])
     pd = Dict(zip(timesteps, action_seq))
 
-    hp = FunctionPolicy(s -> pd[s.t])
+    hp = FunctionPolicy(s -> get(pd, s.t, PMDPs.REJECT_ACTION))
 end
