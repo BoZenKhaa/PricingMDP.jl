@@ -23,8 +23,3 @@ PMDPs.process_data(data, PMDPs.vi; N=N)
 PMDPs.process_data(data, PMDPs.mcts; N=N)
 
 println("Done.")
-
-
-# pp = data[:pp]
-# mg = PMDPs.PMDPg(pp)
-# Debugger.@enter PMDPs.LP.MILP_hindsight_pricing(mg, data[:traces][4])

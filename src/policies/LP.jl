@@ -41,10 +41,10 @@ function MILP_hindsight_pricing(mdp::PMDPs.PMDP, h::AbstractSimHistory; objectiv
     # extract request trace from history
     trace = collect(eachstep(h, "s, info"))
     requests = [rec for rec in trace if rec.s.iₚ != PMDPs.empty_product_id(mdp)]
+    
     if length(requests)==0
         result = (r = 0., u = 0., alloc = [], action_seq=[], requests=[])
     else
-
         # get data from trace
         request_resources = [[PMDPs.product(mdp, rec.s)...] for rec in requests]
         request_budgets = [rec.info.b for rec in requests]
@@ -112,10 +112,10 @@ function MILP_hindsight_pricing(mdp::PMDPs.PMDP, h::AbstractSimHistory; objectiv
             println("Allocation: ", optimal_alloc.data)
         end
         result = (r = obj_val, 
-                u = utilization, 
-                alloc = optimal_alloc.data, 
-                action_seq = optimal_alloc.data.*R, 
-                requests = requests)
+                  u = utilization, 
+                  alloc = optimal_alloc.data, 
+                  action_seq = optimal_alloc.data.*R, 
+                  requests = requests)
     
     end
 

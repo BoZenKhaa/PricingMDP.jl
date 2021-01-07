@@ -40,10 +40,10 @@ using DataFrames
 
     metrics = PMDPs.eval(mg, trace, policies, MersenneTwister(1))
     @test isa(metrics, DataFrame)
-    @test size(metrics)==(length(policies),7)
+    @test size(metrics)==(length(policies),8)
 
 
     metrics_all = PMDPs.eval(mg, [trace, trace], policies, MersenneTwister(1))
     @test isa(metrics_all, DataFrame)
-    @test size(metrics_all)==(length(policies)*2,7)
+    @test size(metrics_all)==(length(policies)*2,8)
 end
