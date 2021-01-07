@@ -54,6 +54,11 @@ end
 
 """
 Get flatrate policy from a training set of histories
+
+To get policy action, use 
+
+    action(flatrate_policy, POMDPs.initialstate(mg))
+
 """
 function get_flatrate_policy(mdp::PMDP, training_histories::Array{<:AbstractSimHistory}; objective=:revenue)::Policy
     R, U = optimize_flatrate_policy(mdp, training_histories)
@@ -69,3 +74,4 @@ function get_flatrate_policy(mdp::PMDP, training_histories::Array{<:AbstractSimH
     
     FunctionPolicy(s->best_flatrate)
 end
+

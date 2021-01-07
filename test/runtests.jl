@@ -19,4 +19,5 @@ include("mdp_instances.jl")
     include("HistoryReplayer.jl")
     include("evaluation.jl")
     include("linear_problem.jl")
+    include("simrunning.jl")
 end

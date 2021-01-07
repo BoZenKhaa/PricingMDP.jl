@@ -1,6 +1,11 @@
 using PMDPs.CountingProcesses
 using Distributions
 
+function linear_pp(;nᵣ::Int64=3,
+        kwargs...)
+    linear_pp(nᵣ; kwargs...)
+end
+
 function linear_pp(nᵣ::Int64;
         c::Int64=3, 
         T::Int64=10, 
