@@ -77,3 +77,19 @@ rngx2 = Xorshift1024Plus(1)
 @benchmark rand(rngm)
 @benchmark rand(rngx)
 @benchmark rand(rngx2)
+
+# Try-catch block issues
+
+function test_trycatch()
+    a = -1
+    try
+        a = 0
+        throw(ErrorException("Oh no!"))
+    catch
+        a = 1
+    end
+
+    @show a
+end
+
+test_trycatch()

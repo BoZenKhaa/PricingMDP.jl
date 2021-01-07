@@ -14,12 +14,17 @@ using StaticArrays, Distributions # load pp
 pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5.)))
 sname = savename("traces_lp", pp_params,  "bson")
 data = load(datadir("traces", sname))
-traces = data[:traces]
+data = PMDPs.load_traces(datadir("traces", sname))
 
-N=10
+N=10000
 PMDPs.process_data(data, PMDPs.flatrate; N=N)
-PMDPs.process_data(data, PMDPs.hindsight; N=1)
+PMDPs.process_data(data, PMDPs.hindsight; N=N)
 PMDPs.process_data(data, PMDPs.vi; N=N)
 PMDPs.process_data(data, PMDPs.mcts; N=N)
 
 println("Done.")
+
+
+# pp = data[:pp]
+# mg = PMDPs.PMDPg(pp)
+# Debugger.@enter PMDPs.LP.MILP_hindsight_pricing(mg, data[:traces][4])

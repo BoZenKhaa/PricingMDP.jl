@@ -1,7 +1,7 @@
 using POMDPSimulators
 using POMDPPolicies
 using DataFrames
-
+using ProgressMeter
 
 """
 Run policy on a history loaded in HistoryReplayer and return a new history
@@ -37,17 +37,25 @@ end
 Return DataFrame of evaluation metrics from running given policies on a given history of requests.
 
 In addition to the metrics, save the name of the policy, hash of the request sequence and seed used in the replay. 
+
+requests::AbstractSimHistory or similar
 """
-function eval(mdp::PMDP, requests::AbstractSimHistory, policies::NamedTuple, 
+function eval(mdp::PMDP, requests::Union{AbstractSimHistory, AbstractArray{<:NamedTuple}}, policies::NamedTuple, 
               rng::AbstractRNG)::DataFrame
     hrpl = HistoryReplayer(mdp, requests)
 
     metrics = DataFrame()
 
     for (name, policy) in pairs(policies)
-        h = replay(hrpl, policy, rng)
-        m = get_metrics(mdp, h)
-        push!(metrics, (m..., name=name, sequence=hash(requests), replay_rng_seed=rng.seed))
+        m = NamedTuple()
+        error = nothing
+        try
+            h = replay(hrpl, policy, rng)
+            m = get_metrics(mdp, h)
+        catch err
+           error = err 
+        end
+        push!(metrics, (m..., name=name, sequence=hash(requests), error=error, replay_rng_seed=rng.seed))
     end
     return metrics
 end
@@ -58,12 +66,12 @@ Return DataFrame of evaluation metrics of given tuple of policies on a sequence 
 
 requests_sequences::AbstractArray{<:AbstractSimHistory} or similar shape
 """
-function eval(mdp::PMDP, request_sequences::AbstractArray, 
+function eval(mdp::PMDP, request_sequences::AbstractArray{<:AbstractSimHistory}, 
               policies::NamedTuple, rng::AbstractRNG)::DataFrame
     metrics = DataFrame()
-    for sequence in request_sequences
+    @showprogress 1 "Evaluating traces..." for sequence in request_sequences
         mₛ = eval(mdp, sequence, policies, rng)
-        metrics = vcat(metrics, mₛ)
+        metrics = vcat(metrics, mₛ, cols=:union)
     end
     return metrics
 end

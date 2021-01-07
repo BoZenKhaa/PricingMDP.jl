@@ -42,79 +42,84 @@ function MILP_hindsight_pricing(mdp::PMDPs.PMDP, h::AbstractSimHistory; objectiv
     trace = collect(eachstep(h, "s, info"))
     requests = [rec for rec in trace if rec.s.iₚ != PMDPs.empty_product_id(mdp)]
     if length(requests)==0
-        return (r = 0., u = 0., alloc = [])
-    end
-
-    # get data from trace
-    request_resources = [[PMDPs.product(mdp, rec.s)...] for rec in requests]
-    request_budgets = [rec.info.b for rec in requests]
-
-    # prepare data
-    """ E: Matrix that has requests as rows and columns as capacity edges
-    R: List of maximum prices that users will accept
-    e.g. matrix for 4 request in problem with 3 edges and capacity 3:
-    E = [[1,1,0], 
-    [1,0,0],
-    [1,1,1], 
-    [0,0,1]]
-    R = [20, 10, 30, 10]
-    capacity_constraints = [3,3,3]
-    """
-    E = request_resources
-    R = [optimal_price(b, POMDPs.actions(mdp)) for b in request_budgets]
-
-    capacity_constraints = [PMDPs.problem(mdp).c₀...]
-
-    request_ind = 1:length(request_resources)
-    capacity_ind = 1:length(capacity_constraints)
-
-    local model
-    @suppress_out begin
-        model = Model(Gurobi.Optimizer)
-    end
-    # set_optimizer_attribute(model, "Presolve", 0)
-    if ~verbose  set_optimizer_attribute(model, "OutputFlag", 0) end
-
-    # Variables
-    @variable(model, x[request_ind], Bin)
-
-
-    # Constraints
-    @constraint(model, [j in capacity_ind], 
-            sum(x[i]*E[i][j] for i in request_ind) <= capacity_constraints[j])
-
-    # Objectives
-    if objective == :revenue
-        @objective(model, Max, 
-            sum(x[i]*R[i] for i in request_ind))
-    elseif  objective == :utilization
-        durations = [sum(rec) for rec in E]
-        @objective(model, Max, 
-            sum(x[i]*durations[i] for i in request_ind))
+        result = (r = 0., u = 0., alloc = [], action_seq=[], requests=[])
     else
-        error("unknown MILP optimization goal $optimization_goal")
-    end
+
+        # get data from trace
+        request_resources = [[PMDPs.product(mdp, rec.s)...] for rec in requests]
+        request_budgets = [rec.info.b for rec in requests]
+
+        # prepare data
+        """ E: Matrix that has requests as rows and columns as capacity edges
+        R: List of maximum prices that users will accept
+        e.g. matrix for 4 request in problem with 3 edges and capacity 3:
+        E = [[1,1,0], 
+        [1,0,0],
+        [1,1,1], 
+        [0,0,1]]
+        R = [20, 10, 30, 10]
+        capacity_constraints = [3,3,3]
+        """
+        E = request_resources
+        R = [optimal_price(b, POMDPs.actions(mdp)) for b in request_budgets]
+
+        capacity_constraints = [PMDPs.problem(mdp).c₀...]
+
+        request_ind = 1:length(request_resources)
+        capacity_ind = 1:length(capacity_constraints)
+
+        local model
+        @suppress_out begin
+            model = Model(Gurobi.Optimizer)
+        end
+        # set_optimizer_attribute(model, "Presolve", 0)
+        if ~verbose  set_optimizer_attribute(model, "OutputFlag", 0) end
+
+        # Variables
+        @variable(model, x[request_ind], Bin)
 
 
-    # Optimize and capture std_out
-    output = @capture_out optimize!(model)
+        # Constraints
+        @constraint(model, [j in capacity_ind], 
+                sum(x[i]*E[i][j] for i in request_ind) <= capacity_constraints[j])
 
-    # Report results
-    status = termination_status(model)
-    obj_val = objective_value(model)
-    optimal_alloc = JuMP.value.(x)
+        # Objectives
+        if objective == :revenue
+            @objective(model, Max, 
+                sum(x[i]*R[i] for i in request_ind))
+        elseif  objective == :utilization
+            durations = [sum(rec) for rec in E]
+            @objective(model, Max, 
+                sum(x[i]*durations[i] for i in request_ind))
+        else
+            error("unknown MILP optimization goal $optimization_goal")
+        end
 
-    # Calculate utilization
-    utilization = sum(sum([x*p for (x,p) in zip(optimal_alloc.data, request_resources)]))
 
-    if verbose 
-        print(output) 
-        println("Allocation: ", optimal_alloc.data)
-    end
+        # Optimize and capture std_out
+        output = @capture_out optimize!(model)
 
-    return (r = obj_val, u = utilization, alloc = optimal_alloc.data, 
-            action_seq = optimal_alloc.data.*R, requests=requests)
+        # Report results
+        status = termination_status(model)
+        obj_val = objective_value(model)
+        optimal_alloc = JuMP.value.(x)
+
+        # Calculate utilization
+        utilization = sum(sum([x*p for (x,p) in zip(optimal_alloc.data, request_resources)]))
+
+        if verbose 
+            print(output) 
+            println("Allocation: ", optimal_alloc.data)
+        end
+        result = (r = obj_val, 
+                u = utilization, 
+                alloc = optimal_alloc.data, 
+                action_seq = optimal_alloc.data.*R, 
+                requests = requests)
     
+    end
+
+    return result    
 end
 
 
@@ -124,7 +129,7 @@ Returns hindsight based policy for given history.
 This is the preffered interface to getting the hindsight actions.
 """
 function get_MILP_hindsight_policy(mdp::PMDPs.PMDP, h::AbstractSimHistory)
-    r, u, alloc, action_seq, requests = PMDPs.LP.MILP_hindsight_pricing(mdp, h; objective=PMDPs.objective(mdp))
+    (r, u, alloc, action_seq, requests) = MILP_hindsight_pricing(mdp, h; objective=PMDPs.objective(mdp))
     
     timesteps = collect([req[:s].t for req in requests])
     pd = Dict(zip(timesteps, action_seq))
