@@ -18,5 +18,5 @@ traces = [PMDPs.simulate_trace(mg, rnd) for i in 1:N]
 sname = savename("traces_lp", pp_params,  "bson")
 @tagsave(datadir("traces", sname), @dict(name, pp, pp_params, traces))
 
-traces = load(datadir("traces", sname))
-length(traces[:traces])
+# traces = load(datadir("traces", sname))
+# length(traces[:traces])

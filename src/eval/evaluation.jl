@@ -55,8 +55,10 @@ end
 
 """
 Return DataFrame of evaluation metrics of given tuple of policies on a sequence of request sequences. 
+
+requests_sequences::AbstractArray{<:AbstractSimHistory} or similar shape
 """
-function eval(mdp::PMDP, request_sequences::Array{<:AbstractSimHistory}, 
+function eval(mdp::PMDP, request_sequences::AbstractArray, 
               policies::NamedTuple, rng::AbstractRNG)::DataFrame
     metrics = DataFrame()
     for sequence in request_sequences

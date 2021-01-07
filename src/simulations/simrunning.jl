@@ -3,8 +3,10 @@ using RandomNumbers.Xorshifts
 using DiscreteValueIteration
 
 
-function mcts()
-
+function mcts(pp::PMDPProblem, traces::AbstractArray, rnd::AbstractRNG; kwargs...)::DataFrame
+    mg = PMDPg(pp)
+    mcts = get_MCTS_planner(mg)
+    results = eval(mg, traces, @ntuple(mcts), MersenneTwister(1))
 end
 
 
@@ -42,11 +44,13 @@ function hindsight(pp::PMDPProblem, traces::AbstractArray, rnd::AbstractRNG; kwa
     results
 end
 
-function process_data(data::Dict, method::Function; info="", kwargs=Dict())
+function process_data(data::Dict, method::Function; info="", N=nothing, kwargs=Dict())
     traces = data[:traces]
     pp = data[:pp]
     pp_params = data[:pp_params]
     rnd = Xorshift128Plus(1516)
+
+    N == nothing ? traces : traces=traces[1:N]
 
     results = method(pp, traces, rnd; name=data[:name], pp_params=pp_params, kwargs...)    
     
