@@ -1,5 +1,3 @@
-using MCTS, DiscreteValueIteration 
-
 function get_VI_policy(mdp::PMDPe)
     solver = SparseValueIterationSolver(max_iterations=100, belres=1e-6, verbose=false)#, init_util=init_util) # creates the solver
     # POMDPs.@show_requirements POMDPs.solve(solver, mdp)

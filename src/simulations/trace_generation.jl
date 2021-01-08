@@ -1,7 +1,3 @@
-using Random
-using POMDPPolicies
-using POMDPSimulators
-
 """
 Generate a history of requests from given MDP. 
 

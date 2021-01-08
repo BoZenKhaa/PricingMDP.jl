@@ -1,7 +1,3 @@
-using POMDPSimulators
-using POMDPPolicies
-using DataFrames
-using ProgressMeter
 
 """
 Run policy on a history loaded in HistoryReplayer and return a new history

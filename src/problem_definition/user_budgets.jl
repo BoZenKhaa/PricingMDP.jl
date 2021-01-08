@@ -1,5 +1,3 @@
-using Distributions
-
 """
 Create normal budget distribution for each product with mean given by
 the number of resources in the product.

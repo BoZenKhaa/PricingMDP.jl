@@ -1,8 +1,3 @@
-using DiscreteValueIteration
-using POMDPSimulators
-using DrWatson
-
-
 
 function run_sim(mdp::PMDP, policy::Policy; max_steps=10, rng_seed=1234)
     rng = MersenneTwister(rng_seed)

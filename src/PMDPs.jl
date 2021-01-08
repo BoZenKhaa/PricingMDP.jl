@@ -1,12 +1,20 @@
 module PMDPs
 
 using POMDPs
-using StaticArrays
 using POMDPModelTools
-using MCTS
+using POMDPSimulators
+using POMDPPolicies
+using MCTS, DiscreteValueIteration
+
+using DrWatson
 using Random
+using StaticArrays
 using Distributions
 using Combinatorics
+using DataFrames
+using ProgressMeter
+using RandomNumbers.Xorshifts
+import Gurobi
 
 import Base.show
 

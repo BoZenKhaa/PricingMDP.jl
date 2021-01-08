@@ -1,5 +1,3 @@
-using StaticArrays
-
 """
 Get flatrate policy that optimizes the objective across a set of training histories
 """
