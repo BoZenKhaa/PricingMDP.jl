@@ -96,4 +96,4 @@ function POMDPs.stateindex(m::PMDPe, s::State)
 end
 
 POMDPs.actionindex(m::PMDP, a::Action) = findfirst(isequal(a), actions(m))
-POMDPs.states(m::PMDP) = generate_states(problem(m))
+POMDPs.states(m::PMDP) = generate_states(pp(m))

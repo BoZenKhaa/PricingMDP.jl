@@ -12,7 +12,7 @@ end
 
 @testset "HistoryReplayer.jl" begin
     mg, me = simple_mdps()
-    pp = PMDPs.problem(mg)
+    pp = PMDPs.pp(mg)
 
     # History replayer takes either full SimulationHistory structure
     simhistory = PMDPs.simulate_trace(mg, MersenneTwister(1))

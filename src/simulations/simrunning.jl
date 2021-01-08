@@ -2,7 +2,7 @@ using DataFrames
 using RandomNumbers.Xorshifts
 using DiscreteValueIteration
 using ProgressMeter
-
+import Gurobi
 
 function mcts(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
     mg = PMDPg(pp)
@@ -35,12 +35,14 @@ function flatrate(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, 
 end
 
 function hindsight(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
+    GRB_ENV = Gurobi.Env()
+    
     mg = PMDPg(pp)
     results=DataFrame()
     @showprogress 1 "Computing hindsight" for (i, trace) in enumerate(traces)
         result = DataFrame    
         try    
-            hindsight = LP.get_MILP_hindsight_policy(mg, trace)
+            hindsight = LP.get_MILP_hindsight_policy(mg, trace; env=GRB_ENV)
             result = eval(mg, trace, @ntuple(hindsight), MersenneTwister(1))
         catch err
             @error "Error processing $i th trace: $err"
@@ -59,7 +61,7 @@ function process_data(data::Dict, method::Function; info="", N=10000, kwargs=Dic
     rnd = Xorshift128Plus(1516)
 
     N>=length(traces) ? N=length(traces) : N=N
-    traces = data[:traces]
+    traces = data[:traces][1:N]
 
     results = method(pp, traces, rnd; name=data[:name], pp_params=pp_params, kwargs...)    
     

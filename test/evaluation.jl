@@ -3,7 +3,7 @@ using DataFrames
 
 @testset "evaluation.jl" begin
     mg, me = simple_mdps()
-    pp = PMDPs.problem(mg)
+    pp = PMDPs.pp(mg)
     # trace = PMDPs.simulate_trace(mg, MersenneTwister(123))
 
     # Three non-zero requests with budget 10

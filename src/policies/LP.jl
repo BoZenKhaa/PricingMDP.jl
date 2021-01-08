@@ -36,7 +36,11 @@ h = simulate(hr, mdp_mc, planner)
 
 MILP_hindsight_pricing(mdp_mc, h)
 """
-function MILP_hindsight_pricing(mdp::PMDPs.PMDP, h::AbstractSimHistory; objective=:revenue, verbose=false)
+function MILP_hindsight_pricing(mdp::PMDPs.PMDP, h::AbstractSimHistory; 
+            objective::Symbol=:revenue, verbose::Bool=false, 
+            kwargs...)
+
+    kwargs = Dict(kwargs)
 
     # extract request trace from history
     trace = collect(eachstep(h, "s, info"))
@@ -63,14 +67,18 @@ function MILP_hindsight_pricing(mdp::PMDPs.PMDP, h::AbstractSimHistory; objectiv
         E = request_resources
         R = [optimal_price(b, POMDPs.actions(mdp)) for b in request_budgets]
 
-        capacity_constraints = [PMDPs.problem(mdp).c₀...]
+        capacity_constraints = [PMDPs.pp(mdp).c₀...]
 
         request_ind = 1:length(request_resources)
         capacity_ind = 1:length(capacity_constraints)
 
         local model
         @suppress_out begin
-            model = Model(Gurobi.Optimizer)
+            if haskey(kwargs, :env)
+                model = Model(() -> Gurobi.Optimizer(kwargs[:env]))
+            else
+                model = Model(Gurobi.Optimizer)
+            end
         end
         # set_optimizer_attribute(model, "Presolve", 0)
         if ~verbose  set_optimizer_attribute(model, "OutputFlag", 0) end
@@ -128,8 +136,8 @@ Returns hindsight based policy for given history.
 
 This is the preffered interface to getting the hindsight actions.
 """
-function get_MILP_hindsight_policy(mdp::PMDPs.PMDP, h::AbstractSimHistory)
-    (r, u, alloc, action_seq, requests) = MILP_hindsight_pricing(mdp, h; objective=PMDPs.objective(mdp))
+function get_MILP_hindsight_policy(mdp::PMDPs.PMDP, h::AbstractSimHistory; kwargs...)
+    (r, u, alloc, action_seq, requests) = MILP_hindsight_pricing(mdp, h; objective=PMDPs.objective(mdp), kwargs...)
     
     timesteps = collect([req[:s].t for req in requests])
     pd = Dict(zip(timesteps, action_seq))

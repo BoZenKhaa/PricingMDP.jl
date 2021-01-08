@@ -16,7 +16,7 @@ sname = savename("traces_lp", pp_params,  "bson")
 data = load(datadir("traces", sname))
 data = PMDPs.load_traces(datadir("traces", sname))
 
-N=10000
+N=100
 PMDPs.process_data(data, PMDPs.flatrate; N=N)
 PMDPs.process_data(data, PMDPs.hindsight; N=N)
 PMDPs.process_data(data, PMDPs.vi; N=N)

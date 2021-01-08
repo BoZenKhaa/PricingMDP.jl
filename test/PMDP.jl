@@ -15,7 +15,7 @@ using POMDPs
     me = PMDPs.PMDPe(pp)
 
     for m in [mg, me]
-        @test PMDPs.problem(m) == pp
+        @test PMDPs.pp(m) == pp
         @test PMDPs.selling_period_end(m) == pp.T
         @test PMDPs.budgets(m) == pp.B
         @test PMDPs.demand(m) == pp.D

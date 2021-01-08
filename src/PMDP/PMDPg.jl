@@ -33,7 +33,7 @@ TODO: Potential speedup if product_request_probs are not recalculated at every s
 """
 function sample_request(m::PMDPg, t::Timestep, rng::AbstractRNG)::Int64
     iₚ = rand(rng, demand(m)[t])
-    # prod_index == n_products(problem(m))+1 ? p = empty_product(m) : p = products(m)[prod_index]
+    # prod_index == n_products(pp(m))+1 ? p = empty_product(m) : p = products(m)[prod_index]
     # return p
 end
 

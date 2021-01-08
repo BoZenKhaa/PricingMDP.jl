@@ -22,7 +22,7 @@ function flatrate_analysis(mdp::PMDP, h::AbstractSimHistory)
     r_as = PMDPs.Action[] # array containing total revenue for each possible flatrat
     u_as = Int64[] # array of final capacity for each flatrate
     for flatrate in POMDPs.actions(mdp)
-        c_init = PMDPs.problem(mdp).c₀
+        c_init = PMDPs.pp(mdp).c₀
         c = copy(c_init)
         r_a = 0.
         for i in 1:length(requests)

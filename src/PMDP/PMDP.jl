@@ -29,18 +29,18 @@ Values needed for defining PMDP instance
 
 """
 
-problem(m::PMDP) = m.pp
+pp(m::PMDP) = m.pp
 
-products(m::PMDP) = problem(m).P
-selling_period_end(m::PMDP) = selling_period_end(problem(m))
-budgets(m::PMDP) = problem(m).B
-demand(m::PMDP) = problem(m).D
-POMDPs.actions(m::PMDP) = problem(m).A
-objective(m::PMDP) = problem(m).objective
+products(m::PMDP) = pp(m).P
+selling_period_end(m::PMDP) = selling_period_end(pp(m))
+budgets(m::PMDP) = pp(m).B
+demand(m::PMDP) = pp(m).D
+POMDPs.actions(m::PMDP) = pp(m).A
+objective(m::PMDP) = pp(m).objective
 
-n_resources(m::PMDP) = n_resources(problem(m))
-n_products(m::PMDP) = n_products(problem(m))
-n_actions(m::PMDP) = n_actions(problem(m))
+n_resources(m::PMDP) = n_resources(pp(m))
+n_products(m::PMDP) = n_products(pp(m))
+n_actions(m::PMDP) = n_actions(pp(m))
 
 empty_product(m::PMDP) = m.empty_product
 empty_product_id(m::PMDP) = m.empty_product_id
@@ -116,7 +116,7 @@ end
 
 productindices(P::Array{Product{n_res}} where n_res) = Dict(zip(P, 1:length(P)))
 
-POMDPs.initialstate(m::PMDP) = Deterministic(State(problem(m).c₀, 1, rand(demand(m)[1])))
+POMDPs.initialstate(m::PMDP) = Deterministic(State(pp(m).c₀, 1, rand(demand(m)[1])))
 
 """
 Returns the next state from given 
