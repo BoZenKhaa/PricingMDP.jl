@@ -5,7 +5,7 @@ using Test
 run(`clear`)
 
 # Testing utility code
-include("mdp_instances.jl")
+include("_test_tools.jl")
 
 @testset "PMDPs.jl" begin
     include("CountingProcesses/runtest.jl")
@@ -20,4 +20,5 @@ include("mdp_instances.jl")
     include("evaluation.jl")
     include("linear_problem.jl")
     include("simrunning.jl")
+    include("LP.jl")
 end

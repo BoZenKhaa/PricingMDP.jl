@@ -29,14 +29,23 @@ function flatrate(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, 
 end
 
 function hindsight(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
-    GRB_ENV = Gurobi.Env()
+    lp_kwargs = Dict()
+    try
+        GRB_ENV = Gurobi.Env()
+        gurobi = true
+        lp_kwargs = @dict(gurobi, GRB_ENV)
+    catch err
+        @warn "Gurobi not available: $err \n Using GLPK as an LP solver in hindsight benchmark instead."
+        gurobi = false
+        lp_kwargs = @dict(gurobi)
+    end
     
     mg = PMDPg(pp)
     results=DataFrame()
     @showprogress 1 "Computing hindsight" for (i, trace) in enumerate(traces)
         result = DataFrame    
         try    
-            hindsight = LP.get_MILP_hindsight_policy(mg, trace; env=GRB_ENV)
+            hindsight = LP.get_MILP_hindsight_policy(mg, trace; lp_kwargs)
             result = eval(mg, trace, @ntuple(hindsight), MersenneTwister(1))
         catch err
             @error "Error processing $i th trace: $err"

@@ -1,4 +1,4 @@
-using Gurobi
+using Gurobi,GLPK
 using JuMP
 using PMDPs
 using POMDPSimulators
@@ -74,14 +74,18 @@ function MILP_hindsight_pricing(mdp::PMDPs.PMDP, h::AbstractSimHistory;
 
         local model
         @suppress_out begin
-            if haskey(kwargs, :env)
-                model = Model(() -> Gurobi.Optimizer(kwargs[:env]))
+            if haskey(kwargs, :gurobi) && kwargs[:gurobi]
+                if haskey(kwargs, :env)
+                    model = Model(() -> Gurobi.Optimizer(kwargs[:env]))
+                else
+                    model = Model(Gurobi.Optimizer)
+                end
+                if ~verbose  set_optimizer_attribute(model, "OutputFlag", 0) end
             else
-                model = Model(Gurobi.Optimizer)
+                model = Model(GLPK.Optimizer)
             end
         end
         # set_optimizer_attribute(model, "Presolve", 0)
-        if ~verbose  set_optimizer_attribute(model, "OutputFlag", 0) end
 
         # Variables
         @variable(model, x[request_ind], Bin)

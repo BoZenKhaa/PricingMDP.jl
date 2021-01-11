@@ -2,13 +2,7 @@ using Random
 using POMDPSimulators
 using PMDPs.LP
 
-function simple_trace(pp::PMDPs.PMDPProblem)
-    SimHistory([
-        (s = PMDPs.State(pp.c₀, 1, 1), info = (b=10.,)),
-        (s = PMDPs.State(pp.c₀, 3, 2), info = (b=10.,)),
-        (s = PMDPs.State(pp.c₀, 5, 2), info = (b=10.,))
-    ], 1., nothing, nothing)
-end
+
 
 @testset "HistoryReplayer.jl" begin
     mg, me = simple_mdps()
