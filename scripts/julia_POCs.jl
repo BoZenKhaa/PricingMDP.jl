@@ -78,18 +78,18 @@ rngx2 = Xorshift1024Plus(1)
 @benchmark rand(rngx)
 @benchmark rand(rngx2)
 
-# Try-catch block issues
+# Try-catch block scope issues
 
 function test_trycatch()
-    a = -1
+    a = "outer"
     try
-        a = 0
+        a = "try"
         throw(ErrorException("Oh no!"))
     catch
-        a = 1
+        a = "catch" 
     end
 
-    @show a
+    a
 end
 
 test_trycatch()

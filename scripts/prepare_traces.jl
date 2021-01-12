@@ -7,7 +7,8 @@ using POMDPSimulators # load histories
 using StaticArrays, Distributions # load
 
 const N = 10000 # number of traces
-pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5.)))
+# pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5.)))
+pp_params = Dict(pairs((nᵣ=10, c=5, T=100, expected_res=100., res_budget_μ=5.)))
 name = "linear_problem"
 pp = PMDPs.linear_pp(;pp_params...)
 mg = PMDPs.PMDPg(pp)
