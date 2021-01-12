@@ -35,7 +35,7 @@ function hindsight(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory},
         gurobi = true
         lp_kwargs = @dict(gurobi, GRB_ENV)
     catch err
-        @warn "Gurobi not available: $err \n Using GLPK as an LP solver in hindsight benchmark instead."
+        @warn "Gurobi not available: $(err.msg) \n Using GLPK as an LP solver in hindsight benchmark instead."
         gurobi = false
         lp_kwargs = @dict(gurobi)
     end
