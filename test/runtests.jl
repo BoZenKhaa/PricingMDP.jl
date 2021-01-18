@@ -19,6 +19,7 @@ include("_test_tools.jl")
     include("HistoryReplayer.jl")
     include("evaluation.jl")
     include("linear_problem.jl")
+    include("random_problem.jl")
     include("simrunning.jl")
     include("LP.jl")
 end

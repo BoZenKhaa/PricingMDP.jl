@@ -57,5 +57,6 @@ include("simulations/simrunning.jl")
 
 # # Problem definitions
 include("problem_instances/linear_problem.jl")
+include("problem_instances/random_problem.jl")
 
 end
