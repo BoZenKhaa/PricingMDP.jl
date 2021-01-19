@@ -14,6 +14,7 @@ using Combinatorics
 using DataFrames
 using ProgressMeter
 using RandomNumbers.Xorshifts
+using LightGraphs
 import Gurobi
 
 import Base.show
@@ -57,6 +58,6 @@ include("simulations/simrunning.jl")
 
 # # Problem definitions
 include("problem_instances/linear_problem.jl")
-include("problem_instances/random_problem.jl")
+include("problem_instances/graph_problem.jl")
 
 end

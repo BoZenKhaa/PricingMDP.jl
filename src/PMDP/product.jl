@@ -5,7 +5,7 @@ struct Product{n_res} <: StaticArray{Tuple{n_res}, Bool, 1}
 end
 
 function Product(res::AbstractArray{<:Bool}, selling_period_end::Timestep)
-    Product(SA[res...],selling_period_end)
+    Product(SA[res...], selling_period_end)
 end
 
 selling_period_end(p::Product) = p.selling_period_end
