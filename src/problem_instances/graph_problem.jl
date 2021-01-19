@@ -27,7 +27,7 @@ Pricing problem with directed graph product structure, edges are resources
  - res_budget_μ = mean budget per resource, used to set the customer budgets.
 """
 
-function graph_pp(NV::Int64, NE::Int64, NP::Int64;
+function graph_pp(;NV::Int64=5, NE::Int64=8, NP::Int64=20,
                 seed::Int64=2,
                 c::Int64 = 5,
                 T::Int64 = 20,
@@ -38,8 +38,18 @@ function graph_pp(NV::Int64, NE::Int64, NP::Int64;
     Graph
     """
     g = SimpleDiGraph(NV, NE, seed=seed)
-    # display(gplot(g, nodelabel=1:nv(g)))
-                
+
+    # generate connected graph
+    attempts = 0
+    N_GRAPH_ATTEMPTS = 1000
+    while length(connected_components(g))>1 && attempts <= N_GRAPH_ATTEMPTS
+        seed = seed*7879+1
+        g = SimpleDiGraph(NV, NE, seed=seed)
+        attempts+=1
+    end
+    if attempts >= N_GRAPH_ATTEMPTS
+        throw(ErrorException("Connected graph couldnt be found."))
+    end
 
     graph_pp(g, NP; seed = seed, c=c, T=T,
              expected_res=expected_res,

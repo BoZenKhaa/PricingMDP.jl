@@ -93,3 +93,17 @@ function test_trycatch()
 end
 
 test_trycatch()
+
+# plotting functions
+using Plots
+
+# f(x) = log.(x)
+
+x = 1:100
+plot(x, .(log.(x)))
+plot(x, sqrt.(log.(x)))
+plot!(x, sqrt.(log.(x)/10))
+plot!(x, sqrt.(log.(x)/100))
+
+C,α = (1, 0.1)
+plot(x,C.*x.^α)
