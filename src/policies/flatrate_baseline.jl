@@ -17,7 +17,7 @@ function flatrate_analysis(mdp::PMDP, h::AbstractSimHistory)
     request_budgets = [rec.info.b for rec in requests]
 
     # Chech revenue of each flatrate
-    r_as = PMDPs.Action[] # array containing total revenue for each possible flatrat
+    r_as = PMDPs.Action[] # array containing total revenue for each possible flatrate
     u_as = Int64[] # array of final capacity for each flatrate
     for flatrate in POMDPs.actions(mdp)
         c_init = PMDPs.pp(mdp).c₀
