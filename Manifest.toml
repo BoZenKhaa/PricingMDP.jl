@@ -392,6 +392,12 @@ git-tree-sha1 = "ff537e5a3cba92fb48f30fec46723510450f2c0e"
 uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
 version = "0.10.2"
 
+[[FiniteHorizonPOMDPs]]
+deps = ["POMDPLinter", "POMDPModelTools", "POMDPs"]
+path = "dev/FiniteHorizonPOMDPs"
+uuid = "8a13bbfe-798e-11e9-2f1c-eba9ee5ef093"
+version = "0.2.0"
+
 [[FixedPointNumbers]]
 git-tree-sha1 = "4aaea64dd0c30ad79037084f8ca2b94348e65eaa"
 uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
