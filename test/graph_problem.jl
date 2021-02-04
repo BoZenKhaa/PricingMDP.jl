@@ -19,6 +19,6 @@ using Random, RandomNumbers.Xorshifts
 
 end
 
-g = SimpleDiGraph(8, 20, seed=38)
-connected_components(g)
-display(gplot(g, nodelabel=1:nv(g)))
+# g = SimpleDiGraph(8, 20, seed=38)
+# connected_components(g)
+# display(gplot(g, nodelabel=1:nv(g)))

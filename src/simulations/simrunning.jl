@@ -73,7 +73,7 @@ function process_data(data::Dict, method::Function; info="", N=10000, kwargs=Dic
     result_dir = datadir("results", data[:name])
     mkpath(result_dir)
     fname = string(method, "_",  savename(@dict(N)), "_", savename(pp_params), info, ".bson")
-    save(datadir("results", data[:name], fname), @dict(pp_params, results, agg))
+    save(datadir("results", data[:name], fname), @dict(pp_params, data[:name], string(method), results, agg))
     
     results
 end

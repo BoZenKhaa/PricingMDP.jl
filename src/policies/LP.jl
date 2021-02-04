@@ -123,14 +123,15 @@ function MILP_hindsight_pricing(mdp::PMDPs.PMDP, h::AbstractSimHistory;
             print(output) 
             println("Allocation: ", optimal_alloc.data)
         end
+
+        action_seq = [(a!=0. ? a : PMDPs.REJECT_ACTION) for a in optimal_alloc.data.*R]
+         
         result = (r = obj_val, 
                   u = utilization, 
                   alloc = optimal_alloc.data, 
-                  action_seq = optimal_alloc.data.*R, 
+                  action_seq = action_seq, 
                   requests = requests)
-    
     end
-
     return result    
 end
 

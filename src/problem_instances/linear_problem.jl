@@ -45,7 +45,8 @@ function linear_pp(nᵣ::Int64;
         c::Int64=3, 
         T::Int64=10, 
         expected_res::Float64=3., 
-        res_budget_μ::Float64=5.)
+        res_budget_μ::Float64=5., 
+        objective::Symbol=:revenue)
     
     """
     Initial capacity is the same for every resource
@@ -82,5 +83,5 @@ function linear_pp(nᵣ::Int64;
     """
     A = action_space(P, res_budget_μ)
 
-    PMDPs.PMDPProblem(P, c₀, D, B, A, :revenue)
+    PMDPs.PMDPProblem(P, c₀, D, B, A, objective)
 end

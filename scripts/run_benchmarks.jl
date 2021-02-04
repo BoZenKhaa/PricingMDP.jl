@@ -20,13 +20,13 @@ for expected_res in 50:50:1200
     name = "linear_problem"
     display("Evaluating $name with $pp_params")
     sname = savename("traces_lp", pp_params,  "bson")
-    data = load(datadir("traces", sname))
+    # data = load(datadir("traces", sname))
     data = PMDPs.load_traces(datadir("traces", sname))
 
-    PMDPs.process_data(data, PMDPs.flatrate; N=N)
+    # PMDPs.process_data(data, PMDPs.flatrate; N=N)
     PMDPs.process_data(data, PMDPs.hindsight; N=N)
     # PMDPs.process_data(data, PMDPs.vi; N=N)
-    PMDPs.process_data(data, PMDPs.mcts; N=N)
+    # PMDPs.process_data(data, PMDPs.mcts; N=N)
 end
 println("Done.")
 
@@ -40,9 +40,9 @@ for seed in 1:2
         data = load(datadir("traces", sname))
         data = PMDPs.load_traces(datadir("traces", sname))
 
-        PMDPs.process_data(data, PMDPs.flatrate; N=N)
+        # PMDPs.process_data(data, PMDPs.flatrate; N=N)
         PMDPs.process_data(data, PMDPs.hindsight; N=N)
         # PMDPs.process_data(data, PMDPs.vi; N=N)
-        PMDPs.process_data(data, PMDPs.mcts; N=N)
+        # PMDPs.process_data(data, PMDPs.mcts; N=N)
     end
 end

@@ -22,4 +22,5 @@ include("_test_tools.jl")
     include("graph_problem.jl")
     include("simrunning.jl")
     include("LP.jl")
+    include("hindsight_policy.jl")
 end
