@@ -1,5 +1,18 @@
 using PMDPs
 
+function super_simple_pp()
+    T = 3
+    P = SA[ PMDPs.Product(SA[true], T),] 
+    C₀ = SA[1,]
+    D = BernoulliScheme(T, [0.1]) 
+    β = DiscreteNonParametric([10.], [1.])
+    B = [β,]
+    A = [0., 5., 10., 15.]
+    objective = :revenue
+
+    pp = PMDPs.PMDPProblem(P, C₀, D, B, A, objective)
+end
+
 function simple_pp()
     P = SA[ PMDPs.Product(SA[true, false], 6), 
             PMDPs.Product(SA[false, true], 8), 

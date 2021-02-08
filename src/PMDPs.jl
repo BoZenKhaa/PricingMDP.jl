@@ -17,6 +17,8 @@ using RandomNumbers.Xorshifts
 using LightGraphs
 import Gurobi
 
+using FiniteHorizonPOMDPs
+
 import Base.show
 
 # Counting processes submodule
