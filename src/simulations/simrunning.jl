@@ -1,6 +1,10 @@
 function mcts(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
     mg = PMDPg(pp)
-    mcts = get_MCTS_planner(mg)
+    if haskey(kwargs, "mcts_planner")
+        mcts = kwargs["mcts_planner"]
+    else
+        mcts = get_MCTS_planner(mg)
+    end
     results = eval(mg, traces, @ntuple(mcts), MersenneTwister(1))
 end
 
@@ -24,9 +28,17 @@ end
 
 function flatrate(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
     mg = PMDPg(pp)
-    flatrate = get_flatrate_policy(mg, [simulate_trace(mg, rnd) for i in 1:500])
+    flatrate = get_flatrate_policy(mg, [simulate_trace(mg, rnd) for i in 1:5])
     results = eval(mg, traces, @ntuple(flatrate), MersenneTwister(1))
 end
+
+function fhvi(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
+    me = PMDPe(pp)
+    mg = PMDPg(pp)
+    fhvi = get_FHVI_policy(me)
+    results = eval(mg, traces, @ntuple(fhvi), MersenneTwister(1))
+end
+
 
 function hindsight(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
     lp_kwargs = Dict()
@@ -57,7 +69,7 @@ function hindsight(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory},
     results
 end
 
-function process_data(data::Dict, method::Function; info="", N=10000, kwargs=Dict())
+function process_data(data::Dict, method::Function; folder="", info="", method_info="", N=10000, kwargs...)
     traces = data[:traces]
     pp = data[:pp]
     pp_params = data[:pp_params]
@@ -72,8 +84,11 @@ function process_data(data::Dict, method::Function; info="", N=10000, kwargs=Dic
     
     result_dir = datadir("results", data[:name])
     mkpath(result_dir)
-    fname = string(method, "_",  savename(@dict(N)), "_", savename(pp_params), info, ".bson")
-    save(datadir("results", data[:name], fname), @dict(pp_params, data[:name], string(method), results, agg))
+    method_name = string(method, method_info)
+    fname = string(method_name, "_",  savename(@dict(N)), "_", savename(pp_params), info, ".bson")
+    save(datadir("results",folder, data[:name], fname),
+         @dict(pp_params, data[:name], info, string(method), method_info, results, agg, N, kwargs)
+        )
     
     results
 end

@@ -1,7 +1,6 @@
 using FiniteHorizonPOMDPs
 
-
-run(`clear`)
+# run(`clear`)
 
 @testset "finite_horizon" begin
     pp = simple_pp()
@@ -30,7 +29,4 @@ run(`clear`)
 
 
 
-    # [FiniteHorizonPOMDPs.stage_stateindex(me, s, 1) for s in states(me)]
-    # [stateindex(me, s)]
-    # FiniteHorizonPOMDPs.action(FHPolicy, s)
 end

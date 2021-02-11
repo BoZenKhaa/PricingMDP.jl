@@ -20,9 +20,6 @@ function stateindices(pp::PMDPProblem)::LinearIndices
 end
 
 
-
-
-
 """
 m = PMDPe(edges, products, λ)
 
@@ -33,6 +30,7 @@ struct PMDPe <: PMDP{State, Action}
     empty_product::Product
     empty_product_id::Int64
     statelinearindices::LinearIndices # ONLY FOR EXPLICIT, replaces need for states array
+    # stage_statelinearindices::LinearIndices
     
     function PMDPe(pp::PMDPProblem)
         sli = stateindices(pp)
@@ -106,13 +104,13 @@ POMDPs.states(m::PMDP) = generate_states(pp(m))
 """
  --------------------- FINITE HORIZON -----------------------------
 """
-function generate_states(pp::PMDPProblem, t::Timestep)::AbstractArray{<:State}
+function generate_stage_states(pp::PMDPProblem, t::Timestep)::AbstractArray{<:State}
     c_it = Iterators.product([0:cᵣ for cᵣ in pp.c₀]...)
     s_it = Iterators.product(c_it, 1:(n_products(pp)+1)) # +1 for empty_product
     states = [State(SVector(args[1]...), t, args[2]) for args in s_it]
 end
 
-function stateindices(pp::PMDPProblem, t::Int64)::LinearIndices
+function stage_stateindices(pp::PMDPProblem, t::Int64)::LinearIndices
     C_sizes = pp.c₀ .+ 1                # +1 for 0 capacity
     prd_sizes = n_products(pp)+1        # +1 for empty product
     
@@ -121,12 +119,12 @@ end
 
 
 function FiniteHorizonPOMDPs.stage_states(mdp::PMDP, epoch::Int64)::Array{State}
-    return generate_states(pp(mdp), epoch)
+    return generate_stage_states(pp(mdp), epoch)
 end
 
 function FiniteHorizonPOMDPs.stage_stateindex(mdp::PMDP, s::State, epoch::Int64)
-    i = findfirst(sp -> sp.c==s.c && sp.iₚ==s.iₚ, generate_states(pp(mdp), epoch))
-    stateindices(pp(mdp), epoch)[i]
+    i = findfirst(sp -> sp.c==s.c && sp.iₚ==s.iₚ, generate_stage_states(pp(mdp), epoch))
+    stage_stateindices(pp(mdp), epoch)[i]
     # findfirst(isequal(s), generate_states(pp(mdp), epoch))
 end
 

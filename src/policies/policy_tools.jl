@@ -8,6 +8,11 @@ function get_VI_policy(params::Dict)
     Dict(:policy => get_VI_policy(params[:mdp]))
 end
 
+function get_FHVI_policy(mdp::PMDPe)
+    solver = FiniteHorizonSolver(false)
+    FHPolicy = POMDPs.solve(solver, mdp)
+end
+
 function get_MCTS_planner(mdp::PMDPg; params_mcts::Dict=Dict()) 
     mcts_defaults = Dict(pairs((
                  solver= DPWSolver, depth=50, 
@@ -21,3 +26,4 @@ function get_MCTS_planner(mdp::PMDPg; params_mcts::Dict=Dict())
     
     planner = MCTS.solve(solver, mdp)
 end
+

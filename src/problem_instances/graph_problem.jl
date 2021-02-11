@@ -81,5 +81,5 @@ function graph_pp(g::SimpleDiGraph, NP::Int64;
 
     A = PMDPs.action_space(P, res_budget_μ)
 
-    PMDPs.PMDPProblem(P, c₀, D, B, A, :revenue)
+    (pp = PMDPs.PMDPProblem(P, c₀, D, B, A, :revenue), g = g)
 end
