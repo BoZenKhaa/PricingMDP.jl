@@ -32,7 +32,8 @@ function graph_pp(;NV::Int64=5, NE::Int64=8, NP::Int64=20,
                 c::Int64 = 5,
                 T::Int64 = 20,
                 expected_res::Float64 = 20.,
-                res_budget_μ::Float64 = 5.)
+                res_budget_μ::Float64 = 5., 
+                objective::Symbol = :revenue)
                 
     """
     Graph
@@ -61,7 +62,8 @@ function graph_pp(g::SimpleDiGraph, NP::Int64;
                 c::Int64 = 5,
                 T::Int64 = 20,
                 expected_res::Float64 = 20.,
-                res_budget_μ::Float64 = 5.)
+                res_budget_μ::Float64 = 5., 
+                objective::Symbol = :revenue)
     """
     Capacity
     """
@@ -81,5 +83,5 @@ function graph_pp(g::SimpleDiGraph, NP::Int64;
 
     A = PMDPs.action_space(P, res_budget_μ)
 
-    (pp = PMDPs.PMDPProblem(P, c₀, D, B, A, :revenue), g = g)
+    (pp = PMDPs.PMDPProblem(P, c₀, D, B, A, objective), g = g)
 end

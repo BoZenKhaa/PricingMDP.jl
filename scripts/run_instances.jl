@@ -48,10 +48,10 @@ println("$name Done.")
  ------ LP ------------
 """
 pps = [
-    Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5.))),
-    Dict(pairs((nᵣ=10, c=5, T=100, expected_res=100., res_budget_μ=5.))),
-    Dict(pairs((nᵣ=10, c=40, T=1000, expected_res=Float64(800), res_budget_μ=5.))),
-    Dict(pairs((nᵣ=50, c=40, T=1000, expected_res=Float64(4000), res_budget_μ=5.)))
+    # Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5.))),
+    Dict(pairs((nᵣ=6, c=5, T=100, expected_res=60., res_budget_μ=5.))),
+    # Dict(pairs((nᵣ=10, c=40, T=1000, expected_res=Float64(800), res_budget_μ=5.))),
+    # Dict(pairs((nᵣ=50, c=40, T=1000, expected_res=Float64(4000), res_budget_μ=5.)))
 ]
 name = "linear_problem"
 out_folder="individual"
@@ -62,13 +62,13 @@ for pp_params in pps
     # data = load(datadir("traces", sname))
     data = PMDPs.load_traces(datadir("traces", sname))
 
-    PMDPs.process_data(data, PMDPs.flatrate; folder=out_folder, N=N)
-    PMDPs.process_data(data, PMDPs.hindsight; folder=out_folder, N=N)
+    # PMDPs.process_data(data, PMDPs.flatrate; folder=out_folder, N=N)
+    # PMDPs.process_data(data, PMDPs.hindsight; folder=out_folder, N=N)
     # PMDPs.process_data(data, PMDPs.vi; folder=out_folder, N=N)
-    # PMDPs.process_data(data, PMDPs.fhvi; folder=out_folder, N=N)
+    PMDPs.process_data(data, PMDPs.fhvi; folder=out_folder, N=N)
 
-    PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N, method_info="dpw", dpw_solver=mcts_solver)
-    PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N, method_info="vanilla", mcts_solver=mcts_solver)
+    # PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N, method_info="dpw", dpw_solver=mcts_solver)
+    # PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N, method_info="vanilla", mcts_solver=mcts_solver)
 end
 println("LP Done.")
 

@@ -22,7 +22,7 @@ function rand_demand(P::AbstractArray{<:Product}, expected_res::Number, rnd::Abs
     prod_probs = prod_demand_intensity .* (expected_res / resource_requests)
     
     # display(prod_probs)
-    @assert sum(prod_probs)<0.5 "Product probs $prod_probs are too high with given T=$T and expected resource requests $expected_res"
+    @assert sum(prod_probs)<0.5 "Product probs $prod_probs are too high with given T=$(maximum(prod_selling_period_end)) and expected resource requests $expected_res"
 
     D = StaggeredBernoulliScheme(prod_selling_period_end, prod_probs)    
 end
