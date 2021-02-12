@@ -37,9 +37,8 @@ gpps = [
     Dict(pairs((NV=15, NE=30, seed=1, NP=100, c=10, T=1000, expected_res=Float64(600), res_budget_μ=5.))),
     Dict(pairs((NV=30, NE=45, seed=1, NP=100, c=10, T=1000, expected_res=Float64(900), res_budget_μ=5.)))
 ]
-name = "linear_problem"
+name = "graph_problem"
 for pp_params in gpps
-    name = "graph_problem"
     display("Generating $name with $pp_params")
     pp, g = PMDPs.graph_pp(;pp_params...)
     display(gplot(g, nodelabel=1:nv(g)))

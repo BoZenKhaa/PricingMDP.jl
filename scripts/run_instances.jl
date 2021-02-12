@@ -22,7 +22,31 @@ mcts_solver = MCTSSolver(;depth=50,
                 exploration_constant=40.0, max_time=1.,
                 rng=Xorshift128Plus())
 
-# ------ LP ------------
+"""
+ ------ BUS ------------
+"""
+name = "bus_problem"
+out_folder="individual"
+
+display("Evaluating $name")
+# sname = string("traces_bus_T=1000_c=55_expected_requests=80_nᵣ=3_objective=revenue_res_budget_μ=5",  ".bson")
+sname = string("traces_bus_T=2000_c=55_expected_requests=160_nᵣ=3_objective=revenue_res_budget_μ=5",  ".bson")
+# data = load(datadir("traces", sname))
+data = PMDPs.load_traces(datadir("traces", sname))
+
+PMDPs.process_data(data, PMDPs.flatrate; folder=out_folder, N=N)
+PMDPs.process_data(data, PMDPs.hindsight; folder=out_folder, N=N)
+# PMDPs.process_data(data, PMDPs.vi; folder=out_folder, N=N)
+# PMDPs.process_data(data, PMDPs.fhvi; folder=out_folder, N=N)
+PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N, method_info="dpw", mcts_solver=dpw_solver)
+PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N, method_info="vanilla", mcts_solver=mcts_solver)
+
+println("$name Done.")
+
+
+"""
+ ------ LP ------------
+"""
 pps = [
     Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5.))),
     Dict(pairs((nᵣ=10, c=5, T=100, expected_res=100., res_budget_μ=5.))),
@@ -50,7 +74,9 @@ println("LP Done.")
 
 
 
-# ----------- Graph ----------
+"""
+ ------ Graph ------------
+"""
 seed = 12
 gpps = [
     Dict(pairs((NV=5, NE=8, seed=1, NP=20, c=5, T=100, expected_res=Float64(80), res_budget_μ=5.))), 
@@ -75,3 +101,4 @@ for pp_params in gpps
     # PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N, method_info="dpw", dpw_solver=mcts_solver)
     # PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N, method_info="vanilla", mcts_solver=mcts_solver)
 end
+

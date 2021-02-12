@@ -1,7 +1,8 @@
-function mcts(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
-    mg = PMDPg(pp)
-    if haskey(kwargs, "mcts_planner")
-        mcts = kwargs["mcts_planner"]
+function mcts(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; mcts_solver = nothing, kwargs...)::DataFrame
+    mg = PMDPg(pp) 
+    if mcts_solver != nothing
+        display("using custom MCTS planner: $mcts_solver)")
+        mcts = MCTS.solve(mcts_solver, mg)
     else
         mcts = get_MCTS_planner(mg)
     end

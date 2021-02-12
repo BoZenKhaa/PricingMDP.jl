@@ -8,6 +8,7 @@ using Distributions
     rng = Xorshift128Plus(1)
 
     bs = PMDPs.CountingProcesses.BernoulliScheme(n, p)
+    
 
     @test params(bs) == (10, [0.1,0.1])
     @test params(bs[3])==([0.1,0.1,0.8],)
@@ -21,4 +22,6 @@ using Distributions
     @test min_outcome == 1
     @test max_outcome == 2
     @test min_shift == 1
+    
+    nhbs = PMDPs.CountingProcesses.NonhomogenousBernoulliScheme([0.1 0.1;0.1 0.1])[1]
 end
