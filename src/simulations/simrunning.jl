@@ -90,6 +90,5 @@ function process_data(data::Dict, method::Function; folder="", info="", method_i
     save(datadir("results",folder, data[:name], fname),
          @dict(pp_params, data[:name], info, string(method), method_info, results, agg, N, kwargs)
         )
-    
     results
 end

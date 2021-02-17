@@ -8,6 +8,7 @@ using StaticArrays, Distributions # load
 
 using LightGraphs
 using GraphPlot
+using Cairo, Compose
 
 N_individ=100
 pps = [
@@ -48,13 +49,16 @@ for pp_params in gpps
     display("Generating $name with $pp_params")
     pp, g = PMDPs.graph_pp(;pp_params...)
     display(gplot(g, nodelabel=1:nv(g)))
-    mg = PMDPs.PMDPg(pp)
 
-    rnd = Xorshift128Plus(1)
-    traces = [PMDPs.simulate_trace(mg, rnd) for i in 1:N_individ]
+    #  https://juliapackages.com/p/graphplot
+    draw(PNG(plotsdir(savename("graph_", pp_params, "png")), 16cm, 16cm), gplot(g))
+    # mg = PMDPs.PMDPg(pp)
 
-    sname = savename("traces_gp", pp_params,  "bson")
-    @tagsave(datadir("traces", sname), @dict(name, pp, pp_params, traces, g))
+    # rnd = Xorshift128Plus(1)
+    # traces = [PMDPs.simulate_trace(mg, rnd) for i in 1:N_individ]
+
+    # sname = savename("traces_gp", pp_params,  "bson")
+    # @tagsave(datadir("traces", sname), @dict(name, pp, pp_params, traces, g))
 end
 
 
