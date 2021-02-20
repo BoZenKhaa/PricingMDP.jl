@@ -17,8 +17,8 @@ pps = [
     # Dict(pairs((nᵣ=10, c=5, T=100, expected_res=100., res_budget_μ=5.))),
     # Dict(pairs((nᵣ=10, c=40, T=1000, expected_res=Float64(800), res_budget_μ=5.))),
     # Dict(pairs((nᵣ=50, c=40, T=1000, expected_res=Float64(4000), res_budget_μ=5.)))
-    Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5., objective=:utilization))),
     # Dict(pairs((nᵣ=6, c=5, T=100, expected_res=60., res_budget_μ=5., objective=:utilization))),
+    Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5., objective=:utilization))),
     Dict(pairs((nᵣ=10, c=5, T=100, expected_res=100., res_budget_μ=5., objective=:utilization))),
     Dict(pairs((nᵣ=10, c=40, T=1000, expected_res=Float64(800), res_budget_μ=5., objective=:utilization))),
     Dict(pairs((nᵣ=50, c=40, T=1000, expected_res=Float64(4000), res_budget_μ=5., objective=:utilization)))

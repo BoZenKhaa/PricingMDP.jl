@@ -70,7 +70,8 @@ function hindsight(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory},
     results
 end
 
-function process_data(data::Dict, method::Function; folder="", info="", method_info="", N=10000, kwargs...)
+function process_data(data::Dict, method::Function; 
+                     folder="", info="", method_info="", N=10000, kwargs...)
     traces = data[:traces]
     pp = data[:pp]
     pp_params = data[:pp_params]
@@ -86,9 +87,14 @@ function process_data(data::Dict, method::Function; folder="", info="", method_i
     result_dir = datadir("results", data[:name])
     mkpath(result_dir)
     method_name = string(method, method_info)
-    fname = string(method_name, "_",  savename(@dict(N)), "_", savename(pp_params), info, ".bson")
+    fname = string(method_name, "_",  
+                    savename(@dict(N)), "_", 
+                    savename(pp_params), 
+                    info, ".bson")
     save(datadir("results",folder, data[:name], fname),
-         @dict(pp_params, data[:name], info, string(method), method_info, results, agg, N, kwargs)
+         @dict(pp_params, data[:name], 
+               info, string(method), 
+               method_info, results, agg, N, kwargs)
         )
     results
 end

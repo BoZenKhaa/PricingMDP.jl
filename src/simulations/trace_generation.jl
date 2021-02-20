@@ -9,10 +9,20 @@ function simulate_trace(m::PMDP,rng::AbstractRNG)
     history = simulate(hr, m, reject)
 end
 
+"""
+Apply BSON specific fixes to loaded trace data
+"""
 function load_traces(fname)
     data = load(fname)
+
+    # fix type of traces
     traces = data[:traces]
     @assert all(y->typeof(y)==typeof(traces[1]), traces) "traces contain elements of different types!"
     data[:traces] = [traces...] # this repackages the loaded array of typr Array{Any,1} into Array{SimHistory, 1}
-    return data
+    
+    # fix type of pp_params
+    pp_params = data[:pp_params]
+    data[:pp_params] = Dict(pp_params...)
+
+    return Dict(data)
 end
