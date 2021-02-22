@@ -1014,6 +1014,12 @@ git-tree-sha1 = "1adde3d07cce96b6a3bb88572612db4bd9d6153b"
 uuid = "8314cec4-20b6-5062-9cdb-752b83310925"
 version = "1.2.10"
 
+[[PMDPs]]
+deps = ["BSON", "BeliefUpdaters", "BenchmarkTools", "CSV", "CSVFiles", "Cairo", "Combinatorics", "Compose", "D3Trees", "DataFrames", "Debugger", "DiscreteValueIteration", "Distributions", "DrWatson", "FileIO", "FiniteHorizonPOMDPs", "GLPK", "GR", "GraphPlot", "Gurobi", "HDF5", "JuMP", "Latexify", "LightGraphs", "LinearAlgebra", "MCTS", "PGFPlotsX", "POMDPLinter", "POMDPModelTools", "POMDPModels", "POMDPPolicies", "POMDPSimulators", "POMDPTesting", "POMDPs", "Plots", "ProgressMeter", "PyPlot", "Random", "RandomNumbers", "Revise", "SimpleTraits", "StatProfilerHTML", "StaticArrays", "StatsBase", "StatsPlots", "Suppressor", "TableView", "Traceur", "WebIO", "XLSX"]
+path = "src/PMDPs"
+uuid = "c21c6cb2-f739-4e15-b6ec-0a3a28c56801"
+version = "0.1.0"
+
 [[POMDPLinter]]
 deps = ["Logging"]
 git-tree-sha1 = "cee5817d06f5e1a9054f3e1bbb50cbabae4cd5a5"

@@ -1,6 +1,6 @@
-name = "MDPPricing"
-uuid = "970633d0-fc35-4d62-9bcd-e74aee58f016"
-authors = ["Jan Mrkos <mrkosjan@gmail.com> and contributors"]
+name = "PMDPs"
+uuid = "c21c6cb2-f739-4e15-b6ec-0a3a28c56801"
+authors = ["Jan Mrkos <mrkosja1@fel.cvut.cz>"]
 version = "0.1.0"
 
 [deps]
@@ -31,7 +31,6 @@ LightGraphs = "093fc24a-ae57-5d10-9952-331d41423f4d"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MCTS = "e12ccd36-dcad-5f33-8774-9175229e7b33"
 PGFPlotsX = "8314cec4-20b6-5062-9cdb-752b83310925"
-PMDPs = "c21c6cb2-f739-4e15-b6ec-0a3a28c56801"
 POMDPLinter = "f3bd98c0-eb40-45e2-9eb1-f2763262d755"
 POMDPModelTools = "08074719-1b2a-587c-a292-00f91cc44415"
 POMDPModels = "355abbd5-f08e-5560-ac9e-8b5f2592a0ca"
