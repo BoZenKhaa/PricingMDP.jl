@@ -6,7 +6,7 @@ function mcts(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd:
     else
         mcts = get_MCTS_planner(mg)
     end
-    results = eval(mg, traces, @ntuple(mcts), MersenneTwister(1))
+    results = eval_policy(mg, traces, @ntuple(mcts), MersenneTwister(1))
 end
 
 
@@ -24,20 +24,20 @@ function vi(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::A
 
     vi = policydict[:policy]
 
-    results = eval(mg, traces, @ntuple(vi), MersenneTwister(1))
+    results = eval_policy(mg, traces, @ntuple(vi), MersenneTwister(1))
 end
 
 function flatrate(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
     mg = PMDPg(pp)
     flatrate = get_flatrate_policy(mg, [simulate_trace(mg, rnd) for i in 1:5])
-    results = eval(mg, traces, @ntuple(flatrate), MersenneTwister(1))
+    results = eval_policy(mg, traces, @ntuple(flatrate), MersenneTwister(1))
 end
 
 function fhvi(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
     me = PMDPe(pp)
     mg = PMDPg(pp)
     fhvi = get_FHVI_policy(me)
-    results = eval(mg, traces, @ntuple(fhvi), MersenneTwister(1))
+    results = eval_policy(mg, traces, @ntuple(fhvi), MersenneTwister(1))
 end
 
 
@@ -59,7 +59,7 @@ function hindsight(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory},
         result = DataFrame    
         try    
             hindsight = LP.get_MILP_hindsight_policy(mg, trace; lp_kwargs)
-            result = eval(mg, trace, @ntuple(hindsight), MersenneTwister(1))
+            result = eval_policy(mg, trace, @ntuple(hindsight), MersenneTwister(1))
         catch err
             @error "Error processing $i th trace: $err"
             showerror(stderr, err, catch_backtrace())

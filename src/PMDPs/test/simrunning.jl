@@ -4,8 +4,8 @@ using DrWatson
 
 @testset "simrunning.jl" begin
     pp = simple_pp()
-    trace = simple_trace(pp)
-    traces = [simple_trace(pp), empty_trace(pp), simple_trace(pp)]
+    trace = simple_short_trace(pp)
+    traces = [simple_short_trace(pp), empty_trace(pp), simple_short_trace(pp)]
     N = length(traces)
 
     pp_params = Dict(:test=>1)

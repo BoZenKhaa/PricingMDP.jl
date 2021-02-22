@@ -126,7 +126,7 @@ function MILP_hindsight_pricing(mdp::PMDPs.PMDP, h::AbstractSimHistory;
 
         action_seq = [(a!=0. ? a : PMDPs.REJECT_ACTION) for a in optimal_alloc.data.*R]
          
-        result = (r = obj_val, 
+        result = (objective_val = obj_val, 
                   u = utilization, 
                   alloc = optimal_alloc.data, 
                   action_seq = action_seq, 
@@ -142,7 +142,7 @@ Returns hindsight based policy for given history.
 This is the preffered interface to getting the hindsight actions.
 """
 function get_MILP_hindsight_policy(mdp::PMDPs.PMDP, h::AbstractSimHistory; kwargs...)
-    (r, u, alloc, action_seq, requests) = MILP_hindsight_pricing(mdp, h; objective=PMDPs.objective(mdp), kwargs...)
+    (objective_val, u, alloc, action_seq, requests) = MILP_hindsight_pricing(mdp, h; objective=PMDPs.objective(mdp), kwargs...)
     
     timesteps = collect([req[:s].t for req in requests])
     pd = Dict(zip(timesteps, action_seq))

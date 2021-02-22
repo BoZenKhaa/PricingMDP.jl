@@ -36,7 +36,7 @@ In addition to the metrics, save the name of the policy, hash of the request seq
 
 requests::AbstractSimHistory or similar
 """
-function eval(mdp::PMDP, requests::Union{AbstractSimHistory, AbstractArray{<:NamedTuple}}, policies::NamedTuple, 
+function eval_policy(mdp::PMDP, requests::Union{AbstractSimHistory, AbstractArray{<:NamedTuple}}, policies::NamedTuple, 
               rng::AbstractRNG)::DataFrame
     hrpl = HistoryReplayer(mdp, requests)
 
@@ -62,11 +62,11 @@ Return DataFrame of evaluation metrics of given tuple of policies on a sequence 
 
 requests_sequences::AbstractArray{<:AbstractSimHistory} or similar shape
 """
-function eval(mdp::PMDP, request_sequences::AbstractArray{<:AbstractSimHistory}, 
+function eval_policy(mdp::PMDP, request_sequences::AbstractArray{<:AbstractSimHistory}, 
               policies::NamedTuple, rng::AbstractRNG)::DataFrame
     metrics = DataFrame()
     @showprogress 1 "Evaluating traces..." for sequence in request_sequences
-        mₛ = eval(mdp, sequence, policies, rng)
+        mₛ = eval_policy(mdp, sequence, policies, rng)
         metrics = vcat(metrics, mₛ, cols=:union)
     end
     return metrics

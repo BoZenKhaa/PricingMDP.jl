@@ -11,7 +11,7 @@ using PMDPs.LP
     # History replayer takes either full SimulationHistory structure
     simhistory = PMDPs.simulate_trace(mg, MersenneTwister(1))
     # Or more limited structure containing Abstract Arrays of NamedTuples that contain state and info fields.
-    trace = simple_trace(pp)
+    trace = simple_short_trace(pp)
 
     @test isa(PMDPs.HistoryReplayer(mg, simhistory), PMDPs.PMDP)
     @test isa(PMDPs.HistoryReplayer(mg, trace), PMDPs.PMDP)

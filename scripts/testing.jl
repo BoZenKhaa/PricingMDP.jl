@@ -20,7 +20,7 @@ using Cairo, Compose
 using Debugger
 
 
-objective = :revenue
+objective = :utilization
 pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5., objective=objective)))
 name = "linear_problem"
 
@@ -82,4 +82,7 @@ PMDPs.process_data(data, PMDPs.fhvi; folder=out_folder, N=N_sim)
 
 PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N_sim, method_info="dpw", mcts_solver=dpw_solver)
 PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N_sim, method_info="vanilla", mcts_solver=mcts_solver)
+
+
+
 println("LP Done.")

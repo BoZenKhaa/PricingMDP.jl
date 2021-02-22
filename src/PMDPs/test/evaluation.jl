@@ -7,7 +7,7 @@ using DataFrames
     # trace = PMDPs.simulate_trace(mg, MersenneTwister(123))
 
     # Three non-zero requests with budget 10
-    trace = simple_trace(pp)
+    trace = simple_short_trace(pp)
 
     hrpl = PMDPs.HistoryReplayer(mg, trace)
     hrec = HistoryRecorder(max_steps = PMDPs.selling_period_end(mg), rng = MersenneTwister(4321)) 
@@ -38,12 +38,12 @@ using DataFrames
         @test PMDPs.get_metrics(hrpl, PMDPs.replay(hrpl, policy, MersenneTwister(1))) == (r=30., u=3, nₛ=3, nᵣ=3) 
     end
 
-    metrics = PMDPs.eval(mg, trace, policies, MersenneTwister(1))
+    metrics = PMDPs.eval_policy(mg, trace, policies, MersenneTwister(1))
     @test isa(metrics, DataFrame)
     @test size(metrics)==(length(policies),8)
 
 
-    metrics_all = PMDPs.eval(mg, [trace, trace], policies, MersenneTwister(1))
+    metrics_all = PMDPs.eval_policy(mg, [trace, trace], policies, MersenneTwister(1))
     @test isa(metrics_all, DataFrame)
     @test size(metrics_all)==(length(policies)*2,8)
 end
