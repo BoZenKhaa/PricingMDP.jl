@@ -33,12 +33,12 @@ function flatrate(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, 
     results = eval_policy(mg, traces, @ntuple(flatrate), MersenneTwister(1))
 end
 
-function fhvi(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
-    me = PMDPe(pp)
-    mg = PMDPg(pp)
-    fhvi = get_FHVI_policy(me)
-    results = eval_policy(mg, traces, @ntuple(fhvi), MersenneTwister(1))
-end
+# function fhvi(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
+#     me = PMDPe(pp)
+#     mg = PMDPg(pp)
+#     fhvi = get_FHVI_policy(me)
+#     results = eval_policy(mg, traces, @ntuple(fhvi), MersenneTwister(1))
+# end
 
 
 function hindsight(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame

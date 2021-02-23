@@ -17,7 +17,7 @@ using RandomNumbers.Xorshifts
 using LightGraphs
 import Gurobi
 
-using FiniteHorizonPOMDPs
+# using FiniteHorizonPOMDPs
 
 import Base.show
 

@@ -82,7 +82,7 @@ data = PMDPs.load_traces(datadir("test_traces", sname))
 PMDPs.process_data(data, PMDPs.flatrate; folder=out_folder, N=N_sim)
 PMDPs.process_data(data, PMDPs.hindsight; folder=out_folder, N=N_sim)
 PMDPs.process_data(data, PMDPs.vi; folder=out_folder, N=N_sim)
-PMDPs.process_data(data, PMDPs.fhvi; folder=out_folder, N=N_sim)
+# PMDPs.process_data(data, PMDPs.fhvi; folder=out_folder, N=N_sim)
 
 PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N_sim, method_info="dpw", mcts_solver=dpw_solver)
 PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N_sim, method_info="vanilla", mcts_solver=mcts_solver)
