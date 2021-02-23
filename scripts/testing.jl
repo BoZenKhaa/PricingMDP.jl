@@ -19,6 +19,10 @@ using Cairo, Compose
 
 using Debugger
 
+using TableView
+
+include(srcdir("MDPPricing.jl"))
+
 
 objective = :utilization
 pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5., objective=objective)))
@@ -82,7 +86,14 @@ PMDPs.process_data(data, PMDPs.fhvi; folder=out_folder, N=N_sim)
 
 PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N_sim, method_info="dpw", mcts_solver=dpw_solver)
 PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N_sim, method_info="vanilla", mcts_solver=mcts_solver)
-
-
-
 println("LP Done.")
+
+"""
+Collect results
+"""
+
+results = folder_report(datadir("results", "test", "linear_problem"))
+format_result_table(results)
+
+using WebIO
+vscodedisplay(results)
