@@ -24,15 +24,19 @@ using TableView
 include(srcdir("MDPPricing.jl"))
 
 
-objective = :utilization
-pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5., objective=objective)))
+objective = :revenue
+# pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5., objective=objective)))
+pp_params =  Dict(pairs((nᵣ=5, c=3, T=30, expected_res=30., res_budget_μ=5., 
+                    objective=objective))) # VI runs
+# pp_params =  Dict(pairs((nᵣ=6, c=3, T=30, expected_res=36., res_budget_μ=5., 
+#                    objective=objective))) # VI does not run 
 name = "linear_problem"
 
 """
 Prepare traces
 """
 
-N_individ=100
+N_individ=10
 display("Generating $name with $pp_params")
 
 pp = PMDPs.linear_pp(;pp_params...)
@@ -79,21 +83,21 @@ sname = savename("traces_lp", pp_params,  "bson")
 # data = load(datadir("test_traces", sname))
 data = PMDPs.load_traces(datadir("test_traces", sname))
 
-PMDPs.process_data(data, PMDPs.flatrate; folder=out_folder, N=N_sim)
-PMDPs.process_data(data, PMDPs.hindsight; folder=out_folder, N=N_sim)
+# PMDPs.process_data(data, PMDPs.flatrate; folder=out_folder, N=N_sim)
+# PMDPs.process_data(data, PMDPs.hindsight; folder=out_folder, N=N_sim)
 PMDPs.process_data(data, PMDPs.vi; folder=out_folder, N=N_sim)
-PMDPs.process_data(data, PMDPs.fhvi; folder=out_folder, N=N_sim)
+# PMDPs.process_data(data, PMDPs.fhvi; folder=out_folder, N=N_sim)
 
-PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N_sim, method_info="dpw", mcts_solver=dpw_solver)
-PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N_sim, method_info="vanilla", mcts_solver=mcts_solver)
+# PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N_sim, method_info="dpw", mcts_solver=dpw_solver)
+# PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N_sim, method_info="vanilla", mcts_solver=mcts_solver)
 println("LP Done.")
 
 """
 Collect results
 """
 
-results = folder_report(datadir("results", "test", "linear_problem"))
-format_result_table(results)
+# results = folder_report(datadir("results", "test", "linear_problem"))
+# agg_res = format_result_table(results)
 
-using WebIO
-vscodedisplay(results)
+# using WebIO
+# vscodedisplay(agg_res)
