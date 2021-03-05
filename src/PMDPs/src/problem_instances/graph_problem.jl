@@ -83,5 +83,5 @@ function graph_pp(g::SimpleDiGraph, NP::Int64;
 
     A = PMDPs.action_space(P, res_budget_μ)
 
-    (pp = PMDPs.PMDPProblem(P, c₀, D, B, A, objective), g = g)
+    PMDPs.PMDPProblem(P, c₀, D, B, A, objective; info=(;g=g))
 end

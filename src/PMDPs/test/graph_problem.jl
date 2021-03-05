@@ -9,11 +9,11 @@ using Random, RandomNumbers.Xorshifts
     NP = 20
     seed = 4
 
-    pp1, g1 = PMDPs.graph_pp(;NV=NV, NE=NE, NP=NP, seed=seed)
+    pp1 = PMDPs.graph_pp(;NV=NV, NE=NE, NP=NP, seed=seed)
     
     g = SimpleDiGraph(NV, NE, seed=seed)
     # display(gplot(g, nodelabel=1:nv(g)))
-    pp2, g2 = PMDPs.graph_pp(g, NP)
+    pp2 = PMDPs.graph_pp(g, NP)
 
     # @test pp1==pp2 #likely an issue with not seeding rng somewhere
 

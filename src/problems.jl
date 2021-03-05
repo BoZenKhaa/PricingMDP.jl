@@ -29,12 +29,11 @@ function graph_params(objective)
 end
 
 function get_linear_problems(objective::Symbol)
-    pps = [(pp=PMDPs.linear_pp(;pp_params...), params=pp_params) 
+    pps = [(pp=PMDPs.linear_pp(;pp_params...), params=pp_params, name="linear_problem") 
         for pp_params in linear_params(objective)]
 end
-
 function get_graph_problems(objective::Symbol)
-    pps = [(pp=PMDPs.graph_pp(;pp_params...), params=pp_params) 
+    pps = [(pp=PMDPs.graph_pp(;pp_params...), params=pp_params, name="graph_problem") 
         for pp_params in graph_params(objective)]
 end
 
@@ -53,16 +52,16 @@ function get_fast_benchmarks()
     get_benchmarks(; n_lp=3, n_gp=3)
 end
 
-linear_params(:revenue)
-graph_params(:revenue)
+# linear_params(:revenue)
+# # graph_params(:revenue)
 
-get_linear_problems(:revenue)
-get_graph_problems(:revenue)
+# get_linear_problems(:revenue)
+# get_graph_problems(:revenue)
 
-get_benchmarks()
-fb = get_fast_benchmarks()
+# get_benchmarks()
+# fb = get_fast_benchmarks()
 
-fb[1].params
+# fb[1].params
 
 
 # get_linear_problems(:revenue)

@@ -8,14 +8,15 @@ struct PMDPProblem{nₚ, nᵣ, nₐ}
    D::DiscreteCountingProcess   # Demand for each product 
    B::SVector{nₚ, Distribution} # Budget distributions for each product
    A::SVector{nₐ, Action}       # Action array (including reject action)
+   info::NamedTuple
    objective::Symbol            # objective for optimization
 
-   function PMDPProblem(non_empty_P::AbstractArray{<:Product}, c₀, D, B, real_actions, objective)
+   function PMDPProblem(non_empty_P::AbstractArray{<:Product}, c₀, D, B, real_actions, objective; info=(;))
       T = problem_selling_horizon(non_empty_P)
       A = SVector(real_actions..., REJECT_ACTION)
       @assert objective in [:revenue, :utilization]
       @assert are_unique(non_empty_P)
-      new{length(non_empty_P), length(c₀), length(A)}(non_empty_P,c₀,T,D,B,A,objective)
+      new{length(non_empty_P), length(c₀), length(A)}(non_empty_P,c₀,T,D,B,A,info,objective)
    end
 end
 
