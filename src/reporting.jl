@@ -52,10 +52,10 @@ function folder_report(res_folder::String)
     results = vcat(rows...)
 end
 
-function format_result_table(results::DataFrame)
-    df10 = filter(:N => N->N==10, results)
+function format_result_table(results::DataFrame;N=10)
+    df10 = filter(:N => N->N==N, results)
     gps = groupby(df10, [:objective])
 
-    restable = outerjoin([select(gr, [:method, :N, :objective, :mean_r, :mean_u]) for gr in gps]...; on=[:method, :N], makeunique=true)
-    restable = restable[[2,4,5,6,1,3], :]
+    restable = outerjoin([select(gr, [:method, :N,:T,:c,:nᵣ, :expected_res, :objective, :mean_r, :mean_u]) for gr in gps]...; on=[:method, :N], makeunique=true)
+    # restable = restable[[2,4,5,6,1,3], :]
 end

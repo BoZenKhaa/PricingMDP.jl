@@ -1,8 +1,8 @@
-function mcts(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; mcts_solver = nothing, kwargs...)::DataFrame
+function mcts(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; solver = nothing, kwargs...)::DataFrame
     mg = PMDPg(pp) 
-    if mcts_solver != nothing
-        display("using custom MCTS planner: $mcts_solver)")
-        mcts = MCTS.solve(mcts_solver, mg)
+    if solver !== nothing
+        display("using custom MCTS planner: $solver)")
+        mcts = MCTS.solve(solver, mg)
     else
         mcts = get_MCTS_planner(mg)
     end
@@ -80,7 +80,8 @@ function process_data(data::Dict, method::Function;
     N>=length(traces) ? N=length(traces) : N=N
     traces = data[:traces][1:N]
 
-    results = method(pp, traces, rnd; name=data[:name], pp_params=pp_params, kwargs...)    
+    overall_stats = @timed results = method(pp, traces, rnd; 
+                                            name=data[:name], p_params=pp_params, kwargs...)    
     
     agg = describe(results, cols=1:4)
     
@@ -90,11 +91,12 @@ function process_data(data::Dict, method::Function;
     fname = string(method_name, "_",  
                     savename(@dict(N)), "_", 
                     savename(pp_params), 
+                    hash(kwargs),
                     info, ".bson")
     save(datadir("results",folder, data[:name], fname),
          @dict(pp_params, data[:name], 
                info, string(method), 
-               method_info, results, agg, N, kwargs)
+               method_info, results, agg, overall_stats, N, kwargs)
         )
     results
 end

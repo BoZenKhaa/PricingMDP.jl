@@ -16,7 +16,6 @@ using Random, RandomNumbers.Xorshifts
     pp2 = PMDPs.graph_pp(g, NP)
 
     # @test pp1==pp2 #likely an issue with not seeding rng somewhere
-
 end
 
 # g = SimpleDiGraph(8, 20, seed=38)
