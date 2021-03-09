@@ -80,8 +80,7 @@ function process_data(data::Dict, method::Function;
     N>=length(traces) ? N=length(traces) : N=N
     traces = data[:traces][1:N]
 
-    overall_stats = @timed results = method(pp, traces, rnd; 
-                                            name=data[:name], p_params=pp_params, kwargs...)    
+    overall_stats = @timed results = method(pp, traces, rnd; name=data[:name], pp_params=pp_params, kwargs...)    
     
     agg = describe(results, cols=1:4)
     

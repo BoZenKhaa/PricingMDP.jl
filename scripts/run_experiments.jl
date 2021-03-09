@@ -85,5 +85,6 @@ Collect results
 results = folder_report(datadir("results", "test", "linear_problem"))
 agg_res = format_result_table(results; N=N_sim)
 
-using WebIO
+# using WebIO
 vscodedisplay(agg_res)
+
