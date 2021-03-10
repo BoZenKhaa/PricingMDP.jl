@@ -82,15 +82,14 @@ function process_data(data::Dict, method::Function;
 
     overall_stats = @timed results = method(pp, traces, rnd; name=data[:name], pp_params=pp_params, kwargs...)    
     
-    agg = describe(results, cols=1:4)
+    agg = describe(results, cols=[:r, :u, :nₛ, :nᵣ, :time, :bytes])
     
     result_dir = datadir("results", data[:name])
     mkpath(result_dir)
     method_name = string(method, method_info)
     fname = string(method_name, "_",  
                     savename(@dict(N)), "_", 
-                    savename(pp_params), 
-                    hash(kwargs),
+                    savename(pp_params),
                     info, ".bson")
     save(datadir("results",folder, data[:name], fname),
          @dict(pp_params, data[:name], 

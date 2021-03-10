@@ -20,10 +20,11 @@ function res2row(res)
     # compact dfs into single row
     df = hcat(row_dfs...)
     
-    # add method
+    # add method and its order
     method = string(first(res[:results]).name)*"_"*res[:method_info]
     insertcols!(df, 1, :method=>method)
-    
+
+
     # add objective
     if haskey(res[:pp_params], :objective)
         objective = string(res[:pp_params][:objective])
@@ -37,25 +38,39 @@ function res2row(res)
     
     # add n_traces
     insertcols!(df, 2, :N=>res[:N])
+
+    # add pp_params_string (without :objective)
+    insertcols!(df,2, :pp_params_str=> string(delete!(Dict(res[:pp_params]), :objective)))
+
 end
 
-function folder_report(res_folder::String)
+function folder_report(res_folder::String; raw_result_array=false)
     res_files = readdir(res_folder)
     rows = []
+    raw = []
     for res_file in res_files
         if res_file[end-4:end]==".bson"
             res = BSON.load(joinpath(res_folder,res_file))
             row = res2row(res)
             push!(rows, row)
+            raw_result_array && push!(raw, res)
         end
     end
     results = vcat(rows...)
+    (;results=results, raw=raw)
 end
 
 function format_result_table(results::DataFrame;N=10)
+
+    columns = [:method, :pp_params_str, :objective, :mean_r, :mean_u, :mean_bytes, :mean_time]
+
     df10 = filter(:N => N->N==N, results)
     gps = groupby(df10, [:objective])
 
-    restable = outerjoin([select(gr, [:method, :N,:T,:c,:nᵣ, :expected_res, :objective, :mean_r, :mean_u]) for gr in gps]...; on=[:method, :N], makeunique=true)
-    # restable = restable[[2,4,5,6,1,3], :]
+    restable = outerjoin(
+        [select(gr, columns) for gr in gps]...; 
+        on=[:method, :pp_params_str], makeunique=true, renamecols = "_obj_r" => "_obj_u")
+
+    # restable = restable[:, [1,2,8,9,10,11,12,18,19,20,21,22]]
+    sort!(restable, [:pp_params_str, order(:method, rev=true)])
 end

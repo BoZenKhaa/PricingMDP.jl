@@ -42,8 +42,11 @@ function prepare_traces(pp::PMDPs.PMDPProblem, pp_params::Dict, vi::Bool, name::
     return data
 end
 
-problems = get_fast_benchmarks()
+"""
+Get input data
+"""
 
+problems = get_tiny_benchmarks()
 inputs = [prepare_traces(pp, params, vi, name, 10; verbose=true) for (pp, params, vi, name) in problems[1:end] ]
 
 
@@ -53,13 +56,13 @@ Evaluate
 N_sim = 2
 
 dpw_solver_params = (;depth=50, 
-exploration_constant=40.0, max_time=1.,
-enable_state_pw = false, 
-keep_tree=true, show_progress=false, rng=Xorshift128Plus())
+    exploration_constant=40.0, max_time=1.,
+    enable_state_pw = false, 
+    keep_tree=true, show_progress=false, rng=Xorshift128Plus())
 
 mcts_solver_params = (;depth=50, 
-exploration_constant=40.0, max_time=1.,
-rng=Xorshift128Plus())
+    exploration_constant=40.0, max_time=1.,
+    rng=Xorshift128Plus())
 
 # pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5., objective=objective)))
 # name = "linear_problem"
@@ -78,12 +81,13 @@ for (i, data) in enumerate(inputs)
             method_info="vanilla_$(savename(mcts_solver_params))", solver=MCTSSolver(;mcts_solver_params...))
 end
 println("LP Done.")
+
 """
 Collect results
 """
 
-results = folder_report(datadir("results", "test", "linear_problem"))
-agg_res = format_result_table(results; N=N_sim)
+results = folder_report(datadir("results", "test", "linear_problem"); raw_result_array=false);
+agg_res = format_result_table(results.results; N=N_sim)
 
 # using WebIO
 vscodedisplay(agg_res)

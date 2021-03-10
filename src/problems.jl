@@ -64,6 +64,10 @@ function get_fast_benchmarks()
     get_benchmarks(; n_lp=3, n_gp=1)
 end
 
+function get_tiny_benchmarks()
+    get_benchmarks(; n_lp=2, n_gp=1)
+end
+
 # linear_params(:revenue)
 # graph_params(:revenue)
 
