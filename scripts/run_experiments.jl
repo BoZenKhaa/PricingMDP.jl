@@ -46,14 +46,14 @@ end
 Get input data
 """
 
-problems = get_tiny_benchmarks()
-inputs = [prepare_traces(pp, params, vi, name, 10; verbose=true) for (pp, params, vi, name) in problems[1:end] ]
+problems = get_fast_benchmarks()
+inputs = [prepare_traces(pp, params, vi, name, 100; verbose=true) for (pp, params, vi, name) in problems[1:end] ]
 
 
 """
 Evaluate
 """
-N_sim = 2
+N_sim = 20
 
 dpw_solver_params = (;depth=50, 
     exploration_constant=40.0, max_time=1.,

@@ -61,7 +61,7 @@ function get_benchmarks(;objectives=(:revenue, :utilization), n_lp=100, n_gp=100
 end
 
 function get_fast_benchmarks()
-    get_benchmarks(; n_lp=3, n_gp=1)
+    get_benchmarks(; n_lp=3, n_gp=0)
 end
 
 function get_tiny_benchmarks()
