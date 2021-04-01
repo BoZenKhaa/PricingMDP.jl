@@ -46,7 +46,7 @@ function eval_policy(mdp::PMDP, requests::Union{AbstractSimHistory, AbstractArra
         m = NamedTuple()
         error = nothing
         try
-            stats = @timed h = replay(hrpl, policy, rng)
+            h, stats... = @timed replay(hrpl, policy, rng)
             m = (;get_metrics(mdp, h)..., stats...)
 
         catch err
