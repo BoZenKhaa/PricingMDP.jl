@@ -143,6 +143,7 @@ function POMDPs.gen(m::PMDP, s::State, a::Action, rng::AbstractRNG)
     end
     Δt = 1
     iₚ = sample_request(m, s.t+Δt, rng)
+    # Following code causes skips into the future. 
     while iₚ==m.empty_product_id && s.t + Δt < selling_period_end(m) 
         Δt += 1
         iₚ = sample_request(m, s.t+Δt, rng)

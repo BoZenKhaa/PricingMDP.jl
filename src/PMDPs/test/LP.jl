@@ -5,7 +5,7 @@ using JuMP, GLPK
     
     pp = simple_pp()
     traces = [simple_short_trace(pp), empty_trace(pp),] 
-    exhaust = simple_exhaust_capacity_trace(pp)
+    _, exhaust = simple_exhaust_capacity_trace(pp)
     diff = simple_trace_different_utility_revenue_optim_allocs(pp)
     mg = PMDPs.PMDPg(pp)
 

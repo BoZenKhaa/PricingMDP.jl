@@ -28,7 +28,8 @@ using DataFrames
 
     # test eval()
     policies = (vi = PMDPs.get_VI_policy(me), 
-                mcts = PMDPs.get_MCTS_planner(mg),
+                mcts = PMDPs.get_MCTS_planner(mg,
+                             params_mcts=Dict(:rng=>Xorshift128Plus(1))),
                 hind = PMDPs.LP.get_MILP_hindsight_policy(mg, trace),
                 flat =  PMDPs.get_flatrate_policy(mg, [trace, trace]) 
                 )
@@ -40,10 +41,10 @@ using DataFrames
 
     metrics = PMDPs.eval_policy(mg, trace, policies, MersenneTwister(1))
     @test isa(metrics, DataFrame)
-    @test size(metrics)==(length(policies),8)
+    @test size(metrics)[1]==length(policies)
 
 
     metrics_all = PMDPs.eval_policy(mg, [trace, trace], policies, MersenneTwister(1))
     @test isa(metrics_all, DataFrame)
-    @test size(metrics_all)==(length(policies)*2,8)
+    @test size(metrics_all)[1]==length(policies)*2
 end

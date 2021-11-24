@@ -10,7 +10,8 @@ function mcts(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd:
 end
 
 
-function vi(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; name, pp_params, kwargs...)::DataFrame
+function vi(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, 
+            rnd::AbstractRNG; name, pp_params, kwargs...)::DataFrame
     me = PMDPe(pp)
     mg = PMDPg(pp)
 
@@ -22,7 +23,7 @@ function vi(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::A
                                 get_VI_policy; # fun, has to return dict
                                 prefix=fname)  # filename prefix
 
-    vi = policydict[:policy]
+    vi = policydict["policy"]
 
     results = eval_policy(mg, traces, @ntuple(vi), MersenneTwister(1))
 end
@@ -80,7 +81,8 @@ function process_data(data::Dict, method::Function;
     N>=length(traces) ? N=length(traces) : N=N
     traces = data[:traces][1:N]
 
-    results, overall_stats... = @timed method(pp, traces, rnd; name=data[:name], pp_params=pp_params, kwargs...)    
+    results, overall_stats... = @timed method(pp, traces, rnd; name=data[:name], 
+                                                pp_params=pp_params, kwargs...)    
     
     agg = describe(results, cols=[:r, :u, :nₛ, :nᵣ, :time, :bytes])
     
@@ -91,9 +93,11 @@ function process_data(data::Dict, method::Function;
                     savename(@dict(N)), "_", 
                     savename(pp_params),
                     info, ".bson")
-    save(datadir("results",folder, data[:name], fname),
-         @dict(pp_params, data[:name], 
-               info, string(method), 
+    name = data[:name]
+    method=string(method)
+    save(datadir("results",folder, name, fname),
+         @dict(pp_params, name, 
+               info, method, 
                method_info, results, agg, overall_stats, N, kwargs)
         )
     results

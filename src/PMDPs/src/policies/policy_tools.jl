@@ -5,7 +5,8 @@ function get_VI_policy(mdp::PMDPe)
 end
 
 function get_VI_policy(params::Dict)
-    Dict(:policy => get_VI_policy(params[:mdp]))
+    # If saving into JLD2, the key has to be a string, not a symbol!
+    Dict("policy" => get_VI_policy(params[:mdp]))
 end
 
 function get_FHVI_policy(mdp::PMDPe)

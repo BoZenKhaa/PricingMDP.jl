@@ -23,8 +23,8 @@ using DrWatson
     # PMDPs.vi(pp, pp_params, traces, rnd)
     PMDPs.process_data(data, PMDPs.vi)
     @test isfile(datadir("results", "test_problem", "vi_N=$(N)_test=1.bson"))
-    @test isfile(datadir("vi_policies", "test_problem", "vi_test=1_.bson" ))
-    PMDPs.process_data(data, PMDPs.vi)
+    @test isfile(datadir("vi_policies", "test_problem", "vi_test=1_.jld2" ))
+    PMDPs.process_data(data, PMDPs.vi) # running again to check whether vi policy cached in file is loaded
 
     PMDPs.process_data(data, PMDPs.mcts)
     @test isfile(datadir("results", "test_problem", "mcts_N=$(N)_test=1.bson"))

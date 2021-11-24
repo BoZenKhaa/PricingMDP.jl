@@ -53,7 +53,7 @@ inputs = [prepare_traces(pp, params, vi, name, 100; verbose=true) for (pp, param
 """
 Evaluate
 """
-N_sim = 20
+N_sim = 3
 
 dpw_solver_params = (;depth=50, 
     exploration_constant=40.0, max_time=1.,
@@ -86,9 +86,10 @@ println("LP Done.")
 Collect results
 """
 
-results = folder_report(datadir("results", "test", "linear_problem"); raw_result_array=false);
+results = folder_report(datadir("results", "test", "linear_problem"); raw_result_array=true);
 agg_res = format_result_table(results.results; N=N_sim)
 
 # using WebIO
 vscodedisplay(agg_res)
 
+results.raw[1]

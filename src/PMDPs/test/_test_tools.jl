@@ -36,8 +36,12 @@ function simple_short_trace(pp::PMDPs.PMDPProblem)
     ], 1., nothing, nothing)
 end
 
+"""
+TODO: remove pp from args
+"""
 function simple_exhaust_capacity_trace(pp::PMDPs.PMDPProblem)
-    SimHistory([
+    pp = super_simple_pp()
+    trace = SimHistory([
         (s = PMDPs.State(pp.c₀, 1, 1), info = (b=10.,)),
         (s = PMDPs.State(pp.c₀, 2, 1), info = (b=10.,)),
         (s = PMDPs.State(pp.c₀, 3, 2), info = (b=10.,)),
@@ -47,6 +51,7 @@ function simple_exhaust_capacity_trace(pp::PMDPs.PMDPProblem)
         # (s = PMDPs.State(pp.c₀, 7, 2), info = (b=10.,)),
         (s = PMDPs.State(pp.c₀, 8, 2), info = (b=10.,))
     ], 1., nothing, nothing)
+    pp, trace
 end
 
 function simple_trace_different_utility_revenue_optim_allocs(pp::PMDPs.PMDPProblem)
