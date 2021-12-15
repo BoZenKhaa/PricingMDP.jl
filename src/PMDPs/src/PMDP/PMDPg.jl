@@ -27,12 +27,16 @@ struct PMDPg <: PMDP{State, Action}
 end
 
 """
-Returns next requested product. If in given timestep one of the prodcuts has selling period end, update the product request probs.
+Returns next requested product. If in given timestep one of the prodcuts has selling period end,
+update the product request probs.
+
+If no product is requested, the index will be higher than the number of products.
 
 TODO: Potential speedup if product_request_probs are not recalculated at every step
 """
 function sample_request(m::PMDPg, t::Timestep, rng::AbstractRNG)::Int64
-    iₚ = rand(rng, demand(m)[t])
+    iₚ = rand(rng, demand(m)[t]) 
+
     # prod_index == n_products(pp(m))+1 ? p = empty_product(m) : p = products(m)[prod_index]
     # return p
 end
