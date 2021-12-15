@@ -1,16 +1,16 @@
 
-abstract type DiscreteCountingProcess <: Sampleable{Multivariate, Discrete} end
+abstract type DiscreteCountingProcess <: Sampleable{Multivariate,Discrete} end
 
-struct BernouliProcess<:DiscreteCountingProcess
+struct BernouliProcess <: DiscreteCountingProcess
     n::Int64
     p::Float64
     # domain::Tuple
-    
+
     inter_arrival_distribution::Distribution
     success_distribution::Distribution
 
     function BernoulliProcess(n::Int64, p::Float64)
-        new(n,p, Geometric(p), Bernoulli(p))
+        new(n, p, Geometric(p), Bernoulli(p))
     end
 end
 

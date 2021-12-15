@@ -16,9 +16,12 @@ Create the same demand for all products, sum of which across all products will b
 
     λ = create_λ(20., products)
 """
-function create_uniform_λ_per_product(demand::Float64, products::Array{Product{n_edges}}) where n_edges
-    λ = fill(demand/(length(products)-1), length(products)) 
-    λ[1]=0. # product[1] is the empty product
+function create_uniform_λ_per_product(
+    demand::Float64,
+    products::Array{Product{n_edges}},
+) where {n_edges}
+    λ = fill(demand / (length(products) - 1), length(products))
+    λ[1] = 0.0 # product[1] is the empty product
     return λ
 end
 
@@ -27,17 +30,19 @@ Create same product demand for each product size. For all products of size len, 
 
     λ = create_λ(Float64[10,3,3,5,4], products)
 """
-function create_uniform_λ_per_resource(demand::Array{Float64}, products::Array{Product{n_edges}}) where n_edges
-    λ = zeros(Float64, length(products)) 
+function create_uniform_λ_per_resource(
+    demand::Array{Float64},
+    products::Array{Product{n_edges}},
+) where {n_edges}
+    λ = zeros(Float64, length(products))
     sizes = map(sum, products)
     for len in unique(sizes)
-        if len==0
-            λ[1]=0. # product[1] is the empty product
+        if len == 0
+            λ[1] = 0.0 # product[1] is the empty product
             continue
         end
-        selector = sizes.==len
-        λ[selector].= demand[len]/sum(selector)
+        selector = sizes .== len
+        λ[selector] .= demand[len] / sum(selector)
     end
     return λ
 end
-

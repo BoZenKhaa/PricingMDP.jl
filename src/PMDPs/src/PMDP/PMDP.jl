@@ -67,7 +67,7 @@ function sample_customer_budget end
 """
 Returns user buy or no buy decision given agent selected action and user budget.
 """
-user_buy(a::Action, budget::Action)::Bool = a<=budget
+user_buy(a::Action, budget::Action)::Bool = a <= budget
 
 
 """
@@ -81,11 +81,11 @@ Given state s, determine whether a sale of product s.p is impossible
 """
 function sale_impossible(m::PMDP, s::State)::Bool
     p = product(m, s)
-    s.iₚ==empty_product_id(m) || any((s.c - p) .<0.) ||  s.t >= selling_period_end(p)
+    s.iₚ == empty_product_id(m) || any((s.c - p) .< 0.0) || s.t >= selling_period_end(p)
 end
 
 function sale_impossible(m::PMDP, s::State, a::Action)::Bool
-    a==REJECT_ACTION || sale_impossible(m, s) 
+    a == REJECT_ACTION || sale_impossible(m, s)
 end
 
 """
@@ -95,7 +95,7 @@ State is terminal if it's timestep is over the timestep limit
 or if the capacity of all resources is 0.
 """
 function POMDPs.isterminal(m::PMDP, s::State)::Bool
-    s.t >= selling_period_end(m) || all(s.c .<= 0) 
+    s.t >= selling_period_end(m) || all(s.c .<= 0)
 end
 
 """
@@ -114,9 +114,17 @@ function POMDPs.actions(m::PMDP, s::State)::AbstractArray{Action}
     return actions
 end
 
-productindices(P::Array{Product{n_res}} where n_res) = Dict(zip(P, 1:length(P)))
+productindices(P::Array{Product{n_res}} where {n_res}) = Dict(zip(P, 1:length(P)))
 
+
+"""
+Since it may be a bit convoluted to enter rng into sampling 
+of demand, the initial state will have no request.
+This is the original code:
 POMDPs.initialstate(m::PMDP) = Deterministic(State(pp(m).c₀, 1, rand(demand(m)[1])))
+The issue was that the rand was independent of rng seeds. 
+"""
+POMDPs.initialstate(m::PMDP) = Deterministic(State(pp(m).c₀, 1, empty_product_id(m)))
 
 """
 Returns the next state from given 
@@ -129,25 +137,25 @@ function POMDPs.gen(m::PMDP, s::State, a::Action, rng::AbstractRNG)
     b = sample_customer_budget(m, s, rng)
     if ~sale_impossible(m, s, a) && user_buy(a, b)
         if objective(m) == :revenue
-            r=a
+            r = a
         elseif objective(m) == :utilization
-            r=sum(product(m, s))
+            r = sum(product(m, s))
         else
             throw(ArgumentError(string("Unknown objective: ", objective(m))))
         end
         # r = a
         c = reduce_capacities(s.c, product(m, s))
     else
-        r = 0.
+        r = 0.0
         c = s.c
     end
     Δt = 1
-    iₚ = sample_request(m, s.t+Δt, rng)
+    iₚ = sample_request(m, s.t + Δt, rng)
     # Following code causes skips into the future. 
-    while iₚ==m.empty_product_id && s.t + Δt < selling_period_end(m) 
-        Δt += 1
-        iₚ = sample_request(m, s.t+Δt, rng)
-    end
-    return (sp = State(c, s.t+Δt, iₚ), r = r, info=(b=b,))
+    # while iₚ==m.empty_product_id && s.t + Δt < selling_period_end(m) 
+    #     Δt += 1
+    #     iₚ = sample_request(m, s.t+Δt, rng)
+    # end
+    return (sp = State(c, s.t + Δt, iₚ), r = r, info = (b = b,))
 end
 

@@ -129,13 +129,13 @@ using JLD
 using StaticArrays
 
 struct MyType{N}
-    a::SVector{N, Int64}
+    a::SVector{N,Int64}
 end
 
-MyType{2}(SA[1,2])
+MyType{2}(SA[1, 2])
 
 struct MyType2{T}
-    a::SVector{2, T}
+    a::SVector{2,T}
 end
 
 struct MyType3{T}

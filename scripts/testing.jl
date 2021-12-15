@@ -26,8 +26,16 @@ include(srcdir("MDPPricing.jl"))
 
 objective = :revenue
 # pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5., objective=objective)))
-pp_params =  Dict(pairs((nᵣ=5, c=3, T=30, expected_res=30., res_budget_μ=5., 
-                    objective=objective))) # VI runs
+pp_params = Dict(
+    pairs((
+        nᵣ = 5,
+        c = 3,
+        T = 30,
+        expected_res = 30.0,
+        res_budget_μ = 5.0,
+        objective = objective,
+    )),
+) # VI runs
 # pp_params =  Dict(pairs((nᵣ=6, c=3, T=30, expected_res=36., res_budget_μ=5., 
 #                    objective=objective))) # VI does not run 
 name = "linear_problem"
@@ -36,17 +44,17 @@ name = "linear_problem"
 Prepare traces
 """
 
-N_individ=10
+N_individ = 10
 display("Generating $name with $pp_params")
 
-pp = PMDPs.linear_pp(;pp_params...)
+pp = PMDPs.linear_pp(; pp_params...)
 mg = PMDPs.PMDPg(pp)
 
 rnd = Xorshift128Plus(1)
-traces = [PMDPs.simulate_trace(mg, rnd) for i in 1:N_individ]
+traces = [PMDPs.simulate_trace(mg, rnd) for i = 1:N_individ]
 
-sname = savename("traces_lp", pp_params,  "bson")
-@tagsave(datadir("test_traces", sname),  @dict(name, pp, pp_params, traces))
+sname = savename("traces_lp", pp_params, "bson")
+@tagsave(datadir("test_traces", sname), @dict(name, pp, pp_params, traces))
 
 # jldopen(datadir("test_traces", sname), "w") do file
 #     addrequire(file, PMDPs)
@@ -64,28 +72,36 @@ Evaluate
 """
 N_sim = 10
 
-dpw_solver = DPWSolver(;depth=50, 
-                exploration_constant=40.0, max_time=1.,
-                enable_state_pw = false, 
-                keep_tree=true, show_progress=false, rng=Xorshift128Plus())
+dpw_solver = DPWSolver(;
+    depth = 50,
+    exploration_constant = 40.0,
+    max_time = 1.0,
+    enable_state_pw = false,
+    keep_tree = true,
+    show_progress = false,
+    rng = Xorshift128Plus(),
+)
 
-mcts_solver = MCTSSolver(;depth=50, 
-                exploration_constant=40.0, max_time=1.,
-                rng=Xorshift128Plus())
+mcts_solver = MCTSSolver(;
+    depth = 50,
+    exploration_constant = 40.0,
+    max_time = 1.0,
+    rng = Xorshift128Plus(),
+)
 
 # pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5., objective=objective)))
 # name = "linear_problem"
-out_folder="test"
+out_folder = "test"
 
 display("Evaluating $name with $pp_params")
-sname = savename("traces_lp", pp_params,  "bson")
+sname = savename("traces_lp", pp_params, "bson")
 # data = load(datadir("traces", sname))
 # data = load(datadir("test_traces", sname))
 data = PMDPs.load_traces(datadir("test_traces", sname))
 
 # PMDPs.process_data(data, PMDPs.flatrate; folder=out_folder, N=N_sim)
 # PMDPs.process_data(data, PMDPs.hindsight; folder=out_folder, N=N_sim)
-PMDPs.process_data(data, PMDPs.vi; folder=out_folder, N=N_sim)
+PMDPs.process_data(data, PMDPs.vi; folder = out_folder, N = N_sim)
 # PMDPs.process_data(data, PMDPs.fhvi; folder=out_folder, N=N_sim)
 
 # PMDPs.process_data(data, PMDPs.mcts; folder=out_folder, N=N_sim, method_info="dpw", mcts_solver=dpw_solver)

@@ -34,18 +34,36 @@ actions =  Action[0,15,30,45,1000]
 # h_mc = run_sim(mdp_mc, planner; max_steps = 201, rng_seed = 1)
 
 
-for d in [7500,10000,12500]
+for d in [7500, 10000, 12500]
     println("Processng $d")
     # mdp_params = Dict(pairs( (n_edges = 3, c_init = 2, demand = 5*Float64[1,1,1], selling_horizon_end = [40,45,50], actions = 15:5:90, objective=:utilization)))
-    mdp_params = Dict(pairs( (n_edges = 10, c_init = 30,  demand = 5*Float64[1,1,1,1,1,1,1,1,1,1], selling_horizon_end = collect(155:5:200), actions= 15:2:300, objective=:revenue)))
+    mdp_params = Dict(
+        pairs((
+            n_edges = 10,
+            c_init = 30,
+            demand = 5 * Float64[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            selling_horizon_end = collect(155:5:200),
+            actions = 15:2:300,
+            objective = :revenue,
+        )),
+    )
     # mcts_params = Dict(pairs((solver= MCTSSolver, n_iterations=5000, depth=500, exploration_constant=40.0, reuse_tree=true)))
-    exp_params = Dict(pairs((n_runs = 10, vi=false, save=:stats)))
-    mcts_params = Dict(pairs((solver= DPWSolver, n_iterations=d, depth=100, exploration_constant=40.0, keep_tree=true, show_progress=false)))
-    params = Dict(:mdp=>mdp_params, :mcts=>mcts_params, :exp=>exp_params)
-    
-    result, filepath =  makesim(params);
-    
-    r = result[:r] 
+    exp_params = Dict(pairs((n_runs = 10, vi = false, save = :stats)))
+    mcts_params = Dict(
+        pairs((
+            solver = DPWSolver,
+            n_iterations = d,
+            depth = 100,
+            exploration_constant = 40.0,
+            keep_tree = true,
+            show_progress = false,
+        )),
+    )
+    params = Dict(:mdp => mdp_params, :mcts => mcts_params, :exp => exp_params)
+
+    result, filepath = makesim(params)
+
+    r = result[:r]
     u = result[:u]
     result[:t]
 
@@ -83,8 +101,5 @@ mdp_dir = readdir(datadir("sims"))[2]
 exp = readdir(datadir("sims", mdp_dir))[1]
 # res = wload(datadir("sims", mdp_dir, exp))
 
-df = collect_results(
-    datadir("sims", mdp_dir);
-    white_list = [:r, :u, :t, :params]
-)
+df = collect_results(datadir("sims", mdp_dir); white_list = [:r, :u, :t, :params])
 df

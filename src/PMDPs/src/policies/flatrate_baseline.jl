@@ -10,7 +10,7 @@ Used to select the best flatrate.
 function flatrate_analysis(mdp::PMDP, h::AbstractSimHistory)
     # extract request trace from history
     trace = collect(eachstep(h, "s, info"))
-    requests = [rec for rec in trace if rec.s.iₚ !=PMDPs.empty_product_id(mdp)]
+    requests = [rec for rec in trace if rec.s.iₚ != PMDPs.empty_product_id(mdp)]
 
     # get data from trace
     request_edges = [[PMDPs.product(mdp, rec.s)...] for rec in requests]
@@ -22,11 +22,12 @@ function flatrate_analysis(mdp::PMDP, h::AbstractSimHistory)
     for flatrate in POMDPs.actions(mdp)
         c_init = PMDPs.pp(mdp).c₀
         c = copy(c_init)
-        r_a = 0.
-        for i in 1:length(requests)
-            if ~PMDPs.sale_impossible(mdp, requests[i].s) && PMDPs.user_buy(flatrate, request_budgets[i])
+        r_a = 0.0
+        for i = 1:length(requests)
+            if ~PMDPs.sale_impossible(mdp, requests[i].s) &&
+               PMDPs.user_buy(flatrate, request_budgets[i])
                 c = PMDPs.reduce_capacities(c, product(mdp, requests[i].s))
-                r_a +=flatrate
+                r_a += flatrate
             end
         end
         push!(r_as, r_a)
@@ -36,7 +37,10 @@ function flatrate_analysis(mdp::PMDP, h::AbstractSimHistory)
     return (r_a = r_as, u_a = u_as)
 end
 
-function optimize_flatrate_policy(mdp::PMDP, training_histories::AbstractArray{<:AbstractSimHistory})::Tuple
+function optimize_flatrate_policy(
+    mdp::PMDP,
+    training_histories::AbstractArray{<:AbstractSimHistory},
+)::Tuple
 
     # row index labels are mdp actions, column index labels are training histories
     R = []
@@ -58,18 +62,21 @@ To get policy action, use
     action(flatrate_policy, POMDPs.initialstate(mg))
 
 """
-function get_flatrate_policy(mdp::PMDP, training_histories::Array{<:AbstractSimHistory}; objective=:revenue)::Policy
+function get_flatrate_policy(
+    mdp::PMDP,
+    training_histories::Array{<:AbstractSimHistory};
+    objective = :revenue,
+)::Policy
     R, U = optimize_flatrate_policy(mdp, training_histories)
-    
-    if objective==:revenue
+
+    if objective == :revenue
         M = R
-    elseif objective==:utilization
+    elseif objective == :utilization
         M = U
     end
 
-    best_results = sum(M; dims=2)
+    best_results = sum(M; dims = 2)
     best_flatrate = POMDPs.actions(mdp)[findmax(best_results)[2]]
-    
-    FunctionPolicy(s->best_flatrate)
-end
 
+    FunctionPolicy(s -> best_flatrate)
+end

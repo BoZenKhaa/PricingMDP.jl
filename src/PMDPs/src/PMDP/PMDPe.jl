@@ -14,7 +14,7 @@ end
 function stateindices(pp::PMDPProblem)::LinearIndices
     C_sizes = pp.c₀ .+ 1                # +1 for 0 capacity
     T_size = selling_period_end(pp)     # timestep starts at t=1 and goes up to t=T
-    prd_sizes = n_products(pp)+1        # +1 for empty product
+    prd_sizes = n_products(pp) + 1        # +1 for empty product
 
     LinearIndices((C_sizes..., T_size, prd_sizes))
 end
@@ -25,16 +25,16 @@ m = PMDPe(edges, products, λ)
 
 PMDP for explicit interface
 """
-struct PMDPe <: PMDP{State, Action}
+struct PMDPe <: PMDP{State,Action}
     pp::PMDPProblem
     empty_product::Product
     empty_product_id::Int64
     statelinearindices::LinearIndices # ONLY FOR EXPLICIT, replaces need for states array
     # stage_statelinearindices::LinearIndices
-    
+
     function PMDPe(pp::PMDPProblem)
         sli = stateindices(pp)
-        return new(pp, empty_product(pp), n_products(pp)+1, sli)
+        return new(pp, empty_product(pp), n_products(pp) + 1, sli)
     end
 end
 
@@ -46,22 +46,22 @@ function sale_prob(budget_distributions::AbstractArray{<:Distribution}, s::State
     # cdf is probabulity that the sample from distribution is below or equal (≤) the asking price a
     # we want probability that sample is below the asking price (<). 
     # This is only issue with discrete distributions, for those, I will subtract ϵ from a.
-    1-cdf(budget_distributions[s.iₚ], a-ϵ)
+    1 - cdf(budget_distributions[s.iₚ], a - ϵ)
 end
 
 function next_states(m::PMDP, s::State, new_c::AbstractArray{<:Number})::Array{State}
-    sps = [State(new_c, s.t+1, iₚ) for iₚ in 1:n_products(m)+1] # +1 for empty_product
+    sps = [State(new_c, s.t + 1, iₚ) for iₚ = 1:n_products(m)+1] # +1 for empty_product
 end
 
 function POMDPs.transition(m::PMDPe, s::State, a::Action)
     # --- Request arrival probs
     product_request_probs = demand(m)[s.t].p
-    
+
     # NEXT STATES
     # if s.t == selling_period_end(m)
     #     sps = [s]
     #     probs = [1.]
-    if sale_impossible(m, s, a) 
+    if sale_impossible(m, s, a)
         sps = next_states(m, s, s.c)
         probs = product_request_probs
     else # sale possible
@@ -69,25 +69,25 @@ function POMDPs.transition(m::PMDPe, s::State, a::Action)
 
         # sufficient capacity for sale and non-empty request
         sps_nosale = next_states(m, s, s.c)
-        probs_nosale = product_request_probs .* (1-prob_sale)
+        probs_nosale = product_request_probs .* (1 - prob_sale)
 
-        sps_sale = next_states(m, s, s.c-product(m, s))
+        sps_sale = next_states(m, s, s.c - product(m, s))
         probs_sale = product_request_probs .* prob_sale
 
         sps = vcat(sps_nosale, sps_sale)
         probs = vcat(probs_nosale, probs_sale)
     end
 
-    @assert sum(probs) ≈ 1.
-    
+    @assert sum(probs) ≈ 1.0
+
     return SparseCat(sps, probs)
 end
 
 function POMDPs.reward(m::PMDPe, s::State, a::Action, sp::State)
     if objective(m) == :revenue
-        s.c==sp.c ? 0. :  a
+        s.c == sp.c ? 0.0 : a
     elseif objective(m) == :utilization
-        s.c==sp.c ? 0. :  sum(product(m, s))
+        s.c == sp.c ? 0.0 : sum(product(m, s))
     end
 end
 
@@ -112,8 +112,8 @@ end
 
 function stage_stateindices(pp::PMDPProblem, t::Int64)::LinearIndices
     C_sizes = pp.c₀ .+ 1                # +1 for 0 capacity
-    prd_sizes = n_products(pp)+1        # +1 for empty product
-    
+    prd_sizes = n_products(pp) + 1        # +1 for empty product
+
     LinearIndices((C_sizes..., prd_sizes))
 end
 
@@ -123,7 +123,7 @@ function FiniteHorizonPOMDPs.stage_states(mdp::PMDP, epoch::Int64)::Array{State}
 end
 
 function FiniteHorizonPOMDPs.stage_stateindex(mdp::PMDP, s::State, epoch::Int64)
-    i = findfirst(sp -> sp.c==s.c && sp.iₚ==s.iₚ, generate_stage_states(pp(mdp), epoch))
+    i = findfirst(sp -> sp.c == s.c && sp.iₚ == s.iₚ, generate_stage_states(pp(mdp), epoch))
     stage_stateindices(pp(mdp), epoch)[i]
     # findfirst(isequal(s), generate_states(pp(mdp), epoch))
 end
@@ -132,7 +132,7 @@ function FiniteHorizonPOMDPs.stage_stateindex(mdp::PMDP, s::State)
     FiniteHorizonPOMDPs.stage_stateindex(mdp, s, FiniteHorizonPOMDPs.stage(s))
 end
 
-FiniteHorizonPOMDPs.stage(s::State)= s.t
+FiniteHorizonPOMDPs.stage(s::State) = s.t
 FiniteHorizonPOMDPs.HorizonLength(::Type{<:PMDP}) = FiniteHorizon()
 FiniteHorizonPOMDPs.horizon(mdp::PMDP) = selling_period_end(mdp)
 

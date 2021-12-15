@@ -1,5 +1,11 @@
-function mcts(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; solver = nothing, kwargs...)::DataFrame
-    mg = PMDPg(pp) 
+function mcts(
+    pp::PMDPProblem,
+    traces::AbstractArray{<:AbstractSimHistory},
+    rnd::AbstractRNG;
+    solver = nothing,
+    kwargs...,
+)::DataFrame
+    mg = PMDPg(pp)
     if solver !== nothing
         display("using custom MCTS planner: $solver)")
         mcts = MCTS.solve(solver, mg)
@@ -10,31 +16,49 @@ function mcts(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd:
 end
 
 
-function vi(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, 
-            rnd::AbstractRNG; name, pp_params, kwargs...)::DataFrame
+function vi(
+    pp::PMDPProblem,
+    traces::AbstractArray{<:AbstractSimHistory},
+    rnd::AbstractRNG;
+    name,
+    pp_params,
+    kwargs...,
+)::DataFrame
     me = PMDPe(pp)
     mg = PMDPg(pp)
 
     fname = string("vi_", savename(pp_params), "_", savename(kwargs))
-    
+
     # vi = get_VI_policy(me)
-    policydict, fpath =  produce_or_load(datadir("vi_policies", name), # dir for output
-                                Dict(:mdp=>me, :params=>kwargs), # args for fun (has to be dict) 
-                                get_VI_policy; # fun, has to return dict
-                                prefix=fname)  # filename prefix
+    policydict, fpath = produce_or_load(
+        datadir("vi_policies", name), # dir for output
+        Dict(:mdp => me, :params => kwargs), # args for fun (has to be dict) 
+        get_VI_policy; # fun, has to return dict
+        prefix = fname,
+    )  # filename prefix
 
     vi = policydict["policy"]
 
     results = eval_policy(mg, traces, @ntuple(vi), MersenneTwister(1))
 end
 
-function flatrate(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
+function flatrate(
+    pp::PMDPProblem,
+    traces::AbstractArray{<:AbstractSimHistory},
+    rnd::AbstractRNG;
+    kwargs...,
+)::DataFrame
     mg = PMDPg(pp)
-    flatrate = get_flatrate_policy(mg, [simulate_trace(mg, rnd) for i in 1:5])
+    flatrate = get_flatrate_policy(mg, [simulate_trace(mg, rnd) for i = 1:5])
     results = eval_policy(mg, traces, @ntuple(flatrate), MersenneTwister(1))
 end
 
-function fhvi(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
+function fhvi(
+    pp::PMDPProblem,
+    traces::AbstractArray{<:AbstractSimHistory},
+    rnd::AbstractRNG;
+    kwargs...,
+)::DataFrame
     me = PMDPe(pp)
     mg = PMDPg(pp)
     fhvi = get_FHVI_policy(me)
@@ -42,7 +66,12 @@ function fhvi(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd:
 end
 
 
-function hindsight(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory}, rnd::AbstractRNG; kwargs...)::DataFrame
+function hindsight(
+    pp::PMDPProblem,
+    traces::AbstractArray{<:AbstractSimHistory},
+    rnd::AbstractRNG;
+    kwargs...,
+)::DataFrame
     lp_kwargs = Dict()
     try
         GRB_ENV = Gurobi.Env()
@@ -53,52 +82,74 @@ function hindsight(pp::PMDPProblem, traces::AbstractArray{<:AbstractSimHistory},
         gurobi = false
         lp_kwargs = @dict(gurobi)
     end
-    
+
     mg = PMDPg(pp)
-    results=DataFrame()
+    results = DataFrame()
     @showprogress 1 "Computing hindsight" for (i, trace) in enumerate(traces)
-        result = DataFrame    
-        try    
+        result = DataFrame
+        try
             hindsight = LP.get_MILP_hindsight_policy(mg, trace; lp_kwargs)
             result = eval_policy(mg, trace, @ntuple(hindsight), MersenneTwister(1))
         catch err
             @error "Error processing $i th trace: $err"
             showerror(stderr, err, catch_backtrace())
-            result = DataFrame(name="hindsight", sequence=hash(trace), error=err)            
+            result = DataFrame(name = "hindsight", sequence = hash(trace), error = err)
         end
-        results = vcat(results, result, cols=:union)
+        results = vcat(results, result, cols = :union)
     end
     results
 end
 
-function process_data(data::Dict, method::Function; 
-                     folder="", info="", method_info="", N=10000, kwargs...)
+function process_data(
+    data::Dict,
+    method::Function;
+    folder = "",
+    info = "",
+    method_info = "",
+    N = 10000,
+    kwargs...,
+)
     traces = data[:traces]
     pp = data[:pp]
     pp_params = data[:pp_params]
     rnd = Xorshift128Plus(1516)
 
-    N>=length(traces) ? N=length(traces) : N=N
+    N >= length(traces) ? N = length(traces) : N = N
     traces = data[:traces][1:N]
 
-    results, overall_stats... = @timed method(pp, traces, rnd; name=data[:name], 
-                                                pp_params=pp_params, kwargs...)    
-    
-    agg = describe(results, cols=[:r, :u, :nₛ, :nᵣ, :time, :bytes])
-    
+    results, overall_stats... =
+        @timed method(pp, traces, rnd; name = data[:name], pp_params = pp_params, kwargs...)
+
+    agg = describe(results, cols = [:r, :u, :nₛ, :nᵣ, :time, :bytes])
+
     result_dir = datadir("results", data[:name])
     mkpath(result_dir)
     method_name = string(method, method_info)
-    fname = string(method_name, "_",  
-                    savename(@dict(N)), "_", 
-                    savename(pp_params),
-                    info, ".bson")
+    fname = string(
+        method_name,
+        "_",
+        savename(@dict(N)),
+        "_",
+        savename(pp_params),
+        info,
+        ".bson",
+    )
     name = data[:name]
-    method=string(method)
-    save(datadir("results",folder, name, fname),
-         @dict(pp_params, name, 
-               info, method, 
-               method_info, results, agg, overall_stats, N, kwargs)
+    method = string(method)
+    save(
+        datadir("results", folder, name, fname),
+        @dict(
+            pp_params,
+            name,
+            info,
+            method,
+            method_info,
+            results,
+            agg,
+            overall_stats,
+            N,
+            kwargs
         )
+    )
     results
 end

@@ -9,9 +9,9 @@ using Random, RandomNumbers.Xorshifts
     NP = 20
     seed = 4
 
-    pp1 = PMDPs.graph_pp(;NV=NV, NE=NE, NP=NP, seed=seed)
-    
-    g = SimpleDiGraph(NV, NE, seed=seed)
+    pp1 = PMDPs.graph_pp(; NV = NV, NE = NE, NP = NP, seed = seed)
+
+    g = SimpleDiGraph(NV, NE, seed = seed)
     # display(gplot(g, nodelabel=1:nv(g)))
     pp2 = PMDPs.graph_pp(g, NP)
 

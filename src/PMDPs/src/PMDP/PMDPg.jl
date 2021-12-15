@@ -7,13 +7,13 @@ m = PMDPg(edges, products, λ)
 
 PMDP for generative interface
 """
-struct PMDPg <: PMDP{State, Action}
+struct PMDPg <: PMDP{State,Action}
     pp::PMDPProblem                # Pricing Problem
     empty_product::Product
     empty_product_id::Int64
-    
+
     function PMDPg(pp::PMDPProblem)
-        new(pp, empty_product(pp), n_products(pp)+1)
+        new(pp, empty_product(pp), n_products(pp) + 1)
     end
 
     # function PMDPg(E, P, λ, B, A, objective)
@@ -35,7 +35,7 @@ If no product is requested, the index will be higher than the number of products
 TODO: Potential speedup if product_request_probs are not recalculated at every step
 """
 function sample_request(m::PMDPg, t::Timestep, rng::AbstractRNG)::Int64
-    iₚ = rand(rng, demand(m)[t]) 
+    iₚ = rand(rng, demand(m)[t])
 
     # prod_index == n_products(pp(m))+1 ? p = empty_product(m) : p = products(m)[prod_index]
     # return p

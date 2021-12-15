@@ -33,19 +33,33 @@ params_mcts = (
     T = 8,
     discount = 0.9,
     rnd = RND(4),
-    verbose = true
+    verbose = true,
 )
 
 
-params_dpw = Dict(pairs((
-    solver = DPWSolver, depth = 50,
-    exploration_constant = 40.0, enable_state_pw = false,
-    keep_tree = true, show_progress = false, rng = RND(1))))
+params_dpw = Dict(
+    pairs((
+        solver = DPWSolver,
+        depth = 50,
+        exploration_constant = 40.0,
+        enable_state_pw = false,
+        keep_tree = true,
+        show_progress = false,
+        rng = RND(1),
+    )),
+)
 
-params_mcts = Dict(pairs((
-    solver = MCTSSolver, depth = 50,
-    exploration_constant = 40.0, enable_state_pw = false,
-    keep_tree = true, show_progress = false, rng = RND(1))))
+params_mcts = Dict(
+    pairs((
+        solver = MCTSSolver,
+        depth = 50,
+        exploration_constant = 40.0,
+        enable_state_pw = false,
+        keep_tree = true,
+        show_progress = false,
+        rng = RND(1),
+    )),
+)
 
 
 

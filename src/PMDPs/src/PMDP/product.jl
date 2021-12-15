@@ -1,6 +1,6 @@
 # const Product{n_edges} = SVector{n_edges,Bool}
-struct Product{n_res} <: StaticArray{Tuple{n_res}, Bool, 1}
-    res::SVector{n_res, Bool}
+struct Product{n_res} <: StaticArray{Tuple{n_res},Bool,1}
+    res::SVector{n_res,Bool}
     selling_period_end::Timestep
 end
 
@@ -18,5 +18,5 @@ StaticArrays.@propagate_inbounds function Base.getindex(p::Product, i::Int)
 end
 
 function are_unique(products::AbstractArray{<:AbstractArray})
-    length(Set(products))==length(products)
+    length(Set(products)) == length(products)
 end

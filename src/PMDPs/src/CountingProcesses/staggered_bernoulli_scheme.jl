@@ -5,12 +5,15 @@ for different number of steps.
 The constructor takes probabilities of succeses p_1, ... p_N-1 and 
 n_1, ... n_N-1, number of steps outcome i is possible.
 """
-struct StaggeredBernoulliScheme{N}<:DiscreteCountingProcess
-    n::SVector{N, Int64}
-    p_suc::SVector{N, Float64}
+struct StaggeredBernoulliScheme{N} <: DiscreteCountingProcess
+    n::SVector{N,Int64}
+    p_suc::SVector{N,Float64}
 
-    function StaggeredBernoulliScheme(n::AbstractArray{<:Number}, p_suc::AbstractArray{<:Number})
-        @assert 0<sum(p_suc)<=1
+    function StaggeredBernoulliScheme(
+        n::AbstractArray{<:Number},
+        p_suc::AbstractArray{<:Number},
+    )
+        @assert 0 < sum(p_suc) <= 1
         # @assert issorted(n)
         new{length(p_suc)}(SA[n...], SA[p_suc...])
     end
@@ -41,11 +44,11 @@ Get outcome distribution for given index.
 Support for the outcome distribution is 1...N+1. N+1 means failure.
 Index can be in the range 1, ..., n (n is the number of random variables in the scheme).
 """
-function Base.getindex(bs::StaggeredBernoulliScheme, i::Integer) 
-    if 1<=i<=maximum(bs.n)
+function Base.getindex(bs::StaggeredBernoulliScheme, i::Integer)
+    if 1 <= i <= maximum(bs.n)
         active = bs.n .>= i
         active_p = bs.p_suc .* active
-        return Categorical([active_p..., 1-sum(active_p)])
+        return Categorical([active_p..., 1 - sum(active_p)])
     else
         throw(BoundsError(bs, i))
     end

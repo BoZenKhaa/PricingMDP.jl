@@ -9,7 +9,7 @@ using PMDPs.CountingProcesses
     pp = simple_pp()
 
     @test isa(pp, PMDPs.PMDPProblem)
-    @test PMDPs.selling_period_end(pp)==8
+    @test PMDPs.selling_period_end(pp) == 8
 
-    @test size(pp) == (3,2,5)
+    @test size(pp) == (3, 2, 5)
 end

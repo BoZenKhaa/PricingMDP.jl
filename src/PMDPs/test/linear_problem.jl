@@ -3,11 +3,11 @@ using Distributions
 
 @testset "linear_problem.jl" begin
 
-   pp1 = PMDPs.linear_pp(3)
-   PMDPs.PMDPg(pp1)
-   
-   @test isa(pp1, PMDPs.PMDPProblem)
+    pp1 = PMDPs.linear_pp(3)
+    PMDPs.PMDPg(pp1)
 
-   pp2 = PMDPs.linear_pp(10; c=5, T=100, expected_res=100., res_budget_μ=5.)
-   @test isa(pp2, PMDPs.PMDPProblem) 
+    @test isa(pp1, PMDPs.PMDPProblem)
+
+    pp2 = PMDPs.linear_pp(10; c = 5, T = 100, expected_res = 100.0, res_budget_μ = 5.0)
+    @test isa(pp2, PMDPs.PMDPProblem)
 end
