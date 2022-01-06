@@ -21,9 +21,6 @@ function get_MCTS_planner(mdp::PMDPg; params_mcts::Dict = Dict())
             solver = DPWSolver,
             depth = 50,
             exploration_constant = 40.0,
-            enable_state_pw = false,
-            keep_tree = true,
-            show_progress = false,
             rng = Xorshift128Plus(),
         )),
     )
