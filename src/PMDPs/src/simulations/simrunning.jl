@@ -3,7 +3,7 @@ function mcts(
     traces::AbstractArray{<:AbstractSimHistory},
     rnd::AbstractRNG;
     solver = nothing,
-    kwargs...,
+    kwargs...
 )::DataFrame
     mg = PMDPg(pp)
     if solver !== nothing
@@ -22,7 +22,7 @@ function vi(
     rnd::AbstractRNG;
     name,
     pp_params,
-    kwargs...,
+    kwargs...
 )::DataFrame
     me = PMDPe(pp)
     mg = PMDPg(pp)
@@ -34,7 +34,7 @@ function vi(
         datadir("vi_policies", name), # dir for output
         Dict(:mdp => me, :params => kwargs), # args for fun (has to be dict) 
         get_VI_policy; # fun, has to return dict
-        prefix = fname,
+        prefix = fname
     )  # filename prefix
 
     vi = policydict["policy"]
@@ -46,7 +46,7 @@ function flatrate(
     pp::PMDPProblem,
     traces::AbstractArray{<:AbstractSimHistory},
     rnd::AbstractRNG;
-    kwargs...,
+    kwargs...
 )::DataFrame
     mg = PMDPg(pp)
     flatrate = get_flatrate_policy(mg, [simulate_trace(mg, rnd) for i = 1:5])
@@ -56,8 +56,7 @@ end
 function fhvi(
     pp::PMDPProblem,
     traces::AbstractArray{<:AbstractSimHistory},
-    rnd::AbstractRNG;
-    kwargs...,
+    rnd::AbstractRNG; kwargs...
 )::DataFrame
     me = PMDPe(pp)
     mg = PMDPg(pp)
@@ -70,7 +69,7 @@ function hindsight(
     pp::PMDPProblem,
     traces::AbstractArray{<:AbstractSimHistory},
     rnd::AbstractRNG;
-    kwargs...,
+    kwargs...
 )::DataFrame
     lp_kwargs = Dict()
     try
@@ -107,7 +106,7 @@ function process_data(
     info = "",
     method_info = "",
     N = 10000,
-    kwargs...,
+    kwargs...
 )
     traces = data[:traces]
     pp = data[:pp]
