@@ -53,12 +53,27 @@ T is the number of timesteps.
 # Linear problem
 A placeholder before I fugure out the experiments
 """
-pp = PMDPs.linear_pp(12, c=3, T=24)
-# pp = PMDPs.linear_pp(2; c = 2, T = 8)
+ # pp = PMDPs.linear_pp(2; c = 2, T = 8)
 
+pp_params = Dict(pairs((
+        nᵣ = 3,
+        c = 1,
+        T = 10,
+        expected_res = 6.0,
+        res_budget_μ = 5.0,
+        objective = :revenue,
+    )))
 
-mg = PMDPs.PMDPg(pp)
-me = PMDPs.PMDPe(pp)
+pp = PMDPs.linear_pp(;pp_params...)
+
+vi = true
+name = "test_ev_problem"
+n_traces = 5
+
+# mg = PMDPs.PMDPg(pp)
+# me = PMDPs.PMDPe(pp)
+
+traces = PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, trace_folder = "ev_traces", seed=1)
 
 
 
