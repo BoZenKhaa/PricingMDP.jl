@@ -10,9 +10,25 @@ function simulate_trace(m::PMDP, rng::AbstractRNG)
 end
 
 """
+Getting around the fact that jld2 can save only dicts with strings for keys in the top level structure
+
+Load and resave these as symbols.
+
+The two additional fields come from DrWatson.@tagsave
+"""
+function load_tagsaved_jld2_traces(fname)
+    jld2_data = load(fname)
+    data = jld2_data["jld2_data"]
+    data[:gitcommit] = jld2_data["gitcommit"]
+    data[:script] = jld2_data["script"]
+    return data
+end
+
+
+"""
 Apply BSON specific fixes to loaded trace data
 """
-function load_traces(fname)
+function load_tagsaved_bson_traces(fname)
     data = load(fname)
 
     # fix type of traces
