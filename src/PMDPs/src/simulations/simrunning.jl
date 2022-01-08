@@ -131,13 +131,13 @@ function process_data(
         "_",
         savename(pp_params),
         info,
-        ".bson",
+        ".jld2",
     )
     name = data[:name]
     method = string(method)
     save(
         datadir("results", folder, name, fname),
-        @dict(
+        Dict("jld2_data"=>@dict(
             pp_params,
             name,
             info,
@@ -148,7 +148,7 @@ function process_data(
             overall_stats,
             N,
             kwargs
-        )
+        ))
     )
     results
 end

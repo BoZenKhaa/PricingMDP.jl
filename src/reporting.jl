@@ -49,8 +49,9 @@ function folder_report(res_folder::String; raw_result_array = false)
     rows = []
     raw = []
     for res_file in res_files
-        if res_file[end-4:end] == ".bson"
-            res = BSON.load(joinpath(res_folder, res_file))
+        if res_file[end-4:end] == ".jld2"
+            jld2_data = load(joinpath(res_folder, res_file))
+            res = jld2_data["jld2_data"]
             row = res2row(res)
             push!(rows, row)
             raw_result_array && push!(raw, res)
