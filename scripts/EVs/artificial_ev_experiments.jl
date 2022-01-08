@@ -54,6 +54,10 @@ T is the number of timesteps.
 A placeholder before I fugure out the experiments
 """
  # pp = PMDPs.linear_pp(2; c = 2, T = 8)
+ 
+"""
+PREPARE PROBLEM AND TRACES
+"""
 
 pp_params = Dict(pairs((
         nᵣ = 3,
@@ -72,10 +76,72 @@ n_traces = 5
 
 # mg = PMDPs.PMDPg(pp)
 # me = PMDPs.PMDPe(pp)
+inputs = [  PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, trace_folder = "ev_traces", seed=1),
+            PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, trace_folder = "ev_traces", seed=1),]
 
-traces = PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, trace_folder = "ev_traces", seed=1)
+"""
+PREPARE SOLVERS AND RUN EXPERIMENTS
+"""
+
+params_dpw = Dict(
+    pairs((
+        depth = 50,
+        exploration_constant = 40.0,
+        enable_state_pw = false,
+        keep_tree = true,
+        show_progress = false,
+        rng = RND(1),
+    )),
+)
+
+params_classical_MCTS = Dict(
+    pairs((
+        depth = 15,
+        exploration_constant = 40.0,
+        reuse_tree = true,
+        rng = RND(1),
+    )),
+)
+
+out_folder= "ev_results"
+N_traces=n_traces
 
 
+for (i, data) in enumerate(inputs)
+    print("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
+    print("flatrate...")
+    PMDPs.process_data(data, PMDPs.flatrate; folder = out_folder, N = N_traces)
+    print("hindsight...")
+    PMDPs.process_data(data, PMDPs.hindsight; folder = out_folder, N = N_traces)
+    print("vi...")
+    data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = out_folder, N = N_traces)
+    # print("vi..."); data[:vi] && PMDPs.process_data(data, PMDPs.fhvi; folder=out_folder, N=N_sim)
 
+    print("dpw...")
+    PMDPs.process_data(
+        data,
+        PMDPs.mcts;
+        folder = out_folder,
+        N = N_traces,
+        method_info = "dpw_$(savename(params_dpw))",
+        solver = DPWSolver(; params_dpw...),
+    )
 
+    println("mcts...")
+    PMDPs.process_data(
+        data,
+        PMDPs.mcts;
+        folder = out_folder,
+        N = N_traces,
+        method_info = "vanilla_$(savename(params_classical_MCTS))",
+        solver = MCTSSolver(;params_classical_MCTS...),
+    )
+end
 
+"""
+ANALYZE RESULTS
+"""
+
+results = folder_report(datadir("results", "ev_results", "test_ev_problem"); raw_result_array = true)
+
+agg_res = format_result_table(results.results, N=N_traces)
