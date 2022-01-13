@@ -84,12 +84,12 @@ end
 function graph_pp(
     g::SimpleDiGraph,
     NP::Int64;
-    seed::Int64 = 2,
     c::Int64 = 5,
     T::Int64 = 20,
     expected_res::Float64 = 20.0,
     res_budget_μ::Float64 = 5.0,
     objective::Symbol = :revenue,
+    rnd=Xorshift1024Plus(1)
 )
     """
     Capacity
@@ -100,11 +100,10 @@ function graph_pp(
     """
     Products
     """
-    rnd = Xorshift1024Plus(seed)
     P = [PMDPs.Product(prodres, T) for prodres in get_prodres(g, NP, rnd, seed)]
 
-
-    D = PMDPs.rand_demand(P, expected_res, rnd)
+    product_demand_intensity = random_demand_intensity(P, rnd)
+    D = PMDPs.demand(P, expected_res, product_demand_intensity)
 
     B = PMDPs.normal_budgets_per_resource(P, res_budget_μ, res_budget_μ / 2)
 
