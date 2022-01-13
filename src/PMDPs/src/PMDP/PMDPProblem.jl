@@ -50,3 +50,18 @@ end
 selling_period_end(p::PMDPProblem) = p.T
 
 empty_product(p::PMDPProblem) = Product(falses(n_resources(p)), selling_period_end(p))
+
+function statespace_size(p::PMDPProblem; verbose=true) 
+    state_size_bytes = Base.summarysize(empty_product(p))
+    n_c = prod(p.c₀)
+    n_T = selling_period_end(p)
+    n_P = n_products(p)
+
+    n_states = n_c*n_T*n_P
+    if verbose
+        println("There are $(n_c) capacity vectors, $(n_T) timesteps, and $(n_P) products")
+        println("For $(n_states) states, each state is $(state_size_bytes) bytes")
+        println("These would take $(n_states*state_size_bytes/(1000^3)) GB of memory")
+    end
+    return n_states, state_size_bytes
+end

@@ -8,7 +8,15 @@ Enumerates all states for MDP
 function generate_states(pp::PMDPProblem)::AbstractArray{<:State}
     c_it = Iterators.product([0:cᵣ for cᵣ in pp.c₀]...)
     s_it = Iterators.product(c_it, 1:selling_period_end(pp), 1:(n_products(pp)+1)) # +1 for empty_product
-    states = [State(SVector(args[1]...), args[2], args[3]) for args in s_it]
+    try
+        states = [State(SVector(args[1]...), args[2], args[3]) for args in s_it]
+    catch e
+        if isa(e, OutOfMemoryError)
+            println("Not enough memory to allocate state space")
+            statespace_size(pp; verbose=true)
+            throw(e)
+        end
+    end
 end
 
 function stateindices(pp::PMDPProblem)::LinearIndices
