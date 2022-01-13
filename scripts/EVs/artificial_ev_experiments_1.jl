@@ -59,25 +59,30 @@ A placeholder before I fugure out the experiments
 PREPARE PROBLEM AND TRACES
 """
 
-pp_params = Dict(pairs((
-        nᵣ = 3,
-        c = 1,
-        T = 10,
-        expected_res = 6.0,
-        res_budget_μ = 5.0,
-        objective = :revenue,
-    )))
+inputs = []
+res_range = range(6, 6)
 
-pp = PMDPs.linear_pp(;pp_params...)
 
-vi = true
-name = "test_ev_problem"
-n_traces = 5
+for res in res_range
+    pp_params = Dict(pairs((
+            nᵣ = 6,
+            c = 3,
+            T = 12,
+            expected_res = Float64(res),
+            res_budget_μ = 10.0,
+            objective = :revenue,
+        )))
 
-# mg = PMDPs.PMDPg(pp)
-# me = PMDPs.PMDPe(pp)
-inputs = [  PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, trace_folder = "ev_traces", seed=1),
-            PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, trace_folder = "ev_traces", seed=1),]
+    pp = PMDPs.single_day_cs_pp()
+
+    vi = true
+    name = "test_single_day_cs_pp"
+    n_traces = 5
+
+    # mg = PMDPs.PMDPg(pp)
+    # me = PMDPs.PMDPe(pp)
+    push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, trace_folder = "ev_traces", seed=1))
+end
 
 """
 PREPARE SOLVERS AND RUN EXPERIMENTS
@@ -139,9 +144,25 @@ for (i, data) in enumerate(inputs)
 end
 
 """
-ANALYZE RESULTS
+ANALYZE AND PLOT RESULTS
 """
-
 results = folder_report(datadir("results", "ev_results", "test_ev_problem"); raw_result_array = true)
 
-agg_res = format_result_table(results.results, N=N_traces)
+df = results.results
+df
+
+# agg_res = format_result_table(results.results, N=N_traces)
+grps = groupby(df, [:method, :objective])
+grp = grps[1]
+
+plot()
+for grp in grps
+    label = grp.method[1][1:min(10, length(grp.method[1]))]
+    plot!(grp.expected_res, grp.mean_r; label=grp.method[1][1:3] )
+end
+plot!()
+
+print(sort(unique([String(v.name) for v in methodswith(DataFrame)])))
+DataFrames
+
+methods()
