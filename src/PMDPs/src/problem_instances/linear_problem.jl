@@ -40,14 +40,15 @@ function demand_intensity_indpendent_start_time_and_duration(start_time::Distrib
     # the matrix has more possible products than we allow in the mdp, this checks whether the error from that is small
     @assert sum(prod_demand_intensity)>0.95
     # and then normalize
-    prod_demand_intensity = prod_demand_intensity ./ sum(prod_demand_intensity)
+    normalized_prod_demand_intensity = prod_demand_intensity ./ sum(prod_demand_intensity)
 end
 
 """
 Random demand intensity for every product.
 """
 function random_product_demand_intensity(P::AbstractArray{<:Product}, rnd::AbstractRNG)
-    [rand(rnd) for i = 1:length(P)]
+    prod_demand_intensity = [rand(rnd) for i = 1:length(P)]
+    normalized_prod_demand_intensity = prod_demand_intensity ./ sum(prod_demand_intensity)
 end
 
 
@@ -62,14 +63,21 @@ end
 
     This use of StaggeredBernoulliScheme means that the "lead time", the time between the arrival of request 
     and the end of selling period, has a uniform distribution for each product? 
+
+    args:
+        P: array of products
+        expected_res: demand scaling parameter, total expected number of resources to be requested in the pricing problem
+        relative_prod_demand_intensity: normalized vector of product intensities, a cathegorical distribution (pdf) over products
 """
-function demand(P::AbstractArray{<:Product}, expected_res::Number, prod_demand_intensity::AbstractVector{<:Number})
+function demand(P::AbstractArray{<:Product}, expected_res::Number, relative_prod_demand_intensity::AbstractVector{<:Number})
+    @assert sum(relative_prod_demand_intensity) ≈ 1.0
+    
     prod_selling_period_end = [p.selling_period_end for p in P]
     prod_resources = [sum(p) for p in P]
-    prod_resource_requests =
-        prod_selling_period_end .* prod_demand_intensity .* prod_resources
-    resource_requests = sum(prod_resource_requests)
-    prod_probs = prod_demand_intensity .* (expected_res / resource_requests)
+
+    scaled_demand_intensity = relative_prod_demand_intensity*expected_res
+
+    prod_probs = scaled_demand_intensity./(prod_selling_period_end.*prod_resources)
 
     # display(prod_probs)
     @assert sum(prod_probs) < 0.5 "Product probs $prod_probs are too high with given T=$(maximum(prod_selling_period_end)) and expected resource requests $expected_res"
