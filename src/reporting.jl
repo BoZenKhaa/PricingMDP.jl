@@ -66,7 +66,7 @@ function format_result_table(results::DataFrame; N = 10)
     columns =
         [:method, :pp_params_str, :objective, :mean_r, :mean_u, :mean_bytes, :mean_time]
 
-    df10 = filter(:N => N -> N == N, results)
+    df10 = filter(:N => n -> n == N, results)
     gps = groupby(df10, [:objective])
 
     restable = outerjoin(
