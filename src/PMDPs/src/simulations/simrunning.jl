@@ -133,13 +133,13 @@ function process_data(
         info,
         ".jld2",
     )
-    name = data[:name]
+    problem_name = data[:name]
     method = string(method)
     save(
-        datadir("results", folder, name, fname),
+        datadir(folder, "results", problem_name, fname),
         Dict("jld2_data"=>@dict(
             pp_params,
-            name,
+            problem_name,
             info,
             method,
             method_info,
@@ -159,14 +159,14 @@ function prepare_traces(
     vi::Bool,
     name::String,
     N::Int64;
-    trace_folder = "test_traces",
+    folder = "test_traces",
     seed = 1,
     verbose = false,
 )
     mg = PMDPs.PMDPg(pp)
     rnd = Xorshift128Plus(seed)
     fname = savename("$(name)_N=$(N)", pp_params, "jld2")
-    fpath = datadir(trace_folder, fname)
+    fpath = datadir(folder, "traces", fname)
 
     if isfile(fpath)
         data = PMDPs.load_tagsaved_jld2_traces(fpath)
