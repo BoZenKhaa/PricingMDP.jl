@@ -119,27 +119,10 @@ for expected_res in [2*nᵣ,]
     # me = PMDPs.PMDPe(pp)
 
     # tr = PMDPs.simulate_trace(PMDPs.PMDPg(pp),RND(1))
-    push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1, save=false))
+    push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1, save=true))
     # pp_params[:objective]=:utilization
     # push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
 end
-
-
-expected_res=2*nᵣ
-pp_params = Dict(pairs((
-    nᵣ = nᵣ,
-    c = 3,
-    T = nᵣ*10,
-    expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
-    res_budget_μ = 1.0, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
-    objective = :revenue,
-)))
-data = inputs[1]
-name=PP_NAME
-N=1
-fname = savename("$(name)_N=$(N)", pp_params, "jld2")
-fpath = datadir(OUT_FOLDER, "traces", fname)
-@tagsave(fpath, Dict("jld2_data"=>data))
 
 """
 PREPARE SOLVERS AND RUN EXPERIMENTS
