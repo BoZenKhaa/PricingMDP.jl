@@ -162,6 +162,7 @@ function prepare_traces(
     folder = "test_traces",
     seed = 1,
     verbose = false,
+    save = true,
 )
     mg = PMDPs.PMDPg(pp)
     rnd = Xorshift128Plus(seed)
@@ -169,13 +170,15 @@ function prepare_traces(
     fpath = datadir(folder, "traces", fname)
 
     if isfile(fpath)
-        data = PMDPs.load_tagsaved_jld2_traces(fpath)
         verbose ? println("Loading $fpath") : nothing
+        data = PMDPs.load_tagsaved_jld2_traces(fpath)
     else
         traces = [PMDPs.simulate_trace(mg, rnd) for i = 1:N]
         data = @dict(name, pp, pp_params, traces, vi)
-        @tagsave(fpath, Dict("jld2_data"=>data))
-        verbose ? println("Saving $fpath") : nothing
+        if save
+            verbose ? println("Saving $fpath") : nothing
+            @tagsave(fpath, Dict("jld2_data"=>data))
+        end
     end
     return data
 end
