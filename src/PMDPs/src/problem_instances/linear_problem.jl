@@ -151,13 +151,15 @@ end
 In this case, resources are timeslots.
 Both timeslots and timesteps start at 00:00 and end at 23:59.
 """
-function single_day_cs_pp(;
-    nᵣ=12, # number of timeslots per day
-    c = 3,   # charging capacity of every timeslot
-    T = 24,  # number of timesteps in the day
-    expected_res = 3.0,
-    res_budget_μ = 5.0,
-    objective = :revenue,
+function single_day_cs_pp(
+    start_times::Distribution,
+    charging_durations::Distribution;
+    nᵣ::Integer=12, # number of timeslots per day
+    c::Integer = 3,   # charging capacity of every timeslot
+    T::Integer = 24,  # number of timesteps in the day
+    expected_res::Number = 3.0,
+    res_budget_μ::Number = 5.0,
+    objective::Symbol = :revenue,
 )
     """
     Initial capacity is the same for every resource
@@ -178,17 +180,11 @@ function single_day_cs_pp(;
     """
     P = PMDPs.create_continuous_linear_products(resource_selling_period_ends)
 
-
     """
     Demand
     """
-
-    start_time = truncated(Normal(nᵣ/2, nᵣ/8), 0, nᵣ)
-    duration = truncated(Exponential(nᵣ/8), 0, nᵣ)
-    product_demand_intensity =  PMDPs.demand_intensity_indpendent_start_time_and_duration(start_time, duration, nᵣ, P)
+    product_demand_intensity =  PMDPs.demand_intensity_indpendent_start_time_and_duration(start_times, charging_durations, nᵣ, P)
     D = PMDPs.demand(P, expected_res, product_demand_intensity)
-
-
 
     """
     For the budgets, we assume normal distribution per resource.
@@ -204,4 +200,21 @@ function single_day_cs_pp(;
     A = action_space(P, res_budget_μ)
 
     PMDPs.PMDPProblem(P, c₀, D, B, A, objective)
+end
+
+
+"""
+This is an artificial example with parametrically specified start times and charging durations.
+"""
+function single_day_cs_pp(;
+    nᵣ=12, # number of timeslots per day
+    c = 3,   # charging capacity of every timeslot
+    T = 24,  # number of timesteps in the day
+    expected_res = 3.0,
+    res_budget_μ = 5.0,
+    objective = :revenue,
+)
+    start_times = truncated(Normal(nᵣ/2, nᵣ/8), 0, nᵣ)
+    charging_durations = truncated(Exponential(nᵣ/8), 0, nᵣ)
+    single_day_cs_pp(start_times, charging_durations; nᵣ, c, T, expected_res, res_budget_μ, objective, start_time, duration)
 end
