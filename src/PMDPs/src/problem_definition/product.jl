@@ -14,7 +14,7 @@ function create_continuous_linear_product(
         product[i] = true
         spe = minimum([spe, resource_selling_period_ends[i]])
     end
-    return Product{n_res}(product, spe)
+    return Product(product, spe)
 end
 
 """
@@ -29,7 +29,7 @@ products = create_continuous_products(resources)
 """
 function create_continuous_linear_products(resource_selling_period_ends::Array{Int64})
     n_res = length(resource_selling_period_ends)
-    products = Product{n_res}[]
+    products = Product[]
     for len = 1:n_res
         for start = 1:(n_res+1-len)
             push!(

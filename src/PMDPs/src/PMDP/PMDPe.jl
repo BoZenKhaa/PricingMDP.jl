@@ -9,7 +9,7 @@ function generate_states(pp::PMDPProblem)::AbstractArray{<:State}
     c_it = Iterators.product([0:cᵣ for cᵣ in pp.c₀]...)
     s_it = Iterators.product(c_it, 1:selling_period_end(pp), 1:(n_products(pp)+1)) # +1 for empty_product
     try
-        states = [State(SVector(args[1]...), args[2], args[3]) for args in s_it]
+        states = [State(collect(args[1]), args[2], args[3]) for args in s_it]
     catch e
         if isa(e, OutOfMemoryError)
             println("Not enough memory to allocate state space")
@@ -115,7 +115,7 @@ POMDPs.states(m::PMDP) = generate_states(pp(m))
 function generate_stage_states(pp::PMDPProblem, t::Timestep)::AbstractArray{<:State}
     c_it = Iterators.product([0:cᵣ for cᵣ in pp.c₀]...)
     s_it = Iterators.product(c_it, 1:(n_products(pp)+1)) # +1 for empty_product
-    states = [State(SVector(args[1]...), t, args[2]) for args in s_it]
+    states = [State(Vector(args[1]...), t, args[2]) for args in s_it]
 end
 
 function stage_stateindices(pp::PMDPProblem, t::Int64)::LinearIndices

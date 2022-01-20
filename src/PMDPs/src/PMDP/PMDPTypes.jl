@@ -7,8 +7,8 @@ const Timestep = Int64
 """
 State for the PMDP
 """
-struct State{n_res}
-    c::SVector{n_res,Int64}   # Capacity vector
+struct State
+    c::Vector{Int64}   # Capacity vector
     t::Timestep               # Timestep
     iₚ::Int64        # Requested product index
 end

@@ -74,7 +74,7 @@ user_buy(a::Action, budget::Action)::Bool = a <= budget
 Returns new vector of resource capacites after sale of product p
 """
 # TODO: Could work inplace
-reduce_capacities(c::SVector, p::Product) = c .- p
+reduce_capacities(c::AbstractVector, p::Product) = c .- p
 
 """
 Given state s, determine whether a sale of product s.p is impossible
@@ -114,7 +114,7 @@ function POMDPs.actions(m::PMDP, s::State)::AbstractArray{Action}
     return actions
 end
 
-productindices(P::Array{Product{n_res}} where {n_res}) = Dict(zip(P, 1:length(P)))
+productindices(P::Array{Product}) = Dict(zip(P, 1:length(P)))
 
 
 """

@@ -52,7 +52,7 @@ rand_policy = RandomPolicy(mdp)
 # hr = HistoryRecorder(max_steps=100)
 # history = simulate(hr, mdp,  )
 
-initial_state = State{5}(SA[5, 5, 5, 5, 5], 0, SA[0, 0, 0, 0, 0])
+initial_state = State([5, 5, 5, 5, 5], 0, [0, 0, 0, 0, 0])
 rollout_sim = RolloutSimulator(max_steps = 10)
 r_mcts = simulate(rollout_sim, mdp, planner, initial_state)
 r_rand = simulate(rollout_sim, mdp, rand_policy, initial_state)

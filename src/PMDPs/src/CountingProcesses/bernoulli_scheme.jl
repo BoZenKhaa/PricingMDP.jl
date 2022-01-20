@@ -7,13 +7,13 @@ p_N is the probability
 
 The constructor takes probabilities p_1, ... p_N-1 and calculates p_N = 1-sum_i=1^N-1(pᵢ)
 """
-struct BernoulliScheme{N} <: DiscreteCountingProcess
+struct BernoulliScheme <: DiscreteCountingProcess
     n::Int64
-    p_suc::SVector{N,Float64}
+    p_suc::Vector{Float64}
 
     function BernoulliScheme(n::Int64, p_suc::AbstractArray{<:Float64})
         @assert 0 < sum(p_suc) <= 1
-        new{length(p_suc)}(n, SA[p_suc...])
+        new(n, p_suc)
     end
 end
 

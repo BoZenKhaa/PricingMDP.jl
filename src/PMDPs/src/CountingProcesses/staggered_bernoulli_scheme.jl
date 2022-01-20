@@ -5,9 +5,9 @@ for different number of steps.
 The constructor takes probabilities of succeses p_1, ... p_N-1 and 
 n_1, ... n_N-1, number of steps outcome i is possible.
 """
-struct StaggeredBernoulliScheme{N} <: DiscreteCountingProcess
-    n::SVector{N,Int64}
-    p_suc::SVector{N,Float64}
+struct StaggeredBernoulliScheme <: DiscreteCountingProcess
+    n::Vector{Int64}
+    p_suc::Vector{Float64}
 
     function StaggeredBernoulliScheme(
         n::AbstractArray{<:Number},
@@ -15,7 +15,7 @@ struct StaggeredBernoulliScheme{N} <: DiscreteCountingProcess
     )
         @assert 0 < sum(p_suc) <= 1
         # @assert issorted(n)
-        new{length(p_suc)}(SA[n...], SA[p_suc...])
+        new(n, p_suc)
     end
 end
 

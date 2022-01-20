@@ -1,18 +1,18 @@
 """
 Stuct that defines the pricing MDP problem
 """
-struct PMDPProblem{nₚ,nᵣ,nₐ}
-    P::SVector{nₚ,Product}      # Products array  
-    c₀::SVector{nᵣ,Int64}       # Initial capacity of resources
+struct PMDPProblem
+    P::Vector{Product}      # Products array  
+    c₀::Vector{Int64}       # Initial capacity of resources
     T::Timestep                  # Number of timesteps
     D::DiscreteCountingProcess   # Demand for each product 
-    B::SVector{nₚ,Distribution} # Budget distributions for each product
-    A::SVector{nₐ,Action}       # Action array (including reject action)
+    B::Vector{Distribution} # Budget distributions for each product
+    A::Vector{Action}       # Action array (including reject action)
     info::NamedTuple
     objective::Symbol            # objective for optimization
 
     function PMDPProblem(
-        non_empty_P::AbstractArray{<:Product},
+        non_empty_P::AbstractVector{<:Product},
         c₀,
         D,
         B,
@@ -21,10 +21,10 @@ struct PMDPProblem{nₚ,nᵣ,nₐ}
         info = (;),
     )
         T = problem_selling_horizon(non_empty_P)
-        A = SVector(real_actions..., REJECT_ACTION)
+        A = [real_actions..., REJECT_ACTION]
         @assert objective in [:revenue, :utilization]
         @assert are_unique(non_empty_P)
-        new{length(non_empty_P),length(c₀),length(A)}(
+        new(
             non_empty_P,
             c₀,
             T,
@@ -37,8 +37,12 @@ struct PMDPProblem{nₚ,nᵣ,nₐ}
     end
 end
 
-"""Read number of resources and products from type parameters"""
-Base.size(pp::PMDPProblem{nₚ,nᵣ,nₐ}) where {nₚ,nᵣ,nₐ} = (nₚ, nᵣ, nₐ)
+
+
+"""
+Get number of products, resources, and actions
+"""
+Base.size(pp::PMDPProblem) = (length(pp.P), length(pp.P[1]), length(pp.A))
 n_products(pp::PMDPProblem) = size(pp)[1]
 n_resources(pp::PMDPProblem) = size(pp)[2]
 n_actions(pp::PMDPProblem) = size(pp)[3]

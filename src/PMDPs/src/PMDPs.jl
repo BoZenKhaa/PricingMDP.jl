@@ -8,7 +8,6 @@ using MCTS, DiscreteValueIteration
 
 using DrWatson
 using Random
-using StaticArrays
 using Distributions
 using Combinatorics
 using DataFrames
