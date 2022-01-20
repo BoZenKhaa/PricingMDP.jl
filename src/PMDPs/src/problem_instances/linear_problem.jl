@@ -216,5 +216,5 @@ function single_day_cs_pp(;
 )
     start_times = truncated(Normal(nᵣ/2, nᵣ/8), 0, nᵣ)
     charging_durations = truncated(Exponential(nᵣ/8), 0, nᵣ)
-    single_day_cs_pp(start_times, charging_durations; nᵣ, c, T, expected_res, res_budget_μ, objective, start_time, duration)
+    single_day_cs_pp(start_times, charging_durations; nᵣ, c, T, expected_res, res_budget_μ, objective)
 end
