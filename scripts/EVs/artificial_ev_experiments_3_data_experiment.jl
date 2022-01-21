@@ -90,6 +90,7 @@ begin # Not very good
     plot(charging_durations_d)
     plot!(charging_durations_ed)
 end
+
 """
 PREPARE PROBLEM AND TRACES
 """
@@ -98,12 +99,13 @@ OUT_FOLDER = "ev_experiments"
 
 inputs = []
 PP_NAME = "cs_deggendorf_data_driven"
-nᵣ = 24
-for expected_res in [2*nᵣ,]
+nᵣ = 48
+Threads.@threads for expected_res in [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ, 3.5*nᵣ, 4*nᵣ]
+    println("\n===Running expected res: $(expected_res)")
     pp_params = Dict(pairs((
             nᵣ = nᵣ,
             c = 3,
-            T = nᵣ*10,
+            T = Int64(expected_res*8),
             expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
             res_budget_μ = 1.0, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
             objective = :revenue,
@@ -113,7 +115,7 @@ for expected_res in [2*nᵣ,]
 
     vi = false
     name = PP_NAME
-    n_traces =1
+    n_traces = 1000
 
     # mg = PMDPs.PMDPg(pp)
     # me = PMDPs.PMDPe(pp)
@@ -152,30 +154,27 @@ params_classical_MCTS = Dict(
 N_traces=100
 
 
-
-for (i, data) in enumerate(inputs[1:end])
+Threads.@threads for (i, orig_data) in enumerate(inputs[1:end])
+    data = deepcopy(orig_data)
     println("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
     println("flatrate...")
     PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
     println("hindsight...")
     PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
-    println("vi...")
-    if PMDPs.n_resources(data[:pp])<=6
-        data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces)
-    end
-    #     println("\t\t ============== VI failed, nᵣ=$(PMDPs.n_resources(inputs[1][:pp]))===============")
+    # println("vi...")
+    # if PMDPs.n_resources(data[:pp])<=6
+    #     data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces)
     # end
-    # print("vi..."); data[:vi] && PMDPs.process_data(data, PMDPs.fhvi; folder=out_folder, N=N_sim)
 
-    println("dpw...")
-    PMDPs.process_data(
-        data,
-        PMDPs.mcts;
-        folder = OUT_FOLDER,
-        N = N_traces,
-        method_info = "dpw_$(savename(params_dpw))",
-        solver = DPWSolver(; params_dpw...),
-    )
+    # println("dpw...")
+    # PMDPs.process_data(
+    #     data,
+    #     PMDPs.mcts;
+    #     folder = OUT_FOLDER,
+    #     N = N_traces,
+    #     method_info = "dpw_$(savename(params_dpw))",
+    #     solver = DPWSolver(; params_dpw...),
+    # )
 
     println("mcts...")
     PMDPs.process_data(
@@ -188,26 +187,26 @@ for (i, data) in enumerate(inputs[1:end])
     )
 end
 
-"""
-ANALYZE AND PLOT RESULTS
-"""
-results, raw = folder_report(datadir("results", "ev_results", PP_NAME); raw_result_array = true)
+# """
+# ANALYZE AND PLOT RESULTS
+# """
+# results, raw = folder_report(datadir("results", "ev_results", PP_NAME); raw_result_array = true)
 
-df = results.results
-df
+# df = results.results
+# df
 
-# agg_res = format_result_table(results.results, N=N_traces)
-grps = groupby(df, [:method, :objective])
-grp = grps[1]
+# # agg_res = format_result_table(results.results, N=N_traces)
+# grps = groupby(df, [:method, :objective])
+# grp = grps[1]
 
-plot()
-for grp in grps
-    label = grp.method[1][1:min(10, length(grp.method[1]))]
-    plot!(grp.expected_res, grp.mean_r; label=grp.method[1][1:3] )
-end
-plot!()
+# plot()
+# for grp in grps
+#     label = grp.method[1][1:min(10, length(grp.method[1]))]
+#     plot!(grp.expected_res, grp.mean_r; label=grp.method[1][1:3] )
+# end
+# plot!()
 
-print(sort(unique([String(v.name) for v in methodswith(DataFrame)])))
-DataFrames
+# print(sort(unique([String(v.name) for v in methodswith(DataFrame)])))
+# DataFrames
 
-methods()
+# methods()

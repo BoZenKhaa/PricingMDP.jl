@@ -161,8 +161,7 @@ ANALYZE AND PLOT RESULTS
 """
 results, raw = folder_report(datadir("results", "ev_results", PP_NAME); raw_result_array = true)
 
-df = results.results
-df
+df = results
 
 # agg_res = format_result_table(results.results, N=N_traces)
 grps = groupby(df, [:method, :objective])
