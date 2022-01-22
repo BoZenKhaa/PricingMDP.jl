@@ -100,7 +100,8 @@ OUT_FOLDER = "ev_experiments"
 inputs = []
 PP_NAME = "cs_deggendorf_data_driven"
 nᵣ = 48
-Threads.@threads for expected_res in [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ, 3.5*nᵣ, 4*nᵣ]
+# Threads.@threads 
+for expected_res in [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ, 3.5*nᵣ, 4*nᵣ]
     println("\n===Running expected res: $(expected_res)")
     pp_params = Dict(pairs((
             nᵣ = nᵣ,
@@ -153,14 +154,21 @@ params_classical_MCTS = Dict(
 
 N_traces=100
 
-
-Threads.@threads for (i, orig_data) in enumerate(inputs[1:end])
+e_inputs = collect(enumerate(inputs[1:end]))
+# Threads.@threads 
+for (i, orig_data) in e_inputs
     data = deepcopy(orig_data)
-    println("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
-    println("flatrate...")
-    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
+    # println("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
+    # println("flatrate...")
+    # PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
+
+    """
+    To run in parallel with suppressed output
+    https://stackoverflow.com/questions/64844626/julia-1-5-2-suppressing-gurobi-academic-license-in-parallel
+    """
     println("hindsight...")
     PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
+
     # println("vi...")
     # if PMDPs.n_resources(data[:pp])<=6
     #     data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces)
@@ -176,15 +184,15 @@ Threads.@threads for (i, orig_data) in enumerate(inputs[1:end])
     #     solver = DPWSolver(; params_dpw...),
     # )
 
-    println("mcts...")
-    PMDPs.process_data(
-        data,
-        PMDPs.mcts;
-        folder = OUT_FOLDER,
-        N = N_traces,
-        method_info = "vanilla_$(savename(params_classical_MCTS))",
-        solver = MCTSSolver(;params_classical_MCTS...),
-    )
+    # println("mcts...")
+    # PMDPs.process_data(
+    #     data,
+    #     PMDPs.mcts;
+    #     folder = OUT_FOLDER,
+    #     N = N_traces,
+    #     method_info = "vanilla_$(savename(params_classical_MCTS))",
+    #     solver = MCTSSolver(;params_classical_MCTS...),
+    # )
 end
 
 # """
