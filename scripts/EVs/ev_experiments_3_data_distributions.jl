@@ -98,18 +98,18 @@ PREPARE PROBLEM AND TRACES
 OUT_FOLDER = "ev_experiments"
 
 inputs = []
-PP_NAME = "cs_deggendorf_data_driven"
-nᵣ = 48
-# Threads.@threads 
-for expected_res in [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ, 3.5*nᵣ, 4*nᵣ]
+PP_NAME = "cs_deggendorf_data_driven_72"
+# nᵣ = 48
+nᵣ = 72
+Threads.@threads for expected_res in [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ]#, 3.5*nᵣ, 4*nᵣ]
     println("\n===Running expected res: $(expected_res)")
     pp_params = Dict(pairs((
             nᵣ = nᵣ,
             c = 3,
-            T = Int64(expected_res*8),
+            T = Int64(expected_res*12),
             expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
             res_budget_μ = 1.0, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
-            objective = :revenue,
+            objective = :utilization,
         )))
     pp = PMDPs.single_day_cs_pp(start_times_d, charging_durations_d; pp_params...)
     PMDPs.statespace_size(pp)
@@ -155,19 +155,20 @@ params_classical_MCTS = Dict(
 N_traces=100
 
 e_inputs = collect(enumerate(inputs[1:end]))
-# Threads.@threads 
-for (i, orig_data) in e_inputs
-    data = deepcopy(orig_data)
-    # println("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
-    # println("flatrate...")
-    # PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
-
+for (i, data) in e_inputs
     """
     To run in parallel with suppressed output
     https://stackoverflow.com/questions/64844626/julia-1-5-2-suppressing-gurobi-academic-license-in-parallel
     """
     println("hindsight...")
     PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
+end
+
+Threads.@threads for (i, orig_data) in e_inputs
+    data = deepcopy(orig_data)
+    println("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
+    println("flatrate...")
+    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
 
     # println("vi...")
     # if PMDPs.n_resources(data[:pp])<=6
@@ -184,15 +185,15 @@ for (i, orig_data) in e_inputs
     #     solver = DPWSolver(; params_dpw...),
     # )
 
-    # println("mcts...")
-    # PMDPs.process_data(
-    #     data,
-    #     PMDPs.mcts;
-    #     folder = OUT_FOLDER,
-    #     N = N_traces,
-    #     method_info = "vanilla_$(savename(params_classical_MCTS))",
-    #     solver = MCTSSolver(;params_classical_MCTS...),
-    # )
+    println("mcts...")
+    PMDPs.process_data(
+        data,
+        PMDPs.mcts;
+        folder = OUT_FOLDER,
+        N = N_traces,
+        method_info = "vanilla_$(savename(params_classical_MCTS))",
+        solver = MCTSSolver(;params_classical_MCTS...),
+    )
 end
 
 # """

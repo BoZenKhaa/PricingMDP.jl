@@ -57,38 +57,38 @@ df = DataFrame(CSV.File(datadir("cs_data", "deggendorf_ackerloh_charging.csv")))
 bins = 0:1/6:8 # 10 minute resolution, capped at 8 hours
 charging_durations = fit(Histogram, df.total_duration_h, bins)
 charging_durations.weights
-plot(charging_durations)
+# plot(charging_durations)
 
 bins = 0:1:24 # 1 hour resolution
 start_times = fit(Histogram, df.start_hour, bins)
 start_times.weights
-plot(start_times)
+# plot(start_times)
 
 # try turning histogram into distribution
 
-Categorical(start_times.weights/sum(start_times.weights))
-Categorical(charging_durations.weights/sum(charging_durations.weights))
+Categorical(start_times.weights / sum(start_times.weights))
+Categorical(charging_durations.weights / sum(charging_durations.weights))
 
 start_times_d = DiscreteNonParametric(
-    start_times.edges[1][1:end-1].+0.5,
-    start_times.weights/sum(start_times.weights))
+    start_times.edges[1][1:end-1] .+ 0.5,
+    start_times.weights / sum(start_times.weights))
 
 charging_durations_d = DiscreteNonParametric(
-    charging_durations.edges[1][1:end-1].+1/6/2,
-    charging_durations.weights/sum(charging_durations.weights))
+    charging_durations.edges[1][1:end-1] .+ 1 / 6 / 2,
+    charging_durations.weights / sum(charging_durations.weights))
 
 
 # Try fitting distributions
 begin # OK
-    start_times_nd = truncated(fit_mle(Normal, df.start_hour), 0,24)
-    plot(start_times_d)
-    plot!(start_times_nd)
+    start_times_nd = truncated(fit_mle(Normal, df.start_hour), 0, 24)
+    # plot(start_times_d)
+    # plot!(start_times_nd)
 end
 
 begin # Not very good
-    charging_durations_ed = truncated(fit_mle(Gamma, df.total_duration_h), 0,8)
-    plot(charging_durations_d)
-    plot!(charging_durations_ed)
+    charging_durations_ed = truncated(fit_mle(Gamma, df.total_duration_h), 0, 8)
+    # plot(charging_durations_d)
+    # plot!(charging_durations_ed)
 end
 
 """
@@ -101,16 +101,16 @@ inputs = []
 PP_NAME = "cs_deggendorf_data_driven"
 nᵣ = 48
 # Threads.@threads 
-for expected_res in [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ, 3.5*nᵣ, 4*nᵣ]
+for expected_res in [0.5 * nᵣ, 1 * nᵣ, 1.5 * nᵣ, 2 * nᵣ, 2.5 * nᵣ, 3 * nᵣ, 3.5 * nᵣ, 4 * nᵣ]
     println("\n===Running expected res: $(expected_res)")
     pp_params = Dict(pairs((
-            nᵣ = nᵣ,
-            c = 3,
-            T = Int64(expected_res*8),
-            expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
-            res_budget_μ = 1.0, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
-            objective = :revenue,
-        )))
+        nᵣ = nᵣ,
+        c = 3,
+        T = Int64(expected_res * 8),
+        expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+        res_budget_μ = 1.0, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
+        objective = :revenue,
+    )))
     pp = PMDPs.single_day_cs_pp(start_times_d, charging_durations_d; pp_params...)
     PMDPs.statespace_size(pp)
 
@@ -122,7 +122,7 @@ for expected_res in [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ, 3.5*n
     # me = PMDPs.PMDPe(pp)
 
     # tr = PMDPs.simulate_trace(PMDPs.PMDPg(pp),RND(1))
-    push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1, save=true))
+    push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose = true, folder = OUT_FOLDER, seed = 1, save = true))
     # pp_params[:objective]=:utilization
     # push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
 end
@@ -152,22 +152,26 @@ params_classical_MCTS = Dict(
 )
 
 
-N_traces=100
+N_traces = 100
 
 e_inputs = collect(enumerate(inputs[1:end]))
+
+for (i, orig_data) in e_inputs
+    """
+    To run in parallel with suppressed output
+    https://stackoverflow.com/questions/64844626/julia-1-5-2-suppressing-gurobi-academic-license-in-parallel
+    """
+    println("$(i) - hindsight...")
+    PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
+    println("$(i) - hindsight... Done")
+end
+
 # Threads.@threads 
 for (i, orig_data) in e_inputs
     data = deepcopy(orig_data)
     # println("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
     # println("flatrate...")
     # PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
-
-    """
-    To run in parallel with suppressed output
-    https://stackoverflow.com/questions/64844626/julia-1-5-2-suppressing-gurobi-academic-license-in-parallel
-    """
-    println("hindsight...")
-    PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
 
     # println("vi...")
     # if PMDPs.n_resources(data[:pp])<=6

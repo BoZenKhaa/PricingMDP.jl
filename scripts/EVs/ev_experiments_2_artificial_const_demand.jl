@@ -64,11 +64,9 @@ OUT_FOLDER = "ev_experiments"
 inputs = []
 PP_NAME = "single_day_const_demand_cs_pp"
 # res_range = range(6, 6)
-res_range = [3,4,5,6,7,8,9,12,16]
-T_range =  [[3*18, 4*10]; [5,6,7,8,9,12,16].*8]
+res_range = [3,4,5,6,7,8,9,10,12, 14, 16, 18, 20, 24]
+T_range =  [[3*18, 4*10]; [5,6,7,8,9,10,12, 14, 16, 18, 20, 24].*8]
 
-res_range = [10, 14, 18, 20, 24]
-T_range =  [10, 14, 18, 20, 24].*8
 pp_var_params = collect(zip(T_range, res_range))
 # Threads.@threads 
 for (T, nᵣ) in pp_var_params
