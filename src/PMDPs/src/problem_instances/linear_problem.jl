@@ -36,7 +36,7 @@ function demand_intensity_indpendent_start_time_and_duration(start_time::Distrib
     full_product_demand_intensity = start_timeslot_probs*duration_timeslot_probs'
     # heatmap(start_timeslot_probs*duration_timeslot_probs')
 
-    prod_demand_intensity = [full_product_demand_intensity[sum(p), findfirst(p)] for p in P]
+    prod_demand_intensity = [full_product_demand_intensity[findfirst(p), sum(p)] for p in P]
     # the matrix has more possible products than we allow in the mdp, this checks whether the error from that is small
     @assert sum(prod_demand_intensity)>0.95
     # and then normalize
