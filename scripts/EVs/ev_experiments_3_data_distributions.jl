@@ -57,12 +57,12 @@ df = DataFrame(CSV.File(datadir("cs_data", "deggendorf_ackerloh_charging.csv")))
 bins = 0:1/6:8 # 10 minute resolution, capped at 8 hours
 charging_durations = fit(Histogram, df.total_duration_h, bins)
 charging_durations.weights
-plot(charging_durations)
+# plot(charging_durations)
 
 bins = 0:1:24 # 1 hour resolution
 start_times = fit(Histogram, df.start_hour, bins)
 start_times.weights
-plot(start_times)
+# plot(start_times)
 
 # try turning histogram into distribution
 
@@ -81,15 +81,55 @@ charging_durations_d = DiscreteNonParametric(
 # Try fitting distributions
 begin # OK
     start_times_nd = truncated(fit_mle(Normal, df.start_hour), 0,24)
-    plot(start_times_d)
-    plot!(start_times_nd)
+    # plot(start_times_d)
+    # plot!(start_times_nd)
 end
 
 begin # Not very good
     charging_durations_ed = truncated(fit_mle(Gamma, df.total_duration_h), 0,8)
-    plot(charging_durations_d)
-    plot!(charging_durations_ed)
+    # plot(charging_durations_d)
+    # plot!(charging_durations_ed)
 end
+
+"""
+FIGURE OUT NUMBER OF TIMESTEPS FOR PROBLEMS
+"""
+nᵣ = 24
+# nᵣ = 48
+# nᵣ = 72
+# nᵣ = 96
+
+expected_res_range = [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ, 3.5*nᵣ]
+
+T_multipliers = ones(length(expected_res_range))
+for (i, expected_res) in enumerate(expected_res_range)
+    while true
+        pp_params = Dict(pairs((
+                nᵣ = nᵣ,
+                c = 3,
+                T = Int64(expected_res*T_multipliers[i]),
+                expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+                res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
+                objective = :revenue,
+            )))
+        println("$(i): nᵣ = $(nᵣ)")
+        try
+            pp = PMDPs.single_day_cs_pp(;pp_params...)
+        catch e
+            if isa(e, AssertionError)
+                # println("Error: ", e)
+                println("$(i): low multipler $(T_multipliers[i]) for nᵣ $(nᵣ)")
+                T_multipliers[i]+=1
+                continue
+            else
+                throw(e)
+            end
+        end
+        break
+    end
+end
+println("The multipliers for getting T are $(T_multipliers) -> $(maximum(T_multipliers))")
+T_multiplier = maximum(T_multipliers)
 
 """
 PREPARE PROBLEM AND TRACES
@@ -99,17 +139,16 @@ OUT_FOLDER = "ev_experiments"
 
 inputs = []
 PP_NAME = "cs_deggendorf_data_driven_72"
-# nᵣ = 48
-nᵣ = 72
-Threads.@threads for expected_res in [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ]#, 3.5*nᵣ, 4*nᵣ]
+
+Threads.@threads for expected_res in expected_res_range
     println("\n===Running expected res: $(expected_res)")
     pp_params = Dict(pairs((
             nᵣ = nᵣ,
             c = 3,
-            T = Int64(expected_res*12),
+            T = Int64(expected_res*T_multiplier),
             expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
-            res_budget_μ = 1.0, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
-            objective = :utilization,
+            res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
+            objective = :revenue,
         )))
     pp = PMDPs.single_day_cs_pp(start_times_d, charging_durations_d; pp_params...)
     PMDPs.statespace_size(pp)
@@ -131,21 +170,23 @@ end
 PREPARE SOLVERS AND RUN EXPERIMENTS
 """
 
-params_dpw = Dict(
-    pairs((
-        depth = 50,
-        exploration_constant = 40.0,
-        enable_state_pw = false,
-        keep_tree = true,
-        show_progress = false,
-        rng = RND(1),
-    )),
-)
+# params_dpw = Dict(
+#     pairs((
+#         depth = 50,
+#         exploration_constant = 40.0,
+#         enable_state_pw = false,
+#         keep_tree = true,
+#         show_progress = false,
+#         rng = RND(1),
+#     )),
+# )
+
 
 params_classical_MCTS = Dict(
     pairs((
-        depth = 15,
-        exploration_constant = 40.0,
+        depth = 7,
+        exploration_constant = 3.0,
+        n_iterations = 400,
         reuse_tree = true,
         rng = RND(1),
     )),
@@ -164,16 +205,13 @@ for (i, data) in e_inputs
     PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
 end
 
-Threads.@threads for (i, orig_data) in e_inputs
-    data = deepcopy(orig_data)
-    println("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
+Threads.@threads for (i, data) in e_inputs
     println("flatrate...")
     PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
+end
 
-    # println("vi...")
-    # if PMDPs.n_resources(data[:pp])<=6
-    #     data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces)
-    # end
+Threads.@threads for (i, orig_data) in e_inputs
+    data = deepcopy(orig_data)
 
     # println("dpw...")
     # PMDPs.process_data(

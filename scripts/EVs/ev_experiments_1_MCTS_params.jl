@@ -62,9 +62,9 @@ PREPARE PROBLEM AND TRACES
 OUT_FOLDER = "ev_experiments"
 
 inputs = []
-PP_NAME = "single_day_const_demand_cs_pp"
+PP_NAME = "single_day_pp_testing_MCTS"
 # res_range = range(6, 6)
-res_range = [3,4,5,6,7,8,9,10,12, 14, 16, 18, 20, 22, 24]
+res_range = [6,]
 # T_range =  [[3*18, 4*10]; [5,6,7,8,9,10,12, 14, 16, 18, 20, 24].*8]
 
 T_nᵣ_multiplier = ones(length(res_range))
@@ -97,7 +97,7 @@ end
 println("The multipliers for getting T are $(T_nᵣ_multiplier)")
 
 
-T_range =  [3,4,5,6,7,8,9,10,12, 14, 16, 18, 20, 22, 24].*7
+T_range =  res_range.*7
 pp_var_params = collect(zip(T_range, res_range))
 Threads.@threads for (T, nᵣ) in pp_var_params
     pp_params = Dict(pairs((
@@ -130,22 +130,21 @@ end
 PREPARE SOLVERS AND RUN EXPERIMENTS
 """
 
-# params_dpw = Dict(
-#     pairs((
-#         depth = 50,
-#         exploration_constant = 40.0,
-#         enable_state_pw = false,
-#         keep_tree = true,
-#         show_progress = false,
-#         rng = RND(1),
-#     )),
-# )
+params_dpw = Dict(
+    pairs((
+        depth = 50,
+        exploration_constant = 40.0,
+        enable_state_pw = false,
+        keep_tree = true,
+        show_progress = false,
+        rng = RND(1),
+    )),
+)
 
 params_classical_MCTS = Dict(
     pairs((
-        depth = 7,
-        exploration_constant = 3.0,
-        n_iterations = 400,
+        depth = 15,
+        exploration_constant = 40.0,
         reuse_tree = true,
         rng = RND(1),
     )),
@@ -159,47 +158,73 @@ e_inputs = collect(enumerate(inputs[1:end]))
 #     PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
 # end
 
-
-# Threads.@threads for (i, orig_data) in e_inputs
-#     data = deepcopy(orig_data)
-#     println("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
-    
-#     println("flatrate...")
-#     PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
-    
-#     # println("dpw...")
-#     # PMDPs.process_data(
-#         #     data,
-#         #     PMDPs.mcts;
-#         #     folder = OUT_FOLDER,
-#         #     N = N_traces,
-#         #     method_info = "dpw_$(savename(params_dpw))",
-#         #     solver = DPWSolver(; params_dpw...),
-#         # )
-        
-#         println("mcts...")
-#     PMDPs.process_data(
-#         data,
-#         PMDPs.mcts;
-#         folder = OUT_FOLDER,
-#         N = N_traces,
-#         method_info = "vanilla_$(savename(params_classical_MCTS))",
-#         solver = MCTSSolver(;params_classical_MCTS...),
-#         )
+# for (i, data) in e_inputs
+#     if PMDPs.n_resources(data[:pp])<=6
+#         println("vi...")
+#         data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces)
+#     end
 # end
 
-for (i, data) in e_inputs
-    if PMDPs.n_resources(data[:pp])<=8
-        println("vi...")
-        data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces)
+# # Threads.@threads 
+# for (i, orig_data) in e_inputs
+#     data = deepcopy(orig_data)
+#     # println("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
+#     println("flatrate...")
+#     PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
+# end
+
+
+
+for (i, orig_data) in e_inputs
+    depths = [1,3,7]
+    ecs = [1., 3., 5., 8., 15., 20., 30.]
+    n_iter = [50,200,300,400]
+    params = collect(Base.product(depths, ecs, n_iter))
+    Threads.@threads for (depth, ec, n_iter) in params
+        
+        params_classical_MCTS = Dict(
+            pairs((
+                depth = depth,
+                exploration_constant = ec,
+                n_iterations = n_iter,
+                reuse_tree = true,
+                rng = RND(1),
+            )),
+        )
+
+        data = deepcopy(orig_data)
+        println("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
+        
+        # println("dpw...")
+        # PMDPs.process_data(
+        #     data,
+        #     PMDPs.mcts;
+        #     folder = OUT_FOLDER,
+        #     N = N_traces,
+        #     method_info = "dpw_$(savename(params_dpw))",
+        #     solver = DPWSolver(; params_dpw...),
+        # )
+
+        println("mcts_", savename(params_classical_MCTS))
+
+        PMDPs.process_data(
+            data,
+            PMDPs.mcts;
+            folder = OUT_FOLDER,
+            N = N_traces,
+            # method_info = "vanilla_$(hash(params_classical_MCTS))",
+            method_info = "vanilla_$(savename(params_classical_MCTS))",
+            solver_params=params_classical_MCTS,
+            solver = MCTSSolver(;params_classical_MCTS...),
+        )
     end
 end
-        
-        """
-        ANALYZE AND PLOT RESULTS
-        """
-        # results, raw = folder_report(datadir("results", "ev_results", PP_NAME); raw_result_array = true)
-        
+
+"""
+ANALYZE AND PLOT RESULTS
+"""
+# results, raw = folder_report(datadir("results", "ev_results", PP_NAME); raw_result_array = true)
+
 # df = results
 
 # # agg_res = format_result_table(results.results, N=N_traces)
