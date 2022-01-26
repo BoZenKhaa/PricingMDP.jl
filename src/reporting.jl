@@ -42,6 +42,14 @@ function res2row(res)
     # add pp_params_string (without :objective)
     insertcols!(df, 2, :pp_params_str => string(delete!(Dict(res[:pp_params]), :objective)))
 
+    # add solver_params
+    if haskey(res, :solver_params)
+        insertcols!(df,2, :solver_params => res[:solver_params])
+    else
+        insertcols!(df,2, :solver_params => Dict())
+    end
+
+    df
 end
 
 function folder_report(res_folder::String; raw_result_array = false)

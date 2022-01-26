@@ -105,6 +105,7 @@ function process_data(
     folder = "",
     info = "",
     method_info = "",
+    solver_params=Dict(),
     N = 10000,
     kwargs...
 )
@@ -147,6 +148,7 @@ function process_data(
             agg,
             overall_stats,
             N,
+            solver_params,
             kwargs
         ))
     )
