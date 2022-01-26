@@ -137,7 +137,7 @@ function POMDPs.gen(m::PMDP, s::State, a::Action, rng::AbstractRNG)
     b = sample_customer_budget(m, s, rng)
     if ~sale_impossible(m, s, a) && user_buy(a, b)
         if objective(m) == :revenue
-            r = a
+            r = a*sum(product(m, s))
         elseif objective(m) == :utilization
             r = sum(product(m, s))
         else
