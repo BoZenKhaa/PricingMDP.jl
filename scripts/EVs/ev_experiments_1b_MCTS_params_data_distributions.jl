@@ -94,17 +94,16 @@ end
 """
 FIGURE OUT NUMBER OF TIMESTEPS FOR PROBLEMS
 """
-# nᵣ = 24
+nᵣ = 24
 # nᵣ = 48
-nᵣ = 72
+# nᵣ = 72
 # nᵣ = 96
 
-expected_res_range = [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ, 3.5*nᵣ]
+expected_res_range = [2*nᵣ,]
 
 T_multipliers = ones(length(expected_res_range))
 for (i, expected_res) in enumerate(expected_res_range)
     while true
-        # pp_params = get_pp_params(expected_res)
         pp_params = Dict(pairs((
                 nᵣ = nᵣ,
                 c = 3,
@@ -115,10 +114,10 @@ for (i, expected_res) in enumerate(expected_res_range)
             )))
         println("$(i): nᵣ = $(nᵣ)")
         try
-            pp = PMDPs.single_day_cs_pp(start_times_d, charging_durations_d;pp_params...)
+            pp = PMDPs.single_day_cs_pp(;pp_params...)
         catch e
-            if isa(e, AssertionError) || 
-                Sprintln("Error: ", e)
+            if isa(e, AssertionError)
+                # println("Error: ", e)
                 println("$(i): low multipler $(T_multipliers[i]) for nᵣ $(nᵣ)")
                 T_multipliers[i]+=1
                 continue
@@ -130,7 +129,7 @@ for (i, expected_res) in enumerate(expected_res_range)
     end
 end
 println("The multipliers for getting T are $(T_multipliers) -> $(maximum(T_multipliers))")
-T_multiplier = maximum(T_multipliers)
+T_multiplier = 4 #maximum(T_multipliers)
 
 """
 PREPARE PROBLEM AND TRACES
@@ -139,9 +138,10 @@ PREPARE PROBLEM AND TRACES
 OUT_FOLDER = "ev_experiments"
 
 inputs = []
-PP_NAME = "cs_deggendorf_data_driven_$(nᵣ)_PRICE_PER_TIMESLOT"
+PP_NAME = "cs_deggendorf_data_driven_$(nᵣ)_MCTS_tests"
 
-Threads.@threads for expected_res in expected_res_range
+# Threads.@threads 
+for expected_res in expected_res_range
     println("\n===Running expected res: $(expected_res)")
     pp_params = Dict(pairs((
             nᵣ = nᵣ,
@@ -162,7 +162,7 @@ Threads.@threads for expected_res in expected_res_range
     # me = PMDPs.PMDPe(pp)
 
     # tr = PMDPs.simulate_trace(PMDPs.PMDPg(pp),RND(1))
-    push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=8888, save=true))
+    push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1, save=true))
     # pp_params[:objective]=:utilization
     # push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
 end
@@ -183,57 +183,66 @@ PREPARE SOLVERS AND RUN EXPERIMENTS
 # )
 
 
-params_classical_MCTS = Dict(
-    pairs((
-        depth = 3,
-        exploration_constant = 1.0,
-        n_iterations = 1000,
-        reuse_tree = true,
-        rng = RND(1),
-    )),
-)
-
 
 N_traces=100
 e_inputs = collect(enumerate(inputs[1:end]))
 
-Threads.@threads for (i, orig_data) in e_inputs
-    data = deepcopy(orig_data)
+# for (i, data) in e_inputs
+#     """
+#     To run in parallel with suppressed output
+#     https://stackoverflow.com/questions/64844626/julia-1-5-2-suppressing-gurobi-academic-license-in-parallel
+#     """
+#     println("hindsight...")
+#     PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
+# end
 
-    # println("dpw...")
-    # PMDPs.process_data(
-    #     data,
-    #     PMDPs.mcts;
-    #     folder = OUT_FOLDER,
-    #     N = N_traces,
-    #     method_info = "dpw_$(savename(params_dpw))",
-    #     solver = DPWSolver(; params_dpw...),
-    # )
+# Threads.@threads for (i, data) in e_inputs
+#     println("flatrate...")
+#     PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
+# end
 
-    println("mcts...")
-    PMDPs.process_data(
-        data,
-        PMDPs.mcts;
-        folder = OUT_FOLDER,
-        n = 1,
-        N = N_traces,
-        method_info = "vanilla_$(savename(params_classical_MCTS))",
-        solver = MCTSSolver(;params_classical_MCTS...),
-    )
-end
+for (i, orig_data) in e_inputs
+    
+    depths = [3,7,10,14,20,40]
+    ecs = [1., 3., 8., 20.]
+    n_iter = [200,400,600]
+    params = collect(Base.product(depths, ecs, n_iter))
 
-for (i, data) in e_inputs
-    """
-    To run in parallel with suppressed output
-    https://stackoverflow.com/questions/64844626/julia-1-5-2-suppressing-gurobi-academic-license-in-parallel
-    """
-    println("hindsight...")
-    PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
-end
+    Threads.@threads for (depth, ec, n_iter) in params
+        data = deepcopy(orig_data)
 
-for (i, data) in e_inputs
-    println("flatrate...")
-    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
+        params_classical_MCTS = Dict(
+            pairs((
+                depth = depth,
+                exploration_constant = ec,
+                n_iterations = n_iter,
+                reuse_tree = true,
+                rng = RND(1),
+            )),
+        )
+
+    
+        println("mcts...")
+        PMDPs.process_data(
+            data,
+            PMDPs.mcts;
+            folder = OUT_FOLDER,
+            N = N_traces,
+            solver_params = params_classical_MCTS,
+            method_info = "vanilla_$(savename(params_classical_MCTS))",
+            solver = MCTSSolver(;params_classical_MCTS...),
+            )
+        # println("dpw...")
+        # PMDPs.process_data(
+        #     data,
+        #     PMDPs.mcts;
+        #     folder = OUT_FOLDER,
+        #     N = N_traces,
+        #     solver_params = params_dpw,
+        #     method_info = "dpw_$(savename(params_dpw))",
+        #     solver = DPWSolver(; params_dpw...),
+        # )
+    end
 end
 
 # """

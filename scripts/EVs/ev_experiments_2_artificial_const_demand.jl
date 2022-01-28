@@ -62,7 +62,10 @@ PREPARE PROBLEM AND TRACES
 OUT_FOLDER = "ev_experiments"
 
 inputs = []
-PP_NAME = "single_day_const_demand_cs_pp"
+PP_NAME = "single_day_const_demand_cs_pp_PRICE_PER_TIMESLOT"
+
+println("!!!!Check me: ", PP_NAME)
+
 # res_range = range(6, 6)
 res_range = [3,4,5,6,7,8,9,10,12, 14, 16, 18, 20, 22, 24]
 # T_range =  [[3*18, 4*10]; [5,6,7,8,9,10,12, 14, 16, 18, 20, 24].*8]
@@ -154,19 +157,10 @@ params_classical_MCTS = Dict(
 N_traces=100
 e_inputs = collect(enumerate(inputs[1:end]))
 
-# for (i, data) in e_inputs
-#     println("hindsight...")
-#     PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
-# end
-
-
 # Threads.@threads for (i, orig_data) in e_inputs
 #     data = deepcopy(orig_data)
-#     println("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
-    
-#     println("flatrate...")
-#     PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
-    
+
+
 #     # println("dpw...")
 #     # PMDPs.process_data(
 #         #     data,
@@ -176,29 +170,40 @@ e_inputs = collect(enumerate(inputs[1:end]))
 #         #     method_info = "dpw_$(savename(params_dpw))",
 #         #     solver = DPWSolver(; params_dpw...),
 #         # )
-        
-#         println("mcts...")
+
+#     println("mcts...")
 #     PMDPs.process_data(
 #         data,
 #         PMDPs.mcts;
 #         folder = OUT_FOLDER,
 #         N = N_traces,
+#         solver_params=params_classical_MCTS,
 #         method_info = "vanilla_$(savename(params_classical_MCTS))",
 #         solver = MCTSSolver(;params_classical_MCTS...),
 #         )
 # end
 
+# for (i, data) in e_inputs
+#     println("flatrate...")
+#     PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
+# end
+
+# for (i, data) in e_inputs
+#     println("hindsight...")
+#     PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
+# end
+
 for (i, data) in e_inputs
-    if PMDPs.n_resources(data[:pp])<=8
+    if PMDPs.n_resources(data[:pp])<=6
         println("vi...")
         data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces)
     end
 end
         
-        """
-        ANALYZE AND PLOT RESULTS
-        """
-        # results, raw = folder_report(datadir("results", "ev_results", PP_NAME); raw_result_array = true)
+"""
+ANALYZE AND PLOT RESULTS
+"""
+# results, raw = folder_report(datadir("results", "ev_results", PP_NAME); raw_result_array = true)
         
 # df = results
 
