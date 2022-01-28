@@ -106,6 +106,7 @@ function process_data(
     info = "",
     method_info = "",
     solver_params=Dict(),
+    n = 1,
     N = 10000,
     kwargs...
 )
@@ -115,7 +116,7 @@ function process_data(
     rnd = Xorshift128Plus(1516)
 
     N >= length(traces) ? N = length(traces) : N = N
-    traces = data[:traces][1:N]
+    traces = data[:traces][n:N]
 
     results, overall_stats... =
         @timed method(pp, traces, rnd; name = data[:name], pp_params = pp_params, kwargs...)
