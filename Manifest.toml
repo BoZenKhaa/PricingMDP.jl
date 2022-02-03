@@ -899,7 +899,9 @@ version = "1.9.3+0"
 
 [[deps.MCTS]]
 deps = ["Colors", "D3Trees", "POMDPLinter", "POMDPModelTools", "POMDPPolicies", "POMDPSimulators", "POMDPs", "Printf", "ProgressMeter", "Random"]
-path = "dev/MCTS"
+git-tree-sha1 = "381a917ff6a22456af4b620bef38f15a60a57452"
+repo-rev = "master"
+repo-url = "dev/MCTS"
 uuid = "e12ccd36-dcad-5f33-8774-9175229e7b33"
 version = "0.4.7"
 
