@@ -12,7 +12,7 @@ function mcts(
     else
         mcts = get_MCTS_planner(mg)
     end
-    results = eval_policy(mg, traces, @ntuple(mcts), MersenneTwister(1))
+    results = eval_policy(mg, traces, @ntuple(mcts), rnd)
 end
 
 
@@ -39,7 +39,7 @@ function vi(
 
     vi = policydict["policy"]
 
-    results = eval_policy(mg, traces, @ntuple(vi), MersenneTwister(1))
+    results = eval_policy(mg, traces, @ntuple(vi), rnd)
 end
 
 function flatrate(
@@ -50,7 +50,7 @@ function flatrate(
 )::DataFrame
     mg = PMDPg(pp)
     flatrate = get_flatrate_policy(mg, [simulate_trace(mg, rnd) for i = 1:5])
-    results = eval_policy(mg, traces, @ntuple(flatrate), MersenneTwister(1))
+    results = eval_policy(mg, traces, @ntuple(flatrate), rnd)
 end
 
 function fhvi(
@@ -61,7 +61,7 @@ function fhvi(
     me = PMDPe(pp)
     mg = PMDPg(pp)
     fhvi = get_FHVI_policy(me)
-    results = eval_policy(mg, traces, @ntuple(fhvi), MersenneTwister(1))
+    results = eval_policy(mg, traces, @ntuple(fhvi), rnd)
 end
 
 
@@ -88,7 +88,7 @@ function hindsight(
         result = DataFrame
         try
             hindsight = LP.get_MILP_hindsight_policy(mg, trace; lp_kwargs)
-            result = eval_policy(mg, trace, @ntuple(hindsight), MersenneTwister(1))
+            result = eval_policy(mg, trace, @ntuple(hindsight), rnd)
         catch err
             @error "Error processing $i th trace: $err"
             showerror(stderr, err, catch_backtrace())

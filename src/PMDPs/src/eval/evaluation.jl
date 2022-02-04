@@ -49,7 +49,7 @@ function eval_policy(
     mdp::PMDP,
     requests::Union{AbstractSimHistory,AbstractArray{<:NamedTuple}},
     policies::NamedTuple,
-    rng::AbstractRNG,
+    rng::AbstractRNG
 )::DataFrame
     hrpl = HistoryReplayer(mdp, requests)
 
@@ -72,7 +72,7 @@ function eval_policy(
                 name = name,
                 sequence = hash(requests),
                 error = error,
-                replay_rng_seed = rng.seed,
+                # replay_rng_seed = rng.seed,
             ),
         )
     end
@@ -89,7 +89,7 @@ function eval_policy(
     mdp::PMDP,
     request_sequences::AbstractArray{<:AbstractSimHistory},
     policies::NamedTuple,
-    rng::AbstractRNG,
+    rng::AbstractRNG
 )::DataFrame
     metrics = DataFrame()
     @showprogress 1 "Evaluating traces..." for sequence in request_sequences
