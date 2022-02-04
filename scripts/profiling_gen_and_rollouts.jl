@@ -47,7 +47,7 @@ PMDPs.statespace_size(pp)
 vi = true
 name = PP_NAME
 n_traces =100
-input = PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1)
+input = PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1, save=false)
 
 """
 PREP SOLVER
@@ -86,9 +86,9 @@ With skips over states with no products @time:
 using StatProfilerHTML
 using Traceur
 
-# @trace 
-# time
-@profilehtml PMDPs.process_data(
+# @trace PMDPs.process_data(
+@time PMDPs.process_data(
+# @profilehtml PMDPs.process_data(
     input,
     PMDPs.mcts;
     folder = OUT_FOLDER,

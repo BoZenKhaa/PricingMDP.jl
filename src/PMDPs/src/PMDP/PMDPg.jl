@@ -26,32 +26,5 @@ struct PMDPg <: PMDP{State,Action}
     # end
 end
 
-"""
-Returns next requested product. If in given timestep one of the prodcuts has selling period end,
-update the product request probs.
 
-If no product is requested, the index will be higher than the number of products.
-
-TODO: Potential speedup if product_request_probs are not recalculated at every step
-"""
-function sample_request(m::PMDPg, t::Timestep, rng::AbstractRNG)::Int64
-    iₚ = rand(rng, demand(m)[t])
-
-    # prod_index == n_products(pp(m))+1 ? p = empty_product(m) : p = products(m)[prod_index]
-    # return p
-end
-
-"""
-Sample user budget Budget for product requested in state s.
-"""
-function sample_customer_budget(m::PMDPg, s::State, rng::AbstractRNG)::Action
-    # local b::Float64
-    if s.iₚ != m.empty_product_id
-        budget_distribution = budgets(m)[s.iₚ]
-        budget = rand(rng, budget_distribution)
-    else
-        budget = EMPTY_PRODUCT_USER_BUDGET
-    end
-    return budget
-end
 

@@ -32,6 +32,7 @@ include("PMDP/PMDPProblem.jl")
 include("PMDP/state.jl")
 include("PMDP/PMDP.jl")
 include("PMDP/PMDPg.jl")
+include("PMDP/PMDPgr.jl")
 include("PMDP/PMDPe.jl")
 
 
@@ -48,7 +49,7 @@ include("eval/evaluation.jl")
 include("policies/policy_tools.jl")
 include("policies/flatrate_baseline.jl")
 module LP
-include("policies/LP.jl")
+    include("policies/LP.jl")
 end
 
 # # Simulation tools

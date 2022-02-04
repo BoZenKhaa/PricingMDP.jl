@@ -126,6 +126,14 @@ The issue was that the rand was independent of rng seeds.
 """
 POMDPs.initialstate(m::PMDP) = Deterministic(State(pp(m).c₀, 1, empty_product_id(m)))
 
+
+"""
+================================================================================
+==================== GENERATIVE FUNCTIONS ======================================
+================================================================================
+"""
+
+
 """
 Returns the next state from given 
     - state 
@@ -152,10 +160,73 @@ function POMDPs.gen(m::PMDP, s::State, a::Action, rng::AbstractRNG)
     Δt = 1
     iₚ = sample_request(m, s.t + Δt, rng)
     # Following code causes skips into the future. 
+    # while iₚ==m.empty_product_id && s.t + Δt < selling_period_end(m) 
+    #     Δt += 1
+    #     iₚ = sample_request(m, s.t+Δt, rng)
+    # end
+    return (sp = State(c, s.t + Δt, iₚ), r = r, info = (b = b,))
+end
+
+# function POMDPs.gen(m::PMDP, s::State, a::Action, rng::AbstractRNG)::NamedTuple{(:sp, :r, :info), Tuple{State, Real, NamedTuple}}
+#     r, b, c = sample_reward_and_capacity(m, s, a, rng)
+#     Δt = 1
+#     iₚ = sample_request(m, s.t + Δt, rng)
+#     return (sp = State(c, s.t + Δt, iₚ), r = r, info = (b = b,))
+# end
+
+function sample_reward_and_capacity(m::PMDP, s::State, a::Action, rng::AbstractRNG)::NamedTuple{(:r, :b, :c), Tuple{Real, Real, AbstractVector}}
+    b = sample_customer_budget(m, s, rng)
+    if ~sale_impossible(m, s, a) && user_buy(a, b)
+        if objective(m) == :revenue
+            r = a*sum(product(m, s))
+        elseif objective(m) == :utilization
+            r = sum(product(m, s))
+        else
+            throw(ArgumentError(string("Unknown objective: ", objective(m))))
+        end
+        # r = a
+        c = reduce_capacities(s.c, product(m, s))
+    else
+        r = 0.0
+        c = s.c
+    end
+    return (r=r, b=b, c=c)
+end
+
+function sample_product_and_time_skip_states_with_empty_product(m::PMDP, s::State, rng::AbstractRNG)::NamedTuple{(:iₚ, :Δt), Tuple{Integer, Integer}}
+    Δt::Int64 = 1
+    iₚ = sample_request(m, s.t + Δt, rng)
     while iₚ==m.empty_product_id && s.t + Δt < selling_period_end(m) 
         Δt += 1
         iₚ = sample_request(m, s.t+Δt, rng)
     end
-    return (sp = State(c, s.t + Δt, iₚ), r = r, info = (b = b,))
+    return (iₚ=iₚ, Δt=Δt)
+end
+
+"""
+Returns sampled next requested product id. If in given timestep one of the prodcuts has selling period end,
+update the product request probs.
+
+If no product is requested, the index will be higher than the number of products.
+"""
+@inline function sample_request(m::PMDP, t::Timestep, rng::AbstractRNG)::Int64
+    iₚ = rand(rng, demand(m)[t])
+
+    # prod_index == n_products(pp(m))+1 ? p = empty_product(m) : p = products(m)[prod_index]
+    # return p
+end
+
+"""
+Sample user budget Budget for product requested in state s.
+"""
+function sample_customer_budget(m::PMDP, s::State, rng::AbstractRNG)::Action
+    # local b::Float64
+    if s.iₚ != m.empty_product_id
+        budget_distribution = budgets(m)[s.iₚ]
+        budget = rand(rng, budget_distribution)
+    else
+        budget = EMPTY_PRODUCT_USER_BUDGET
+    end
+    return budget
 end
 
