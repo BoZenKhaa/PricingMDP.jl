@@ -63,6 +63,7 @@ OUT_FOLDER = "ev_experiments"
 
 inputs = []
 PP_NAME = "single_day_const_demand_cs_pp_PRICE_PER_TIMESLOT"
+OBJECTIVE = :utilization
 
 println("!!!!Check me: ", PP_NAME)
 
@@ -79,7 +80,7 @@ for (i, nᵣ) in enumerate(res_range)
                 T = Int64(nᵣ*T_nᵣ_multiplier[i]),
                 expected_res = 2*nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
                 res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
-                objective = :revenue,
+                objective = OBJECTIVE,
             )))
         println("$(i): nᵣ = $(nᵣ)")
         try
@@ -109,7 +110,7 @@ Threads.@threads for (T, nᵣ) in pp_var_params
             T = T,
             expected_res = 2*nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
             res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
-            objective = :revenue,
+            objective = OBJECTIVE,
         )))
     println("nᵣ = ", nᵣ)
     pp = PMDPs.single_day_cs_pp(;pp_params...)
@@ -154,34 +155,40 @@ params_classical_MCTS = Dict(
     )),
 )
 
+mcts_params_note = "_unlimited_rollout"
+function MCTS.rollout(estimator::MCTS.SolvedRolloutEstimator, mdp::MDP, s, d::Int)
+    sim = RolloutSimulator(;estimator.rng, eps=nothing, max_steps=nothing)
+    POMDPs.simulate(sim, mdp, estimator.policy, s)
+end
+
 N_traces=100
 e_inputs = collect(enumerate(inputs[1:end]))
 
-# Threads.@threads for (i, orig_data) in e_inputs
-#     data = deepcopy(orig_data)
+Threads.@threads for (i, orig_data) in e_inputs
+    data = deepcopy(orig_data)
 
 
-#     # println("dpw...")
-#     # PMDPs.process_data(
-#         #     data,
-#         #     PMDPs.mcts;
-#         #     folder = OUT_FOLDER,
-#         #     N = N_traces,
-#         #     method_info = "dpw_$(savename(params_dpw))",
-#         #     solver = DPWSolver(; params_dpw...),
-#         # )
+    # println("dpw...")
+    # PMDPs.process_data(
+        #     data,
+        #     PMDPs.mcts;
+        #     folder = OUT_FOLDER,
+        #     N = N_traces,
+        #     method_info = "dpw_$(savename(params_dpw))",
+        #     solver = DPWSolver(; params_dpw...),
+        # )
 
-#     println("mcts...")
-#     PMDPs.process_data(
-#         data,
-#         PMDPs.mcts;
-#         folder = OUT_FOLDER,
-#         N = N_traces,
-#         solver_params=params_classical_MCTS,
-#         method_info = "vanilla_$(savename(params_classical_MCTS))",
-#         solver = MCTSSolver(;params_classical_MCTS...),
-#         )
-# end
+    println("mcts...")
+    PMDPs.process_data(
+        data,
+        PMDPs.mcts;
+        folder = OUT_FOLDER,
+        N = N_traces,
+        solver_params=params_classical_MCTS,
+        method_info = "vanilla$(mcts_params_note)_$(savename(params_classical_MCTS))",
+        solver = MCTSSolver(;params_classical_MCTS...),
+        )
+end
 
 # for (i, data) in e_inputs
 #     println("flatrate...")
@@ -193,12 +200,12 @@ e_inputs = collect(enumerate(inputs[1:end]))
 #     PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
 # end
 
-for (i, data) in e_inputs
-    if PMDPs.n_resources(data[:pp])<=6
-        println("vi...")
-        data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces)
-    end
-end
+# for (i, data) in e_inputs
+#     if PMDPs.n_resources(data[:pp])<=6
+#         println("vi...")
+#         data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces)
+#     end
+# end
         
 """
 ANALYZE AND PLOT RESULTS

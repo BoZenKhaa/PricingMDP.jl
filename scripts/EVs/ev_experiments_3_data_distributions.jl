@@ -95,8 +95,8 @@ end
 FIGURE OUT NUMBER OF TIMESTEPS FOR PROBLEMS
 """
 # nᵣ = 24
-# nᵣ = 48
-nᵣ = 72
+nᵣ = 48
+#nᵣ = 72
 # nᵣ = 96
 
 expected_res_range = [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ, 3.5*nᵣ]
@@ -111,7 +111,7 @@ for (i, expected_res) in enumerate(expected_res_range)
                 T = Int64(expected_res*T_multipliers[i]),
                 expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
                 res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
-                objective = :revenue,
+                objective = :utilization,
             )))
         println("$(i): nᵣ = $(nᵣ)")
         try

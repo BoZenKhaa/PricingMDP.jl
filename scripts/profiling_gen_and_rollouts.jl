@@ -86,8 +86,9 @@ With skips over states with no products @time:
 using StatProfilerHTML
 using Traceur
 
-@profilehtml 
-@trace PMDPs.process_data(
+# @trace 
+# time
+@profilehtml PMDPs.process_data(
     input,
     PMDPs.mcts;
     folder = OUT_FOLDER,

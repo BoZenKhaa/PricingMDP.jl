@@ -1,5 +1,5 @@
 """
-HistoryReplayer uses the generative PMDP interface to reaplay requests in history h.
+HistoryReplayer uses the generative PMDP interface to replay requests in history h.
 
 Usage: 
 
