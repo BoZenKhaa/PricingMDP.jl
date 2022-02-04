@@ -8,14 +8,25 @@ n_1, ... n_N-1, number of steps outcome i is possible.
 struct StaggeredBernoulliScheme <: DiscreteCountingProcess
     n::Vector{Int64}
     p_suc::Vector{Float64}
+    i_distributions::Vector{Distribution}
 
     function StaggeredBernoulliScheme(
-        n::AbstractArray{<:Number},
-        p_suc::AbstractArray{<:Number},
+        n::AbstractVector{<:Number},
+        p_suc::AbstractVector{<:Number},
     )
         @assert 0 < sum(p_suc) <= 1
         # @assert issorted(n)
-        new(n, p_suc)
+        
+        # pre-compute the distributions
+        n_max = maximum(n)
+        i_distributions = Vector{Categorical}(undef, n_max)
+        for i in 1:n_max
+            active = n .>= i
+            active_p = p_suc .* active
+            i_distributions[i] = Categorical([active_p..., 1 - sum(active_p)])
+        end
+
+        new(n, p_suc, i_distributions)
     end
 end
 
@@ -44,12 +55,4 @@ Get outcome distribution for given index.
 Support for the outcome distribution is 1...N+1. N+1 means failure.
 Index can be in the range 1, ..., n (n is the number of random variables in the scheme).
 """
-function Base.getindex(bs::StaggeredBernoulliScheme, i::Integer)
-    if 1 <= i <= maximum(bs.n)
-        active = bs.n .>= i
-        active_p = bs.p_suc .* active
-        return Categorical([active_p..., 1 - sum(active_p)])
-    else
-        throw(BoundsError(bs, i))
-    end
-end
+Base.getindex(bs::StaggeredBernoulliScheme, i::Integer) = bs.i_distributions[i]
