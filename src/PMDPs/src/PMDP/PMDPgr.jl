@@ -14,9 +14,9 @@ struct PMDPgr <: PMDP{State,Action}
     empty_product::Product
     empty_product_id::Int64
 
-    function PMDPgr(pp::PMDPProblem)
-        new(pp, empty_product(pp), n_products(pp) + 1)
-    end
+    # function PMDPgr(pp::PMDPProblem)
+    #     new(pp, empty_product(pp), n_products(pp) + 1)
+    # end
 
     function PMDPgr(mdp::PMDPg)
         new(mdp.pp, mdp.empty_product, mdp.empty_product_id)
@@ -32,8 +32,21 @@ struct PMDPgr <: PMDP{State,Action}
     # end
 end
 
-function POMDPs.gen(m::PMDPgr, s::State, a::Action, rng::AbstractRNG)::NamedTuple{(:sp, :r, :info), Tuple{State, Real, NamedTuple}}
-    r, b, c = sample_reward_and_capacity(m, s, a, rng)
-    iₚ, Δt = sample_product_and_time_skip_states_with_empty_product(m, s, rng)
+function POMDPs.gen(m::PMDPgr, s::State, a::Action, rng::AbstractRNG)
+    b = sample_customer_budget(m, s, rng)
+    if ~sale_impossible(m, s, a) && user_buy(a, b)
+        r = calculate_reward(pp(m), product(m, s), a)
+        c = reduce_capacities(s.c, product(m, s))
+    else
+        r = 0.0
+        c = s.c
+    end
+    Δt = 1
+    iₚ = sample_request(m, s.t + Δt, rng)
+    # Following code causes skips into the future. 
+    while iₚ==m.empty_product_id && s.t + Δt < selling_period_end(m) 
+        Δt += 1
+        iₚ = sample_request(m, s.t+Δt, rng)
+    end
     return (sp = State(c, s.t + Δt, iₚ), r = r, info = (b = b,))
 end

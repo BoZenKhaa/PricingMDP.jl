@@ -1,7 +1,7 @@
 """
 Stuct that defines the pricing MDP problem
 """
-struct PMDPProblem
+struct PMDPProblem{Objective}
     P::Vector{Product}      # Products array  
     c₀::Vector{Int64}       # Initial capacity of resources
     T::Timestep                  # Number of timesteps
@@ -24,7 +24,7 @@ struct PMDPProblem
         A = [real_actions..., REJECT_ACTION]
         @assert objective in [:revenue, :utilization]
         @assert are_unique(non_empty_P)
-        new(
+        new{objective}(
             non_empty_P,
             c₀,
             T,

@@ -8,12 +8,14 @@ m = PMDPg(edges, products, λ)
 PMDP for generative interface
 """
 struct PMDPg <: PMDP{State,Action}
-    pp::PMDPProblem                # Pricing Problem
+    pp::PMDPProblem{Objective} where Objective      # Pricing Problem
     empty_product::Product
     empty_product_id::Int64
 
     function PMDPg(pp::PMDPProblem)
-        new(pp, empty_product(pp), n_products(pp) + 1)
+        empty_prod = empty_product(pp)
+        n_prods = n_products(pp) + 1
+        new(pp, empty_prod, n_prods)
     end
 
     # function PMDPg(E, P, λ, B, A, objective)
@@ -25,6 +27,4 @@ struct PMDPg <: PMDP{State,Action}
     #     return new(length(E), T,E,P,λ, selling_period_ends, empty_product,B, A, objective, pi)
     # end
 end
-
-
 

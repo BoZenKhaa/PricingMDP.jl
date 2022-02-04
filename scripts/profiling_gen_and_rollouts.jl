@@ -11,13 +11,13 @@ using Formatting
 
 import Base.show
 
-using Plots
+# using Plots
 using Distributions
-using ProgressMeter
+# using ProgressMeter
+# using DataFrames
 
 
 using POMDPs
-using DataFrames
 
 RND = Xorshift1024Plus
 
@@ -62,9 +62,9 @@ params_classical_MCTS = Dict(
     )),
 )
 mcts_params_note = "_unlimited_rollout"
-function MCTS.rollout(estimator::MCTS.SolvedRolloutEstimator, mdp::MDP, s, d::Int)
+function MCTS.rollout(estimator::MCTS.SolvedRolloutEstimator, mdp::PMDPg, s, d::Int)
     sim = RolloutSimulator(;estimator.rng, eps=nothing, max_steps=nothing)
-    POMDPs.simulate(sim, mdp, estimator.policy, s)
+    POMDPs.simulate(sim, PMDPs.PMDPgr(mdp), estimator.policy, s)
 end
 
 # MCTSSolver(; params_classical_MCTS...)
@@ -81,10 +81,30 @@ Pre-computing StaggeredBernoulliScheme @time:
 
 With skips over states with no products @time:
     2.213717 seconds (17.72 M allocations: 841.344 MiB, 7.72% gc time)
+
+Fixing type instability in the old gen function, NO skips @time:
+    4.350813 seconds (39.88 M allocations: 1.942 GiB, 9.37% gc time)
+
+Fixing type instability in the old gen function, WITH skips @time:
+    1.430212 seconds (13.22 M allocations: 632.143 MiB, 25.72% gc time, 0.84% compilation time)
+
+PMDPgr in rollouts, PMDPg in tree @time:
+    2.475870 seconds (21.29 M allocations: 1.023 GiB, 9.53% gc time)
+
+PMDPgr in rollouts, PMDPg in tree while caching PMDPgr in PMDPg @time:
+    2.428882 seconds (21.38 M allocations: 1.074 GiB, 10.46% gc time)
+
+==================================
+Split gen functions, returning tuples
+    12.621273 seconds (139.96 M allocations: 4.399 GiB, 5.62% gc time)
+
+Old gen function
+    11.255265 seconds (100.21 M allocations: 3.684 GiB, 10.81% gc time)
 """
 
 using StatProfilerHTML
 using Traceur
+using Random
 
 # @trace PMDPs.process_data(
 @time PMDPs.process_data(
@@ -97,3 +117,74 @@ using Traceur
     solver_params=params_classical_MCTS,
     solver = MCTSSolver(;params_classical_MCTS...),
 )
+
+
+
+"""
+Investigating method
+"""
+
+using Debugger
+
+using PMDPs
+using POMDPs
+
+mg = PMDPs.PMDPg(pp)
+s = rand(initialstate(mg))
+a = actions(mg)[8]
+
+mgr = PMDPs.PMDPgr(mg)
+
+PMDPs.gen(mg, s, a, RND(1))
+# PMDPs.gen_(mg, s, a, RND(1))
+
+@code_warntype PMDPs.sample_request(mg, s.t + 1, RND(1))
+
+@code_typed PMDPs.gen(mg, s, a, RND(1))
+@code_typed PMDPs.gen_(mg, s, a, RND(1))
+
+@code_lowered PMDPs.gen(mg, s, a, RND(1))
+@code_lowered PMDPs.gen_(mg, s, a, RND(1))
+
+@code_llvm PMDPs.gen(mg, s, a, RND(1))
+@code_llvm PMDPs.gen_(mg, s, a, RND(1))
+
+@code_warntype PMDPs.gen(mg, s, a, RND(1))
+
+@code_warntype PMDPs.calculate_reward(PMDPs.pp(mg), PMDPs.product(mg, s), a)
+
+@code_warntype PMDPs.pp(mg)
+
+
+"""
+Testing value types
+"""
+
+abstract type AbstractTest{A, O} <: Any end
+
+# struct MyType{A, O} <: AbstractTest{A, O} 
+#     a::A
+# end
+
+t1 = MyType{Int64, :AHOJ}(12)
+t2 = MyType{Int64, :HELE}(12)
+
+fun(t::AbstractTest{A, :AHOJ}) where A  = print("Ahoj")
+fun(t::AbstractTest{A, :HELE}) where A  = print("Hele")
+fun(t1)
+fun(t2)
+
+struct MyType{O}
+    a::Int64
+end
+
+struct MMType
+    m::MyType{O} where O
+    b::Float64
+end
+
+t = MMType(MyType{:AHOJ}(10), 12.0)
+
+fun(t::MMType) = t.m
+
+@code_warntype fun(t)

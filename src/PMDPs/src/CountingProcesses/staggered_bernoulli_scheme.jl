@@ -8,7 +8,7 @@ n_1, ... n_N-1, number of steps outcome i is possible.
 struct StaggeredBernoulliScheme <: DiscreteCountingProcess
     n::Vector{Int64}
     p_suc::Vector{Float64}
-    i_distributions::Vector{Distribution}
+    i_distributions::Vector{Categorical}
 
     function StaggeredBernoulliScheme(
         n::AbstractVector{<:Number},
