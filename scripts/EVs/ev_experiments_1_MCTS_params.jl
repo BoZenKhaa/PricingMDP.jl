@@ -150,11 +150,11 @@ params_classical_MCTS = Dict(
         rng = RND(1),
     )),
 )
-mcts_params_note = "_unlimited_rollout"
-function MCTS.rollout(estimator::MCTS.SolvedRolloutEstimator, mdp::MDP, s, d::Int)
-    sim = RolloutSimulator(;estimator.rng, eps=nothing, max_steps=nothing)
-    POMDPs.simulate(sim, mdp, estimator.policy, s)
-end
+# mcts_params_note = "_unlimited_rollout"
+# function MCTS.rollout(estimator::MCTS.SolvedRolloutEstimator, mdp::MDP, s, d::Int)
+#     sim = RolloutSimulator(;estimator.rng, eps=nothing, max_steps=nothing)
+#     POMDPs.simulate(sim, mdp, estimator.policy, s)
+# end
 
 MCTSSolver(; params_classical_MCTS...)
 
@@ -185,9 +185,9 @@ e_inputs = collect(enumerate(inputs[1:end]))
 
 for (i, orig_data) in e_inputs
 
-    depths = [1,3,7]
-    ecs = [1., 3., 5.]
-    n_iter = [50,200,300,400,600]
+    depths = [1,2,3,7,10,12, 20]
+    ecs = [1., 3., 5., 10.]
+    n_iter = [50,200,300,400,600, 800, 1000]
     params = collect(Base.product(depths, ecs, n_iter))
 
     Threads.@threads for (depth, ec, n_iter) in params
@@ -223,7 +223,7 @@ for (i, orig_data) in e_inputs
             folder = OUT_FOLDER,
             N = N_traces,
             # method_info = "vanilla_$(hash(params_classical_MCTS))",
-            method_info = "vanilla$(mcts_params_note)_$(savename(params_classical_MCTS))",
+            method_info = "vanilla_$(savename(params_classical_MCTS))",
             solver_params=params_classical_MCTS,
             solver = MCTSSolver(;params_classical_MCTS...),
         )
