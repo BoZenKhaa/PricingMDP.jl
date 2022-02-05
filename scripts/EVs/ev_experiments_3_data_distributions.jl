@@ -139,7 +139,7 @@ PREPARE PROBLEM AND TRACES
 OUT_FOLDER = "ev_experiments"
 
 inputs = []
-PP_NAME = "cs_deggendorf_data_driven_$(nᵣ)_PRICE_PER_TIMESLOT"
+PP_NAME = "cs_deggendorf_data_driven_$(nᵣ)"
 
 Threads.@threads for expected_res in expected_res_range
     println("\n===Running expected res: $(expected_res)")
@@ -151,18 +151,23 @@ Threads.@threads for expected_res in expected_res_range
             res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
             objective = :revenue,
         )))
-    pp = PMDPs.single_day_cs_pp(start_times_d, charging_durations_d; pp_params...)
-    PMDPs.statespace_size(pp)
-
+    # PMDPs.statespace_size(pp)
+        
     vi = false
     name = PP_NAME
     n_traces = 1000
-
+    
     # mg = PMDPs.PMDPg(pp)
     # me = PMDPs.PMDPe(pp)
-
+    
     # tr = PMDPs.simulate_trace(PMDPs.PMDPg(pp),RND(1))
+    pp = PMDPs.single_day_cs_pp(start_times_d, charging_durations_d; pp_params...)
     push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=8888, save=true))
+
+    upp_params = deepcopy(pp_params)
+    upp_params[:objective]=:utilization
+    upp = PMDPs.single_day_cs_pp(;upp_params...)
+    push!(inputs, PMDPs.prepare_traces(upp, upp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
     # pp_params[:objective]=:utilization
     # push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
 end
@@ -233,7 +238,7 @@ end
 
 for (i, data) in e_inputs
     println("flatrate...")
-    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
+    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces,  train_range=1:round(Int64, 1001/100*5))
 end
 
 # """
