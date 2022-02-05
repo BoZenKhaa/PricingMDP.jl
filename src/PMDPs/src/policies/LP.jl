@@ -132,7 +132,7 @@ function MILP_hindsight_pricing(
             println("Allocation: ", optimal_alloc.data)
         end
 
-        action_seq = [(a != 0.0 ? a : PMDPs.REJECT_ACTION) for a in optimal_alloc.data .* R]
+        action_seq = [(alloc == 1.0 ? r : PMDPs.REJECT_ACTION) for (alloc, r) in zip(optimal_alloc.data, R)]
 
         result = (
             objective_val = obj_val,
