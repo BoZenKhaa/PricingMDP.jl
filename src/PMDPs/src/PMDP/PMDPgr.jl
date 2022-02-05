@@ -50,3 +50,11 @@ function POMDPs.gen(m::PMDPgr, s::State, a::Action, rng::AbstractRNG)
     end
     return (sp = State(c, s.t + Δt, iₚ), r = r, info = (b = b,))
 end
+
+"""
+Run rollouts to the terminal state always. Use skips.
+"""
+function MCTS.rollout(estimator::MCTS.SolvedRolloutEstimator, mdp::PMDPg, s, d::Int)
+    sim = RolloutSimulator(;estimator.rng, eps=nothing, max_steps=nothing)
+    POMDPs.simulate(sim, PMDPs.PMDPgr(mdp), estimator.policy, s)
+end
