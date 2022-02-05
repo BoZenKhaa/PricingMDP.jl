@@ -46,10 +46,11 @@ function flatrate(
     pp::PMDPProblem,
     traces::AbstractArray{<:AbstractSimHistory},
     rnd::AbstractRNG;
+    train_range::UnitRange{Int64}=1:5,
     kwargs...
 )::DataFrame
     mg = PMDPg(pp)
-    flatrate = get_flatrate_policy(mg, [simulate_trace(mg, rnd) for i = 1:5])
+    flatrate = get_flatrate_policy(mg, [simulate_trace(mg, rnd) for i = train_range])
     results = eval_policy(mg, traces, @ntuple(flatrate), rnd)
 end
 
