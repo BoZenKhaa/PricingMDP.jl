@@ -3,16 +3,16 @@ function mcts(
     traces::AbstractArray{<:AbstractSimHistory},
     rnd::AbstractRNG;
     solver = nothing,
+    p::Union{Nothing, Progress}=nothing,
     kwargs...
 )::DataFrame
     mg = PMDPg(pp)
     if solver !== nothing
-        display("using custom MCTS planner: $solver)")
         mcts = MCTS.solve(solver, mg)
     else
         mcts = get_MCTS_planner(mg)
     end
-    results = eval_policy(mg, traces, @ntuple(mcts), rnd)
+    results = eval_policy(mg, traces, @ntuple(mcts), rnd; p=p)
 end
 
 
@@ -50,6 +50,7 @@ function flatrate(
     kwargs...
 )::DataFrame
     mg = PMDPg(pp)
+    println("train range $train_range")
     flatrate = get_flatrate_policy(mg, [simulate_trace(mg, rnd) for i = train_range])
     results = eval_policy(mg, traces, @ntuple(flatrate), rnd)
 end
@@ -109,12 +110,12 @@ function process_data(
     solver_params=Dict(),
     n = 1,
     N = 10000,
+    rnd::AbstractRNG=Xorshift128Plus(1516),
     kwargs...
 )
     traces = data[:traces]
     pp = data[:pp]
     pp_params = data[:pp_params]
-    rnd = Xorshift128Plus(1516)
 
     N >= length(traces) ? N = length(traces) : N = N
     traces = data[:traces][n:N]

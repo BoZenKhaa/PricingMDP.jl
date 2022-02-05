@@ -19,6 +19,8 @@ using ProgressMeter
 using POMDPs
 using DataFrames
 
+using ProgressMeter
+
 # function Base.show(io::IO, ::MIME"text/plain", trace::SimHistory)
 #     for step in trace
 #         print(io, step.s)
@@ -37,6 +39,7 @@ using DataFrames
 # end
 
 RND = Xorshift1024Plus
+Base.show(io::IO, rnd::Xorshift1024Plus) = print(io, "Xorshift1024Plus")
 
 include(srcdir("MDPPricing.jl"))
 
@@ -161,9 +164,31 @@ params_classical_MCTS = Dict(
 N_traces=100
 e_inputs = collect(enumerate(inputs[1:end]))
 
-Threads.@threads for (i, orig_data) in e_inputs
-    data = deepcopy(orig_data)
+n_threads = Threads.nthreads()
+# n_threads=3
+# e_inputs
+println("Total of inputs: $(length(e_inputs))")
+reordered_inputs = typeof(e_inputs[1])[]
+n_jobs_per_thread = ceil(length(e_inputs)/n_threads)
+for j in 1:n_jobs_per_thread
+    for i in 1:length(e_inputs)
+        if i%n_jobs_per_thread==(j-1)
+            input = e_inputs[i]
+            push!(reordered_inputs, input)
+        end
+    end
+end
+println("Total of reordered inputs: $(length(reordered_inputs)):")
+for (i, input) in reordered_inputs
+    println("\t$(i): $(input[:pp_params])")
+end
+# print(reordered_inputs)
 
+p=Progress(length(e_inputs)*N_traces, desc="All MCTS:", color=:red)
+
+Threads.@threads for (i, orig_data) in reordered_inputs
+    data = deepcopy(orig_data)
+    # data = orig_data
 
     # println("dpw...")
     # PMDPs.process_data(
@@ -175,7 +200,8 @@ Threads.@threads for (i, orig_data) in e_inputs
         #     solver = DPWSolver(; params_dpw...),
         # )
 
-    println("mcts...")
+    println("mcts, data-$i:")
+    println("\t $(data[:pp_params])")
     PMDPs.process_data(
         data,
         PMDPs.mcts;
@@ -184,25 +210,27 @@ Threads.@threads for (i, orig_data) in e_inputs
         solver_params=params_classical_MCTS,
         method_info = "vanilla_$(savename(params_classical_MCTS))",
         solver = MCTSSolver(;params_classical_MCTS...),
+        rnd=rnd,
+        p=p
         )
 end
 
 
 for (i, data) in e_inputs
     println("hindsight...")
-    PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
+    PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces, rnd=rnd)
 end
 
 for (i, data) in e_inputs
     if PMDPs.n_resources(data[:pp])<=6
         println("vi...")
-        data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces)
+        data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces, rnd=rnd)
     end
 end
 
 for (i, data) in e_inputs
     println("flatrate...")
-    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces, train_range=1:round(Int64, 1001/100*5))
+    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces, train_range=1:round(Int64, N_traces/100*25), rnd=rnd)
 end
 """
 ANALYZE AND PLOT RESULTS

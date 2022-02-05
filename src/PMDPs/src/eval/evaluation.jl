@@ -89,12 +89,15 @@ function eval_policy(
     mdp::PMDP,
     request_sequences::AbstractArray{<:AbstractSimHistory},
     policies::NamedTuple,
-    rng::AbstractRNG
+    rng::AbstractRNG;
+    p::Union{Nothing, Progress}=nothing
 )::DataFrame
     metrics = DataFrame()
-    @showprogress 1 "Evaluating traces..." for sequence in request_sequences
+    isnothing(p) ? p = Progress(length(request_sequences), 1) : nothing
+    for sequence in request_sequences
         mₛ = eval_policy(mdp, sequence, policies, rng)
         metrics = vcat(metrics, mₛ, cols = :union)
+        next!(p)
     end
     return metrics
 end

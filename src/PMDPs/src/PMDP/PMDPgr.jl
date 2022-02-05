@@ -55,6 +55,6 @@ end
 Run rollouts to the terminal state always. Use skips.
 """
 function MCTS.rollout(estimator::MCTS.SolvedRolloutEstimator, mdp::PMDPg, s, d::Int)
-    sim = RolloutSimulator(;estimator.rng, eps=nothing, max_steps=nothing)
+    sim = RolloutSimulator(;estimator.rng, eps=nothing, max_steps=100)
     POMDPs.simulate(sim, PMDPs.PMDPgr(mdp), estimator.policy, s)
 end

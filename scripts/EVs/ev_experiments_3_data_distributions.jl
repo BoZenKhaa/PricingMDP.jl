@@ -19,6 +19,9 @@ using ProgressMeter
 using POMDPs
 using DataFrames
 
+
+using ProgressMeter
+
 # function Base.show(io::IO, ::MIME"text/plain", trace::SimHistory)
 #     for step in trace
 #         print(io, step.s)
@@ -37,6 +40,8 @@ using DataFrames
 # end
 
 RND = Xorshift1024Plus
+rnd=RND(426380)
+Base.show(io::IO, rnd::Xorshift1024Plus) = print(io, "Xorshift1024Plus")
 
 include(srcdir("MDPPricing.jl"))
 
@@ -141,7 +146,8 @@ OUT_FOLDER = "ev_experiments"
 inputs = []
 PP_NAME = "cs_deggendorf_data_driven_$(nᵣ)"
 
-Threads.@threads for expected_res in expected_res_range
+# Threads.@threads 
+for expected_res in expected_res_range
     println("\n===Running expected res: $(expected_res)")
     pp_params = Dict(pairs((
             nᵣ = nᵣ,
@@ -168,8 +174,6 @@ Threads.@threads for expected_res in expected_res_range
     upp_params[:objective]=:utilization
     upp = PMDPs.single_day_cs_pp(;upp_params...)
     push!(inputs, PMDPs.prepare_traces(upp, upp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
-    # pp_params[:objective]=:utilization
-    # push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
 end
 
 """
@@ -199,23 +203,37 @@ params_classical_MCTS = Dict(
 )
 
 
-N_traces=100
+N_traces=10
 e_inputs = collect(enumerate(inputs[1:end]))
 
-Threads.@threads for (i, orig_data) in e_inputs
-    data = deepcopy(orig_data)
+println("Total of inputs: $(length(e_inputs))")
 
-    # println("dpw...")
-    # PMDPs.process_data(
-    #     data,
-    #     PMDPs.mcts;
-    #     folder = OUT_FOLDER,
-    #     N = N_traces,
-    #     method_info = "dpw_$(savename(params_dpw))",
-    #     solver = DPWSolver(; params_dpw...),
-    # )
+n_threads = Threads.nthreads()
+# n_threads=3
+# e_inputs
+reordered_inputs = typeof(e_inputs[1])[]
+n_jobs_per_thread = ceil(length(e_inputs)/n_threads)
+for j in 1:n_jobs_per_thread
+    for i in 1:length(e_inputs)
+        if i%n_jobs_per_thread==(j-1)
+            input = e_inputs[i]
+            push!(reordered_inputs, input)
+        end
+    end
+end
+println("Total of reordered inputs: $(length(reordered_inputs)):")
+for (i, input) in reordered_inputs
+    println("\t$(i): $(input[:pp_params])")
+end
 
-    println("mcts...")
+p=Progress(length(e_inputs)*N_traces, desc="All MCTS:", color=:red)
+
+Threads.@threads for (i, orig_data) in reordered_inputs
+    # data = deepcopy(orig_data)
+    data = orig_data
+
+    solver = MCTSSolver(;params_classical_MCTS...)
+    println("mcts, data-$i: \n\t problem: $(data[:pp_params]) \n\t solver: $(solver)")
     PMDPs.process_data(
         data,
         PMDPs.mcts;
@@ -223,7 +241,9 @@ Threads.@threads for (i, orig_data) in e_inputs
         n = 1,
         N = N_traces,
         method_info = "vanilla_$(savename(params_classical_MCTS))",
-        solver = MCTSSolver(;params_classical_MCTS...),
+        solver = solver,
+        rnd=rnd,
+        p=p,
     )
 end
 
@@ -233,12 +253,12 @@ for (i, data) in e_inputs
     https://stackoverflow.com/questions/64844626/julia-1-5-2-suppressing-gurobi-academic-license-in-parallel
     """
     println("hindsight...")
-    PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
+    PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces, rnd=rnd)
 end
 
 for (i, data) in e_inputs
     println("flatrate...")
-    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces,  train_range=1:round(Int64, 1001/100*5))
+    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces,  train_range=1:round(Int64, N_traces/100*25), rnd=rnd)
 end
 
 # """
