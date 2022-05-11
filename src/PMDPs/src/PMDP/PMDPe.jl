@@ -58,7 +58,12 @@ function sale_prob(budget_distributions::AbstractArray{<:Distribution}, s::State
 end
 
 function next_states(m::PMDP, s::State, new_c::AbstractArray{<:Number})::Array{State}
-    sps = [State(new_c, s.t + 1, iₚ) for iₚ = 1:n_products(m)+1] # +1 for empty_product
+    if s.t < selling_period_end(m) # States with t=T are terminal.
+        sps = [State(new_c, s.t + 1, iₚ) for iₚ = 1:n_products(m)+1] # +1 for empty_product
+    else
+        sps = []
+    end
+    return sps
 end
 
 function POMDPs.transition(m::PMDPe, s::State, a::Action)
@@ -107,6 +112,8 @@ end
 
 POMDPs.actionindex(m::PMDP, a::Action) = findfirst(isequal(a), actions(m))
 POMDPs.states(m::PMDP) = generate_states(pp(m))
+index(m::PMDPe, p::Product) = m.productindices[p]
+
 
 
 """
