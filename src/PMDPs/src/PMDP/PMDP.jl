@@ -47,7 +47,8 @@ empty_product_id(m::PMDP) = m.empty_product_id
 
 POMDPs.discount(m::PMDP) = 0.99
 
-index(m::PMDP, p::Product) = m.productindices[p]
+productindices(P::Array{Product}) = Dict(zip(P, 1:length(P)))
+
 
 """
 sale_prob(m::PMDP, s::State, a::Action)
@@ -114,7 +115,7 @@ function POMDPs.actions(m::PMDP, s::State)::AbstractArray{Action}
     return actions
 end
 
-productindices(P::Array{Product}) = Dict(zip(P, 1:length(P)))
+
 
 
 """

@@ -11,6 +11,8 @@ using Formatting
 
 import Base.show
 
+using BenchmarkTools
+
 # using Plots
 using Distributions
 # using ProgressMeter
@@ -62,7 +64,7 @@ params_classical_MCTS = Dict(
     )),
 )
 mcts_params_note = "_unlimited_rollout"
-function MCTS.rollout(estimator::MCTS.SolvedRolloutEstimator, mdp::PMDPg, s, d::Int)
+function MCTS.rollout(estimator::MCTS.SolvedRolloutEstimator, mdp::PMDPs.PMDPg, s, d::Int)
     sim = RolloutSimulator(;estimator.rng, eps=nothing, max_steps=nothing)
     POMDPs.simulate(sim, PMDPs.PMDPgr(mdp), estimator.policy, s)
 end
@@ -119,6 +121,36 @@ using Random
 )
 
 
+
+# Timing MCTS action
+nᵣ = 48
+pp_params = Dict(pairs((
+    nᵣ = nᵣ,
+    c = 3,
+    T = nᵣ*7,
+    expected_res = 2*nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+    res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
+    objective = :revenue,
+)))
+
+params_classical_MCTS = Dict(
+    pairs((
+        depth = 3,
+        exploration_constant = 1.,
+        n_iterations = 800,
+        reuse_tree = true,
+        rng = RND(1),
+    )),
+)
+
+mg = PMDPs.PMDPg(pp)
+s = rand(initialstate(mg))
+a = actions(mg)[8]
+mgr = PMDPs.PMDPgr(mg)
+solver = MCTSSolver(;params_classical_MCTS...)
+policy = solve(solver, mg)
+
+@btime action(policy, s)
 
 """
 Investigating method

@@ -28,3 +28,5 @@ struct PMDPg <: PMDP{State,Action}
     # end
 end
 
+index(m::PMDPg, p::Product) = productindices(products(m))[p]
+

@@ -84,23 +84,23 @@ charging_durations_d = DiscreteNonParametric(
 
 
 # Try fitting distributions
-# begin # OK
+begin # OK
     start_times_nd = truncated(fit_mle(Normal, df.start_hour), 0,24)
-    plot(start_times_d)
-    plot!(start_times_nd)
-# end
+    # plot(start_times_d)
+    # plot!(start_times_nd)
+end
 
-# begin # Not very good
+begin # Not very good
     charging_durations_ed = truncated(fit_mle(Gamma, df.total_duration_h), 0,8)
-    plot(charging_durations_d)
-    plot!(charging_durations_ed)
-# end
+    # plot(charging_durations_d)
+    # plot!(charging_durations_ed)
+end
 
 """
 FIGURE OUT NUMBER OF TIMESTEPS FOR PROBLEMS
 """
-nᵣ = 24
-# nᵣ = 48
+# nᵣ = 24
+nᵣ = 48
 #nᵣ = 72
 # nᵣ = 96
 
@@ -121,7 +121,7 @@ for (i, expected_res) in enumerate(expected_res_range)
             )))
         # println("$(i): nᵣ = $(nᵣ)")
         try
-            pp = PMDPs.single_day_cs_pp(start_times_nd, charging_durations_ed; pp_params...)
+            pp = PMDPs.single_day_cs_pp(start_times_d, charging_durations_d;pp_params...)
         catch e
             if isa(e, AssertionError)
                 # Sprintln("Error: ", e)
@@ -168,12 +168,12 @@ for expected_res in expected_res_range
     # me = PMDPs.PMDPe(pp)
     
     # tr = PMDPs.simulate_trace(PMDPs.PMDPg(pp),RND(1))
-    pp = PMDPs.single_day_cs_pp(start_times_nd, charging_durations_ed; pp_params...)
+    pp = PMDPs.single_day_cs_pp(start_times_d, charging_durations_d; pp_params...)
     push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=8888, save=true))
 
     upp_params = deepcopy(pp_params)
     upp_params[:objective]=:utilization
-    upp = PMDPs.single_day_cs_pp(start_times_nd, charging_durations_ed; upp_params...)
+    upp = PMDPs.single_day_cs_pp(;upp_params...)
     push!(inputs, PMDPs.prepare_traces(upp, upp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
 end
 
@@ -227,26 +227,26 @@ for (i, input) in reordered_inputs
     println("\t$(i): $(input[:pp_params])")
 end
 
-p=Progress(length(e_inputs)*N_traces, desc="All MCTS:", color=:red)
+# p=Progress(length(e_inputs)*N_traces, desc="All MCTS:", color=:red)
 
-Threads.@threads for (i, orig_data) in reordered_inputs
-    data = deepcopy(orig_data)
-    # data = orig_data
+# Threads.@threads for (i, orig_data) in reordered_inputs
+#     # data = deepcopy(orig_data)
+#     data = orig_data
 
-    solver = MCTSSolver(;params_classical_MCTS...)
-    println("mcts, data-$i: \n\t problem: $(data[:pp_params]) \n\t solver: $(solver)")
-    PMDPs.process_data(
-        data,
-        PMDPs.mcts;
-        folder = OUT_FOLDER,
-        n = 1,
-        N = N_traces,
-        method_info = "vanilla_$(savename(params_classical_MCTS))",
-        solver = solver,
-        rnd=rnd,
-        p=p,
-    )
-end
+#     solver = MCTSSolver(;params_classical_MCTS...)
+#     println("mcts, data-$i: \n\t problem: $(data[:pp_params]) \n\t solver: $(solver)")
+#     PMDPs.process_data(
+#         data,
+#         PMDPs.mcts;
+#         folder = OUT_FOLDER,
+#         n = 1,
+#         N = N_traces,
+#         method_info = "vanilla_$(savename(params_classical_MCTS))",
+#         solver = solver,
+#         rnd=rnd,
+#         p=p,
+#     )
+# end
 
 
 for (i, data) in e_inputs

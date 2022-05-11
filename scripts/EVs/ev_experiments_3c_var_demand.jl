@@ -57,50 +57,50 @@ using StatsBase
 using StatsPlots
 
 
-df = DataFrame(CSV.File(datadir("cs_data", "deggendorf_ackerloh_charging.csv")))
+# df = DataFrame(CSV.File(datadir("cs_data", "deggendorf_ackerloh_charging.csv")))
 
-bins = 0:1/6:8 # 10 minute resolution, capped at 8 hours
-charging_durations = fit(Histogram, df.total_duration_h, bins)
-charging_durations.weights
-# plot(charging_durations)
+# bins = 0:1/6:8 # 10 minute resolution, capped at 8 hours
+# charging_durations = fit(Histogram, df.total_duration_h, bins)
+# charging_durations.weights
+# # plot(charging_durations)
 
-bins = 0:1:24 # 1 hour resolution
-start_times = fit(Histogram, df.start_hour, bins)
-start_times.weights
-# plot(start_times)
+# bins = 0:1:24 # 1 hour resolution
+# start_times = fit(Histogram, df.start_hour, bins)
+# start_times.weights
+# # plot(start_times)
 
-# try turning histogram into distribution
+# # try turning histogram into distribution
 
-Categorical(start_times.weights/sum(start_times.weights))
-Categorical(charging_durations.weights/sum(charging_durations.weights))
+# Categorical(start_times.weights/sum(start_times.weights))
+# Categorical(charging_durations.weights/sum(charging_durations.weights))
 
-start_times_d = DiscreteNonParametric(
-    start_times.edges[1][1:end-1].+0.5,
-    start_times.weights/sum(start_times.weights))
+# start_times_d = DiscreteNonParametric(
+#     start_times.edges[1][1:end-1].+0.5,
+#     start_times.weights/sum(start_times.weights))
 
-charging_durations_d = DiscreteNonParametric(
-    charging_durations.edges[1][1:end-1].+1/6/2,
-    charging_durations.weights/sum(charging_durations.weights))
+# charging_durations_d = DiscreteNonParametric(
+#     charging_durations.edges[1][1:end-1].+1/6/2,
+#     charging_durations.weights/sum(charging_durations.weights))
 
 
-# Try fitting distributions
-# begin # OK
-    start_times_nd = truncated(fit_mle(Normal, df.start_hour), 0,24)
-    plot(start_times_d)
-    plot!(start_times_nd)
-# end
+# # Try fitting distributions
+# # begin # OK
+#     start_times_nd = truncated(fit_mle(Normal, df.start_hour), 0,24)
+#     plot(start_times_d)
+#     plot!(start_times_nd)
+# # end
 
-# begin # Not very good
-    charging_durations_ed = truncated(fit_mle(Gamma, df.total_duration_h), 0,8)
-    plot(charging_durations_d)
-    plot!(charging_durations_ed)
-# end
+# # begin # Not very good
+#     charging_durations_ed = truncated(fit_mle(Gamma, df.total_duration_h), 0,8)
+#     plot(charging_durations_d)
+#     plot!(charging_durations_ed)
+# # end
 
 """
 FIGURE OUT NUMBER OF TIMESTEPS FOR PROBLEMS
 """
-nᵣ = 24
-# nᵣ = 48
+# nᵣ = 24
+nᵣ = 48
 #nᵣ = 72
 # nᵣ = 96
 
@@ -121,7 +121,7 @@ for (i, expected_res) in enumerate(expected_res_range)
             )))
         # println("$(i): nᵣ = $(nᵣ)")
         try
-            pp = PMDPs.single_day_cs_pp(start_times_nd, charging_durations_ed; pp_params...)
+            pp = PMDPs.single_day_cs_pp(;pp_params...)
         catch e
             if isa(e, AssertionError)
                 # Sprintln("Error: ", e)
@@ -145,7 +145,7 @@ PREPARE PROBLEM AND TRACES
 OUT_FOLDER = "ev_experiments"
 
 inputs = []
-PP_NAME = "cs_deggendorf_data_driven_$(nᵣ)"
+PP_NAME = "cs_var_demand_$(nᵣ)"
 
 # Threads.@threads 
 for expected_res in expected_res_range
@@ -168,12 +168,12 @@ for expected_res in expected_res_range
     # me = PMDPs.PMDPe(pp)
     
     # tr = PMDPs.simulate_trace(PMDPs.PMDPg(pp),RND(1))
-    pp = PMDPs.single_day_cs_pp(start_times_nd, charging_durations_ed; pp_params...)
+    pp = PMDPs.single_day_cs_pp(;pp_params...)
     push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=8888, save=true))
 
     upp_params = deepcopy(pp_params)
     upp_params[:objective]=:utilization
-    upp = PMDPs.single_day_cs_pp(start_times_nd, charging_durations_ed; upp_params...)
+    upp = PMDPs.single_day_cs_pp(; upp_params...)
     push!(inputs, PMDPs.prepare_traces(upp, upp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
 end
 
@@ -199,12 +199,12 @@ params_classical_MCTS = Dict(
         exploration_constant = 1.0,
         n_iterations = 1000,
         reuse_tree = true,
-        rng = RND(1),
+        rng = RND(888),
     )),
 )
 
 
-N_traces=10
+N_traces=100
 e_inputs = collect(enumerate(inputs[1:end]))
 
 println("Total of inputs: $(length(e_inputs))")
@@ -228,7 +228,6 @@ for (i, input) in reordered_inputs
 end
 
 p=Progress(length(e_inputs)*N_traces, desc="All MCTS:", color=:red)
-
 Threads.@threads for (i, orig_data) in reordered_inputs
     data = deepcopy(orig_data)
     # data = orig_data

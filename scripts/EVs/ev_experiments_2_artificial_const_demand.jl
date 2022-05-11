@@ -91,7 +91,7 @@ for (i, nᵣ) in enumerate(res_range)
         catch e
             if isa(e, AssertionError)
                 # println("Error: ", e)
-                println("$(i): low multipler $(T_nᵣ_multiplier[i]) for nᵣ $(nᵣ)")
+                # println("$(i): low multipler $(T_nᵣ_multiplier[i]) for nᵣ $(nᵣ)")
                 T_nᵣ_multiplier[i]+=1
                 continue
             else
