@@ -45,7 +45,7 @@ n_actions(m::PMDP) = n_actions(pp(m))
 empty_product(m::PMDP) = m.empty_product
 empty_product_id(m::PMDP) = m.empty_product_id
 
-POMDPs.discount(m::PMDP) = 0.99
+POMDPs.discount(m::PMDP) = 1.0
 
 productindices(P::Array{Product}) = Dict(zip(P, 1:length(P)))
 
