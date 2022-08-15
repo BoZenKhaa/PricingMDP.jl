@@ -21,7 +21,7 @@ using Distributions
 
 using POMDPs
 
-RND = Xorshift1024Plus
+RNG = Xorshift1024Plus
 
 include(srcdir("MDPPricing.jl"))
 
@@ -60,7 +60,7 @@ params_classical_MCTS = Dict(
         exploration_constant = 1.,
         n_iterations = 100,
         reuse_tree = true,
-        rng = RND(1),
+        rng = RNG(1),
     )),
 )
 mcts_params_note = "_unlimited_rollout"
@@ -139,7 +139,7 @@ params_classical_MCTS = Dict(
         exploration_constant = 1.,
         n_iterations = 800,
         reuse_tree = true,
-        rng = RND(1),
+        rng = RNG(1),
     )),
 )
 
@@ -167,21 +167,21 @@ a = actions(mg)[8]
 
 mgr = PMDPs.PMDPgr(mg)
 
-PMDPs.gen(mg, s, a, RND(1))
-# PMDPs.gen_(mg, s, a, RND(1))
+PMDPs.gen(mg, s, a, RNG(1))
+# PMDPs.gen_(mg, s, a, RNG(1))
 
-@code_warntype PMDPs.sample_request(mg, s.t + 1, RND(1))
+@code_warntype PMDPs.sample_request(mg, s.t + 1, RNG(1))
 
-@code_typed PMDPs.gen(mg, s, a, RND(1))
-@code_typed PMDPs.gen_(mg, s, a, RND(1))
+@code_typed PMDPs.gen(mg, s, a, RNG(1))
+@code_typed PMDPs.gen_(mg, s, a, RNG(1))
 
-@code_lowered PMDPs.gen(mg, s, a, RND(1))
-@code_lowered PMDPs.gen_(mg, s, a, RND(1))
+@code_lowered PMDPs.gen(mg, s, a, RNG(1))
+@code_lowered PMDPs.gen_(mg, s, a, RNG(1))
 
-@code_llvm PMDPs.gen(mg, s, a, RND(1))
-@code_llvm PMDPs.gen_(mg, s, a, RND(1))
+@code_llvm PMDPs.gen(mg, s, a, RNG(1))
+@code_llvm PMDPs.gen_(mg, s, a, RNG(1))
 
-@code_warntype PMDPs.gen(mg, s, a, RND(1))
+@code_warntype PMDPs.gen(mg, s, a, RNG(1))
 
 @code_warntype PMDPs.calculate_reward(PMDPs.pp(mg), PMDPs.product(mg, s), a)
 

@@ -36,7 +36,7 @@ using DataFrames
 #     end
 # end
 
-RND = Xorshift1024Plus
+RNG = Xorshift1024Plus
 
 include(srcdir("MDPPricing.jl"))
 
@@ -118,7 +118,7 @@ Threads.@threads for (T, nᵣ) in pp_var_params
 
     # mg = PMDPs.PMDPg(pp)
     # me = PMDPs.PMDPe(pp)
-    # tr = PMDPs.simulate_trace(PMDPs.PMDPg(pp),RND(1))
+    # tr = PMDPs.simulate_trace(PMDPs.PMDPg(pp),RNG(1))
 
     push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
     # upp_params = deepcopy(pp_params)
@@ -137,7 +137,7 @@ PREPARE SOLVERS AND RUN EXPERIMENTS
 #         enable_state_pw = false,
 #         keep_tree = true,
 #         show_progress = false,
-#         rng = RND(1),
+#         rng = RNG(1),
 #     )),
 # )
 
@@ -147,7 +147,7 @@ params_classical_MCTS = Dict(
         exploration_constant = 3.0,
         n_iterations = 400,
         reuse_tree = true,
-        rng = RND(1),
+        rng = RNG(1),
     )),
 )
 
@@ -159,9 +159,9 @@ i, inp = e_inputs[4]
 pp = inp[:pp]
 traces = inp[:traces]
 
-rnd=RND(1)
+rng=RNG(1)
 mg = PMDPs.PMDPg(pp)
-flatrate = PMDPs.get_flatrate_policy(mg, [PMDPs.simulate_trace(mg, rnd) for i = 1:5])
+flatrate = PMDPs.get_flatrate_policy(mg, [PMDPs.simulate_trace(mg, rng) for i = 1:5])
 
 action(flatrate, POMDPs.initialstate(mg))
 using Random
@@ -169,7 +169,7 @@ using Random
 policy=flatrate
 mdp=mg
 requests=traces[5]
-rng=RND(1)
+rng=RNG(1)
 
 hrpl = PMDPs.HistoryReplayer(mdp, requests)
 h, stats... = @timed PMDPs.replay(hrpl, policy, rng)

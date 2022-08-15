@@ -4,7 +4,7 @@ using DrWatson
 using BSON
 
 using POMDPSimulators # load histories
-using StaticArrays, Distributions # load
+using Distributions # load
 
 using LightGraphs
 using GraphPlot
@@ -65,8 +65,8 @@ for pp_params in pps
     pp = PMDPs.linear_pp(; pp_params...)
     mg = PMDPs.PMDPg(pp)
 
-    rnd = Xorshift128Plus(1)
-    traces = [PMDPs.simulate_trace(mg, rnd) for i = 1:N_individ]
+    rng = Xorshift128Plus(1)
+    traces = [PMDPs.simulate_trace(mg, rng) for i = 1:N_individ]
 
     sname = savename("traces_lp", pp_params, "bson")
     @tagsave(datadir("traces", sname), @dict(name, pp, pp_params, traces))
@@ -138,8 +138,8 @@ for pp_params in gpps
     draw(PNG(plotsdir(savename("graph_", pp_params, "png")), 16cm, 16cm), gplot(g))
     # mg = PMDPs.PMDPg(pp)
 
-    # rnd = Xorshift128Plus(1)
-    # traces = [PMDPs.simulate_trace(mg, rnd) for i in 1:N_individ]
+    # rng = Xorshift128Plus(1)
+    # traces = [PMDPs.simulate_trace(mg, rng) for i in 1:N_individ]
 
     # sname = savename("traces_gp", pp_params,  "bson")
     # @tagsave(datadir("traces", sname), @dict(name, pp, pp_params, traces, g))
@@ -163,8 +163,8 @@ for expected_res = 50:50:1200
     pp = PMDPs.linear_pp(; pp_params...)
     mg = PMDPs.PMDPg(pp)
 
-    rnd = Xorshift128Plus(1)
-    traces = [PMDPs.simulate_trace(mg, rnd) for i = 1:N]
+    rng = Xorshift128Plus(1)
+    traces = [PMDPs.simulate_trace(mg, rng) for i = 1:N]
 
     sname = savename("traces_lp", pp_params, "bson")
     @tagsave(datadir("traces", sname), @dict(name, pp, pp_params, traces))
@@ -190,8 +190,8 @@ for seed = 1:10
         pp, g = PMDPs.graph_pp(; pp_params...)
         mg = PMDPs.PMDPg(pp)
 
-        rnd = Xorshift128Plus(1)
-        traces = [PMDPs.simulate_trace(mg, rnd) for i = 1:N]
+        rng = Xorshift128Plus(1)
+        traces = [PMDPs.simulate_trace(mg, rng) for i = 1:N]
 
         sname = savename("traces_gp", pp_params, "bson")
         @tagsave(datadir("traces", sname), @dict(name, pp, pp_params, traces, g))

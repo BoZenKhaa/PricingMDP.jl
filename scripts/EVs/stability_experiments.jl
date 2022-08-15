@@ -35,7 +35,7 @@ function Base.show(io::IO, ::MIME"text/plain", trace::SimHistory)
     end
 end
 
-RND = Xorshift1024Plus
+RNG = Xorshift1024Plus
 
 include(srcdir("MDPPricing.jl"))
 
@@ -44,15 +44,15 @@ mg = PMDPs.PMDPg(pp)
 me = PMDPs.PMDPe(pp)
 
 run(`clear`)
-trace2 = PMDPs.simulate_trace(mg, RND(4))
+trace2 = PMDPs.simulate_trace(mg, RNG(4))
 for i = 1:10
-    trace1 = PMDPs.simulate_trace(mg, RND(4))
+    trace1 = PMDPs.simulate_trace(mg, RNG(4))
     if ~isequal(trace1, trace2)
         display(trace1)
         display(trace2)
         print("======================")
     end
-    trace2 = PMDPs.simulate_trace(mg, RND(4))
+    trace2 = PMDPs.simulate_trace(mg, RNG(4))
 end
 
 
@@ -64,7 +64,7 @@ params_dpw = Dict(
         enable_state_pw = false,
         keep_tree = true,
         show_progress = false,
-        rng = RND(1),
+        rng = RNG(1),
     )),
 )
 
@@ -74,7 +74,7 @@ params_classical_MCTS = Dict(
         depth = 15,
         exploration_constant = 40.0,
         reuse_tree = true,
-        rng = RND(1),
+        rng = RNG(1),
     )),
 )
 
@@ -105,7 +105,7 @@ Check stability of the MCTS, does it return vastly different actions for differe
 # mcts = PMDPs.get_MCTS_planner(mg, params_mcts = params_mcts) # without deepcopy of params, the seed is NOT the same for different runs
 # # PMDPs.eval_policy(mg, [trace], @ntuple(mcts), MersenneTwister(1))
 # hrpl = PMDPs.HistoryReplayer(mg, trace)
-# mcts_trace2 = PMDPs.replay(hrpl, mcts, RND(1))
+# mcts_trace2 = PMDPs.replay(hrpl, mcts, RNG(1))
 
 
 metrics = []
@@ -117,7 +117,7 @@ metrics = []
             depth = 15,
             exploration_constant = c,
             reuse_tree = true,
-            rng = RND(1),
+            rng = RNG(1),
         )),
     )
 
@@ -139,10 +139,10 @@ metrics = []
     N_TRACES = 2000
     N_TRACE_REPETITIONS = 1
     for trace_seed in 1:N_TRACES
-        trace = PMDPs.simulate_trace(mg, RND(trace_seed)) # same trace
+        trace = PMDPs.simulate_trace(mg, RNG(trace_seed)) # same trace
 
         vi_hrpl = PMDPs.HistoryReplayer(me, trace)
-        vi_trace=PMDPs.replay(vi_hrpl, vi, RND(1))
+        vi_trace=PMDPs.replay(vi_hrpl, vi, RNG(1))
 
         if verbose
             run(`clear`)
@@ -158,7 +158,7 @@ metrics = []
         for i = 1:N_TRACE_REPETITIONS # multiple repetitions of MCTS on one trace
             mcts = PMDPs.get_MCTS_planner(mg; params_mcts = params_mcts)
             hrpl = PMDPs.HistoryReplayer(mg, trace)
-            mcts_trace = PMDPs.replay(hrpl, mcts, RND(1))
+            mcts_trace = PMDPs.replay(hrpl, mcts, RNG(1))
             actions_differ = [~isequal(a1, a2) for (a1, a2) in zip(mcts_trace[:a], vi_trace[:a])]
             if any(actions_differ)
                 if verbose
@@ -200,14 +200,14 @@ metrics = []
             end
             # mcts = PMDPs.get_MCTS_planner(mg, params_mcts = params_mcts)
             # hrpl = PMDPs.HistoryReplayer(mg, trace)
-            # mcts_trace2 = PMDPs.replay(hrpl, mcts, RND(1))
+            # mcts_trace2 = PMDPs.replay(hrpl, mcts, RNG(1))
         end
     end
 
-    # trace = PMDPs.simulate_trace(mg, RND(7)) # same trace
+    # trace = PMDPs.simulate_trace(mg, RNG(7)) # same trace
     # mcts = PMDPs.get_MCTS_planner(mg; params_mcts = params_mcts)
     # hrpl = PMDPs.HistoryReplayer(mg, trace)
-    # mcts_trace = PMDPs.replay(hrpl, mcts, RND(1))
+    # mcts_trace = PMDPs.replay(hrpl, mcts, RNG(1))
     # display(mcts_trace)
 
     # sum([e.s.iₚ != PMDPs.empty_product_id(mg) for e in mcts_trace])

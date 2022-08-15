@@ -50,8 +50,8 @@ display("Generating $name with $pp_params")
 pp = PMDPs.linear_pp(; pp_params...)
 mg = PMDPs.PMDPg(pp)
 
-rnd = Xorshift128Plus(1)
-traces = [PMDPs.simulate_trace(mg, rnd) for i = 1:N_individ]
+rng = Xorshift128Plus(1)
+traces = [PMDPs.simulate_trace(mg, rng) for i = 1:N_individ]
 
 sname = savename("traces_lp", pp_params, "bson")
 @tagsave(datadir("test_traces", sname), @dict(name, pp, pp_params, traces))

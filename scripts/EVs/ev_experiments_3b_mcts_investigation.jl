@@ -39,9 +39,9 @@ using ProgressMeter
 #     end
 # end
 
-RND = Xorshift1024Plus
-rnd=RND(426380)
-Base.show(io::IO, rnd::Xorshift1024Plus) = print(io, "Xorshift1024Plus")
+RNG = Xorshift1024Plus
+rng=RNG(426380)
+Base.show(io::IO, rng::Xorshift1024Plus) = print(io, "Xorshift1024Plus")
 
 include(srcdir("MDPPricing.jl"))
 
@@ -167,7 +167,7 @@ for expected_res in expected_res_range
     # mg = PMDPs.PMDPg(pp)
     # me = PMDPs.PMDPe(pp)
     
-    # tr = PMDPs.simulate_trace(PMDPs.PMDPg(pp),RND(1))
+    # tr = PMDPs.simulate_trace(PMDPs.PMDPg(pp),RNG(1))
     pp = PMDPs.single_day_cs_pp(start_times_d, charging_durations_d; pp_params...)
     push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=8888, save=true))
 
@@ -188,7 +188,7 @@ PREPARE SOLVERS AND RUN EXPERIMENTS
 #         enable_state_pw = false,
 #         keep_tree = true,
 #         show_progress = false,
-#         rng = RND(1),
+#         rng = RNG(1),
 #     )),
 # )
 
@@ -199,7 +199,7 @@ params_classical_MCTS = Dict(
         exploration_constant = 1.0,
         n_iterations = 1000,
         reuse_tree = true,
-        rng = RND(1),
+        rng = RNG(1),
     )),
 )
 
@@ -243,7 +243,7 @@ end
 #         N = N_traces,
 #         method_info = "vanilla_$(savename(params_classical_MCTS))",
 #         solver = solver,
-#         rnd=rnd,
+#         rng=rng,
 #         p=p,
 #     )
 # end
@@ -251,7 +251,7 @@ end
 
 for (i, data) in e_inputs
     println("flatrate...")
-    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces,  train_range=1:round(Int64, N_traces/100*25), rnd=rnd)
+    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces,  train_range=1:round(Int64, N_traces/100*25), rng=rng)
 end
 
 for (i, data) in e_inputs
@@ -260,7 +260,7 @@ for (i, data) in e_inputs
     https://stackoverflow.com/questions/64844626/julia-1-5-2-suppressing-gurobi-academic-license-in-parallel
     """
     println("hindsight...")
-    PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces, rnd=rnd)
+    PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces, rng=rng)
 end
 
 # """

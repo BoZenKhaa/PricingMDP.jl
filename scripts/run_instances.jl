@@ -9,7 +9,7 @@ using MCTS, DiscreteValueIteration
 using DataFrames
 
 using POMDPSimulators
-using StaticArrays, Distributions # load pp
+using Distributions # load pp
 
 N = 10
 

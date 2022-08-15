@@ -36,7 +36,7 @@ using DataFrames
 #     end
 # end
 
-RND = Xorshift1024Plus
+RNG = Xorshift1024Plus
 
 include(srcdir("MDPPricing.jl"))
 
@@ -121,7 +121,7 @@ for expected_res in [0.5 * nᵣ, 1 * nᵣ, 1.5 * nᵣ, 2 * nᵣ, 2.5 * nᵣ, 3 *
     # mg = PMDPs.PMDPg(pp)
     # me = PMDPs.PMDPe(pp)
 
-    # tr = PMDPs.simulate_trace(PMDPs.PMDPg(pp),RND(1))
+    # tr = PMDPs.simulate_trace(PMDPs.PMDPg(pp),RNG(1))
     push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose = true, folder = OUT_FOLDER, seed = 1, save = true))
     # pp_params[:objective]=:utilization
     # push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
@@ -138,7 +138,7 @@ params_dpw = Dict(
         enable_state_pw = false,
         keep_tree = true,
         show_progress = false,
-        rng = RND(1),
+        rng = RNG(1),
     )),
 )
 
@@ -147,7 +147,7 @@ params_classical_MCTS = Dict(
         depth = 15,
         exploration_constant = 40.0,
         reuse_tree = true,
-        rng = RND(1),
+        rng = RNG(1),
     )),
 )
 
