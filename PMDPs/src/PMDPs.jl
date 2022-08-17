@@ -1,4 +1,4 @@
-# module PMDPs
+module PMDPs
 
 using POMDPs
 using POMDPModelTools
@@ -62,4 +62,4 @@ include("simulations/simrunning.jl")
 include("problem_instances/linear_problem.jl")
 include("problem_instances/graph_problem.jl")
 
-# end
+end

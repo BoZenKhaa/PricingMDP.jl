@@ -1,10 +1,9 @@
 module MDPPricing
 using RandomNumbers
 using DataFrames
+using PMDPs
 
-module PMDPs
-    include("PMDPs/PMDPs.jl")
-end
+# include("PMDPs/PMDPs.jl")
 
 include("reporting.jl")
 include("problems.jl")
