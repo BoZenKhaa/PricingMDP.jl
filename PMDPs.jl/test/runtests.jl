@@ -1,4 +1,4 @@
-using MDPPricing
+using PMDPs
 using POMDPs
 using Test
 
