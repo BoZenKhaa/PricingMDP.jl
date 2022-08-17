@@ -730,7 +730,7 @@ version = "0.11.16"
 
 [[deps.PMDPs]]
 deps = ["Combinatorics", "D3Trees", "DataFrames", "DiscreteValueIteration", "Distributions", "DrWatson", "FiniteHorizonPOMDPs", "GLPK", "Gurobi", "JuMP", "LightGraphs", "MCTS", "POMDPLinter", "POMDPModelTools", "POMDPModels", "POMDPPolicies", "POMDPSimulators", "POMDPTesting", "POMDPs", "ProgressMeter", "Random", "RandomNumbers", "StaticArrays", "Suppressor"]
-path = "PMDPs"
+path = "PMDPs.jl"
 uuid = "42a80151-c9a6-43f7-baa9-1008fd906766"
 version = "0.1.0"
 
