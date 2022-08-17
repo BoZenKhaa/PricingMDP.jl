@@ -146,7 +146,7 @@ version = "4.1.1"
 
 [[deps.D3Trees]]
 deps = ["AbstractTrees", "HTTP", "JSON", "Random", "Sockets"]
-git-tree-sha1 = "cace6d05f71aeefe7ffd6f955a0725271f2b6cd5"
+path = "dev/D3Trees"
 uuid = "e3df1716-f71e-5df9-9e2d-98e193103c45"
 version = "0.3.3"
 
