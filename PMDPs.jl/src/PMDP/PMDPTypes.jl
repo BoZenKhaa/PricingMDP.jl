@@ -6,12 +6,15 @@ const Timestep = Int64
 
 """
 State for the PMDP
+
+States should be used as immutable records
 """
-struct State
+@auto_hash_equals struct State # auto_hash_equals for use of States as keys in Dict in MCTS
     c::Vector{Int64}   # Capacity vector
     t::Timestep               # Timestep
     iₚ::Int64        # Requested product index
 end
+
 
 abstract type PMDP{State,Action} <: MDP{State,Action} end
 

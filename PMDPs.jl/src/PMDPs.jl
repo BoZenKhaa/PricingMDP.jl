@@ -15,6 +15,7 @@ using ProgressMeter
 using RandomNumbers.Xorshifts
 using LightGraphs
 import Gurobi
+using AutoHashEquals
 
 using FiniteHorizonPOMDPs
 
@@ -25,7 +26,7 @@ include("CountingProcesses/CountingProcesses.jl")
 
 using .CountingProcesses
 #Model definition
-# export PMDP, PMDPg, State, Action
+export PMDP, PMDPg, State, Action, actions
 include("PMDP/PMDPTypes.jl")
 include("PMDP/product.jl")
 include("PMDP/PMDPProblem.jl")

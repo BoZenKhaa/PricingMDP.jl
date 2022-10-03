@@ -58,7 +58,7 @@ function sale_prob(budget_distributions::AbstractArray{<:Distribution}, s::State
 end
 
 function next_states(m::PMDP, s::State, new_c::AbstractArray{<:Number})::Array{State}
-    if s.t < selling_period_end(m) # States with t=T are terminal.
+    if !POMDPs.isterminal(m, s)
         sps = [State(new_c, s.t + 1, iₚ) for iₚ = 1:n_products(m)+1] # +1 for empty_product
     else
         sps = []

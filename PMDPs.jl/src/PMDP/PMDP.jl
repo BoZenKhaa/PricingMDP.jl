@@ -107,8 +107,9 @@ If not, return only the "impossible" action which is the first elemnt of the act
 """
 function POMDPs.actions(m::PMDP, s::State)::AbstractArray{Action}
     actions = POMDPs.actions(m)
+    # return sale_impossible(m, s) ? (actions[1],) : actions
     if sale_impossible(m, s)
-        return [actions[1]]
+        return [actions[1]] # TODO - no need for creating new array
     else
         return actions
     end
