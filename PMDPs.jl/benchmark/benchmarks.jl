@@ -1,14 +1,14 @@
 using PMDPs
-using PMDPs.LP
+# using PMDPs.LP
 using POMDPs
 
 using StaticArrays
-using Distributions
-using DiscreteValueIteration
-using Printf
-using Random
+# using Distributions
+# using DiscreteValueIteration
+# using Printf
+# using Random
 
-using D3Trees
+# using D3Trees
 # using AbstractTrees
 # using Colors
 
@@ -17,24 +17,24 @@ using RandomNumbers.Xorshifts
 
 using BenchmarkTools
 using Distributions
-using DrWatson
+# using DrWatson
 
 using MCTS
-using POMDPSimulators
-using POMDPPolicies
-using DiscreteValueIteration
+# using POMDPSimulators
+# using POMDPPolicies
+# using DiscreteValueIteration
 
 # using Formatting
 
-import Base.show
+# import Base.show
 
-using Plots
-using Distributions
-using ProgressMeter
+# using Plots
+# using Distributions
+# using ProgressMeter
 
-using DataFrames
+# using DataFrames
 
-using Profile, FlameGraphs #, ProfileView
+# using Profile, FlameGraphs #, ProfileView
 
 # PROBLEM
 
@@ -76,7 +76,7 @@ a = POMDPs.action(planner, s₀)
 
 GC.enable_logging(false)
 
-@benchmark POMDPs.action($planner, $s₀)
+# @benchmark POMDPs.action($planner, $s₀)
 
 
 function benchmark_action_setup(mg)
@@ -96,16 +96,26 @@ function benchmark_action_setup(mg)
     return planner
 end
 
-t = @benchmark POMDPs.action(inputs, $s₀) setup=(inputs = benchmark_action_setup($mg)) gcsample=false gctrial=true
-maximum(t)
-dump(t)
+SUITE = BenchmarkGroup()
 
-# PROFILING
-Profile.clear()
-@profile POMDPs.action(planner, s₀)
+SUITE["large_cs_mcts"] = BenchmarkGroup(["CS", "MCTS"])
 
-g = flamegraph()
-# @profile plot(rand(5))
-g = flamegraph(C=true)
+SUITE["large_cs_mcts"]["action"] = @benchmarkable POMDPs.action(inputs, $s₀) setup=(inputs = benchmark_action_setup($mg)) gcsample=false gctrial=true
 
-@profview POMDPs.action(planner, s₀)
+# tune!(SUITE)
+
+# results = run(SUITE, verbose = true, seconds = 5)
+
+# t = @benchmark POMDPs.action(inputs, $s₀) setup=(inputs = benchmark_action_setup($mg)) gcsample=false gctrial=true
+# maximum(t)
+# dump(t)
+
+# # PROFILING
+# Profile.clear()
+# @profile POMDPs.action(planner, s₀)
+
+# g = flamegraph()
+# # @profile plot(rand(5))
+# g = flamegraph(C=true)
+
+# @profview POMDPs.action(planner, s₀)
