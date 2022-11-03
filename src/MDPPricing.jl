@@ -2,6 +2,8 @@ module MDPPricing
 using RandomNumbers
 using DataFrames
 using PMDPs
+using JLD2
+using DrWatson
 
 # include("PMDPs/PMDPs.jl")
 

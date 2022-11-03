@@ -4,6 +4,7 @@ using MCTS
 
 # for package in [PMDPs]  
     package=MCTS
+    package=PMDPs
     folder = mkpath("benchmark/results/$(package)")
     result = benchmarkpkg(package)   
     if  result.commit != "dirty"

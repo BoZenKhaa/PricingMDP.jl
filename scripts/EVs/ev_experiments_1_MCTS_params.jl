@@ -1,13 +1,13 @@
 using PMDPs
 using PMDPs.LP
 using DrWatson
-using RandomNumbers.Xorshifts
+using Random
 using MCTS
 using POMDPSimulators
 using POMDPPolicies
 using DiscreteValueIteration
 
-using Formatting
+# using Formatting
 
 import Base.show
 
@@ -18,6 +18,7 @@ using ProgressMeter
 
 using POMDPs
 using DataFrames
+using CSV
 
 # function Base.show(io::IO, ::MIME"text/plain", trace::SimHistory)
 #     for step in trace
@@ -36,7 +37,7 @@ using DataFrames
 #     end
 # end
 
-RNG = Xorshift1024Plus
+RNG = Xoshiro
 
 include(srcdir("MDPPricing.jl"))
 
@@ -53,8 +54,8 @@ T is the number of timesteps.
 # Linear problem
 A placeholder before I fugure out the experiments
 """
- # pp = PMDPs.linear_pp(2; c = 2, T = 8)
- 
+# pp = PMDPs.linear_pp(2; c = 2, T = 8)
+
 """
 PREPARE PROBLEM AND TRACES
 """
@@ -71,21 +72,21 @@ T_nᵣ_multiplier = ones(length(res_range))
 for (i, nᵣ) in enumerate(res_range)
     while true
         pp_params = Dict(pairs((
-                nᵣ = nᵣ,
-                c = 3,
-                T = Int64(nᵣ*T_nᵣ_multiplier[i]),
-                expected_res = 2*nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
-                res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
-                objective = :revenue,
-            )))
+            nᵣ=nᵣ,
+            c=3,
+            T=Int64(nᵣ * T_nᵣ_multiplier[i]),
+            expected_res=2 * nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+            res_budget_μ=24.0 / nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
+            objective=PMDPs.REVENUE,
+        )))
         println("$(i): nᵣ = $(nᵣ)")
         try
-            pp = PMDPs.single_day_cs_pp(;pp_params...)
+            pp = PMDPs.single_day_cs_pp(; pp_params...)
         catch e
             if isa(e, AssertionError)
                 # println("Error: ", e)
                 println("$(i): low multipler $(T_nᵣ_multiplier[i]) for nᵣ $(nᵣ)")
-                T_nᵣ_multiplier[i]+=1
+                T_nᵣ_multiplier[i] += 1
                 continue
             else
                 throw(e)
@@ -97,30 +98,30 @@ end
 println("The multipliers for getting T are $(T_nᵣ_multiplier)")
 
 
-T_range =  res_range.*7
+T_range = res_range .* 7
 pp_var_params = collect(zip(T_range, res_range))
 Threads.@threads for (T, nᵣ) in pp_var_params
     pp_params = Dict(pairs((
-            nᵣ = nᵣ,
-            c = 3,
-            T = T,
-            expected_res = 2*nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
-            res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
-            objective = :revenue,
-        )))
+        nᵣ=nᵣ,
+        c=3,
+        T=T,
+        expected_res=2 * nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+        res_budget_μ=24.0 / nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
+        objective=PMDPs.REVENUE,
+    )))
     println("nᵣ = ", nᵣ)
-    pp = PMDPs.single_day_cs_pp(;pp_params...)
+    pp = PMDPs.single_day_cs_pp(; pp_params...)
     PMDPs.statespace_size(pp)
 
     vi = true
     name = PP_NAME
-    n_traces =1000
+    n_traces = 1000
 
     # mg = PMDPs.PMDPg(pp)
     # me = PMDPs.PMDPe(pp)
     # tr = PMDPs.simulate_trace(PMDPs.PMDPg(pp),RNG(1))
 
-    push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
+    push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder=OUT_FOLDER, seed=1))
     # upp_params = deepcopy(pp_params)
     # upp_params[:objective]=:utilization
     # push!(inputs, PMDPs.prepare_traces(pp, upp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
@@ -132,22 +133,22 @@ PREPARE SOLVERS AND RUN EXPERIMENTS
 
 params_dpw = Dict(
     pairs((
-        depth = 50,
-        exploration_constant = 40.0,
-        enable_state_pw = false,
-        keep_tree = true,
-        show_progress = false,
-        rng = RNG(1),
+        depth=50,
+        exploration_constant=40.0,
+        enable_state_pw=false,
+        keep_tree=true,
+        show_progress=false,
+        rng=RNG(1),
     )),
 )
 
 params_classical_MCTS = Dict(
     pairs((
-        depth = 3,
-        exploration_constant = 1.,
-        n_iterations = 100,
-        reuse_tree = true,
-        rng = RNG(1),
+        depth=3,
+        exploration_constant=1.0,
+        n_iterations=100,
+        reuse_tree=true,
+        rng=RNG(1),
     )),
 )
 # mcts_params_note = "_unlimited_rollout"
@@ -158,7 +159,7 @@ params_classical_MCTS = Dict(
 
 MCTSSolver(; params_classical_MCTS...)
 
-N_traces=100
+N_traces = 100
 e_inputs = collect(enumerate(inputs[1:end]))
 
 # for (i, data) in e_inputs
@@ -166,44 +167,57 @@ e_inputs = collect(enumerate(inputs[1:end]))
 #     PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
 # end
 
-# for (i, data) in e_inputs
-#     if PMDPs.n_resources(data[:pp])<=6
-#         println("vi...")
-#         data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces)
-#     end
-# end
+for (i, data) in e_inputs
+    if PMDPs.n_resources(data[:pp])<=6
+        println("vi...")
+        data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces)
+    end
+end
 
-# # Threads.@threads 
-# for (i, orig_data) in e_inputs
-#     data = deepcopy(orig_data)
-#     # println("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
-#     println("flatrate...")
-#     PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
-# end
+Threads.@threads 
+for (i, orig_data) in e_inputs
+    data = deepcopy(orig_data)
+    # println("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
+    println("flatrate...")
+    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
+end
 
 
 
 for (i, orig_data) in e_inputs
 
-    depths = [1,2,3,7,10,12, 20]
-    ecs = [1., 3., 5., 10.]
-    n_iter = [50,200,300,400,600, 800, 1000]
+    # phase 1
+    # depths = [1,2,3,7,10,12,20]
+    # ecs = [1., 3., 5., 10.]
+    # n_iter = [50,200,300,400,600, 800, 1000]
+
+    # phase 2
+    # depths = [1, 2, 3, 4, 5, 6, 7, 10]
+    # ecs = [7., 9., 15.]
+    # n_iter = [400, 600, 800, 1000, 1500]
+
+    # phase 3
+    depths = [1, 2, 3, 4, 5, 6, 7, 10]
+    ecs = [7., 9., 15., 25., 30., 50.]
+    n_iter = [400, 600, 800, 1000, 1500, 2000]
+
+
     params = collect(Base.product(depths, ecs, n_iter))
 
     Threads.@threads for (depth, ec, n_iter) in params
-        
+
         params_classical_MCTS = Dict(
             pairs((
-                depth = depth,
-                exploration_constant = ec,
-                n_iterations = n_iter,
-                reuse_tree = true,
-                rng = RNG(1),
+                depth=depth,
+                exploration_constant=ec,
+                n_iterations=n_iter,
+                reuse_tree=true,
+                rng=RNG(1),
             )),
         )
 
         data = deepcopy(orig_data)
-        
+
         # println("dpw...")
         # PMDPs.process_data(
         #     data,
@@ -220,12 +234,12 @@ for (i, orig_data) in e_inputs
         PMDPs.process_data(
             data,
             PMDPs.mcts;
-            folder = OUT_FOLDER,
-            N = N_traces,
+            folder=OUT_FOLDER,
+            N=N_traces,
             # method_info = "vanilla_$(hash(params_classical_MCTS))",
-            method_info = "vanilla_$(savename(params_classical_MCTS))",
+            method_info="vanilla_$(savename(params_classical_MCTS))",
             solver_params=params_classical_MCTS,
-            solver = MCTSSolver(;params_classical_MCTS...),
+            solver=MCTSSolver(; params_classical_MCTS...)
         )
     end
 end
@@ -233,22 +247,43 @@ end
 """
 ANALYZE AND PLOT RESULTS
 """
-# results, raw = folder_report(datadir("results", "ev_results", PP_NAME); raw_result_array = true)
 
-# df = results
+results, raw = MDPPricing.folder_report(datadir(OUT_FOLDER, "results", PP_NAME); raw_result_array=true)
 
-# # agg_res = format_result_table(results.results, N=N_traces)
+df = results
+
+agg_res = MDPPricing.format_result_table(df, N=N_traces)
 # grps = groupby(df, [:method, :objective])
 # grp = grps[1]
 
-# plot()
-# for grp in grps
-#     label = grp.method[1][1:min(10, length(grp.method[1]))]
-#     plot!(grp.expected_res, grp.mean_r; label=grp.method[1][1:3] )
-# end
-# plot!()
+using Plots
 
-# print(sort(unique([String(v.name) for v in methodswith(DataFrame)])))
-# DataFrames
+begin
+    plot(legend=:outertopleft)
+    for method in ["flatrate", "vi", "hindsight"]
+        res = filter(:method => m -> startswith(m, method), agg_res)
+        hline!(res.mean_r, label=method, line=(:dash, 4))
+    end
 
-# methods()
+
+    res = filter(:method => m -> startswith(m, "mcts"), agg_res)
+    resp = hcat(res, DataFrame(res.solver_params))
+
+    var_cols = [:exploration_constant, :n_iterations, :depth]
+    gr_cols = [var_cols[1], var_cols[3]]
+    plot_col = var_cols[2]
+
+    sort!(resp, var_cols, rev=true)
+    for gr in groupby(resp, gr_cols)
+        plot!(gr[!, plot_col], gr.mean_r,
+            label="$(string(gr_cols[1])[1]):$(gr[1, gr_cols[1]])-$(string(gr_cols[2])[1]):$(gr[1, gr_cols[2]])",
+            xlabel=plot_col,
+            ylabel="mean_r")
+    end
+    plot!()
+end
+
+res = filter(:method => m -> startswith(m, "mcts"), agg_res)
+resp = hcat(res, DataFrame(res.solver_params))
+CSV.write("notebooks/PlotlyJS/mcts_params_results.csv", resp)
+# Continue in notebook (notebooks/PlotlyJS)

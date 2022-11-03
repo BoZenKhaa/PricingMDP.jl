@@ -6,7 +6,7 @@ function res2row(res)
     row_dfs = []
 
     # process pp_params into df with single row
-    row = DataFrame(res[:pp_params])
+    row = DataFrame([res[:pp_params],])
     push!(row_dfs, row)
 
     # process agg: move evry row from "description" into single dataframe of one row
@@ -78,12 +78,16 @@ function format_result_table(results::DataFrame; N = 10)
     df10 = filter(:N => n -> n == N, results)
     gps = groupby(df10, [:objective])
 
-    restable = outerjoin(
-        [select(gr, columns) for gr in gps]...;
-        on = [:method, :pp_params_str],
-        makeunique = true,
-        renamecols = "_obj_r" => "_obj_u",
-    )
+    if length(gps)>1
+        restable = outerjoin(
+            [select(gr, columns) for gr in gps]...;
+            on = [:method, :pp_params_str],
+            makeunique = true,
+            renamecols = "_obj_r" => "_obj_u",
+        )
+    else
+        restable = df10
+    end
 
     # restable = restable[:, [1,2,8,9,10,11,12,18,19,20,21,22]]
     sort!(restable, [:pp_params_str, order(:method, rev = true)])
