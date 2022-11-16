@@ -38,17 +38,20 @@ function res2row(res)
     end
 
     # add n_traces
-    insertcols!(df, 2, :N => res[:N])
+    insertcols!(df, 3, :N => res[:N])
 
     # add pp_params_string (without :objective)
-    insertcols!(df, 2, :pp_params_str => string(delete!(Dict(res[:pp_params]), :objective)))
+    insertcols!(df, 4, :pp_params_str => string(delete!(Dict(res[:pp_params]), :objective)))
 
     # add solver_params
     if haskey(res, :solver_params)
-        insertcols!(df,2, :solver_params => res[:solver_params])
+        insertcols!(df,5, :solver_params => res[:solver_params])
     else
-        insertcols!(df,2, :solver_params => Dict())
+        insertcols!(df,5, :solver_params => Dict())
     end
+
+    # add pp
+    insertcols!(df, 6, :pp => res[:pp])
 
     df
 end
@@ -70,13 +73,19 @@ function folder_report(res_folder::String; raw_result_array = false)
     (; results = results, raw = raw)
 end
 
-function format_result_table(results::DataFrame; N = 10)
+function format_result_table(results::DataFrame; N = nothing)
 
     columns =
         [:method, :pp_params_str, :objective, :mean_r, :mean_u, :mean_bytes, :mean_time]
 
-    df10 = filter(:N => n -> n == N, results)
-    gps = groupby(df10, [:objective])
+    if isnothing(N)
+        N = maximum(results[!,:N])
+        if length(unique(results[!,:N]))>1
+            @warn "Automatically set to N=$(N), other options are $(unique(results[!,:N]))"
+        end
+    end
+    df_filtered = filter(:N => n -> n == N, results)
+    gps = groupby(df_filtered, [:objective])
 
     if length(gps)>1
         restable = outerjoin(
@@ -86,7 +95,7 @@ function format_result_table(results::DataFrame; N = 10)
             renamecols = "_obj_r" => "_obj_u",
         )
     else
-        restable = df10
+        restable = df_filtered
     end
 
     # restable = restable[:, [1,2,8,9,10,11,12,18,19,20,21,22]]

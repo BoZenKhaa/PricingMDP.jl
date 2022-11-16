@@ -61,13 +61,12 @@ PREPARE PROBLEM AND TRACES
 """
 
 OUT_FOLDER = "ev_experiments"
+PP_NAME = "single_day_pp_testing_MCTS"
 
 inputs = []
-PP_NAME = "single_day_pp_testing_MCTS"
 # res_range = range(6, 6)
 res_range = [6,]
 # T_range =  [[3*18, 4*10]; [5,6,7,8,9,10,12, 14, 16, 18, 20, 24].*8]
-
 T_nᵣ_multiplier = ones(length(res_range))
 for (i, nᵣ) in enumerate(res_range)
     while true
@@ -130,6 +129,7 @@ end
 """
 PREPARE SOLVERS AND RUN EXPERIMENTS
 """
+SAVE_SIM_HISTORY = true
 
 params_dpw = Dict(
     pairs((
@@ -162,24 +162,24 @@ MCTSSolver(; params_classical_MCTS...)
 N_traces = 100
 e_inputs = collect(enumerate(inputs[1:end]))
 
-# for (i, data) in e_inputs
-#     println("hindsight...")
-#     PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces)
-# end
+for (i, data) in e_inputs
+    println("hindsight...")
+    PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces, save_simhistory=SAVE_SIM_HISTORY)
+end
 
 for (i, data) in e_inputs
     if PMDPs.n_resources(data[:pp])<=6
         println("vi...")
-        data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces)
+        data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces, save_simhistory=SAVE_SIM_HISTORY)
     end
 end
 
-Threads.@threads 
+# Threads.@threads 
 for (i, orig_data) in e_inputs
     data = deepcopy(orig_data)
     # println("\t Data - Evaluating $(data[:name]) with $(data[:pp_params]): ")
     println("flatrate...")
-    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces)
+    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces, save_simhistory=SAVE_SIM_HISTORY)
 end
 
 
@@ -197,9 +197,9 @@ for (i, orig_data) in e_inputs
     # n_iter = [400, 600, 800, 1000, 1500]
 
     # phase 3
-    depths = [1, 2, 3, 4, 5, 6, 7, 10]
-    ecs = [7., 9., 15., 25., 30., 50.]
-    n_iter = [400, 600, 800, 1000, 1500, 2000]
+    depths = [4,]
+    ecs = [25., ]
+    n_iter = [1500,]
 
 
     params = collect(Base.product(depths, ecs, n_iter))
@@ -239,7 +239,7 @@ for (i, orig_data) in e_inputs
             # method_info = "vanilla_$(hash(params_classical_MCTS))",
             method_info="vanilla_$(savename(params_classical_MCTS))",
             solver_params=params_classical_MCTS,
-            solver=MCTSSolver(; params_classical_MCTS...)
+            solver=MCTSSolver(; params_classical_MCTS...), save_simhistory=SAVE_SIM_HISTORY
         )
     end
 end
