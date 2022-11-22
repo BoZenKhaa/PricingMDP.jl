@@ -7,19 +7,14 @@ using POMDPSimulators
 using POMDPPolicies
 using DiscreteValueIteration
 
-# using Formatting
-
 using Plots
 using Distributions
-using ProgressMeter
 
 
 using POMDPs
 using DataFrames
 using CSV
 using StaticArrays
-
-using Formatting
 
 
 RNG = Xoshiro

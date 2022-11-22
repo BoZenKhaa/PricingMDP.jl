@@ -1,13 +1,12 @@
-
 using DrWatson
 using DataFrames
-# using PMDPs
 include(srcdir("MDPPricing.jl"))
 using .MDPPricing
 
 """
 SELECT EXPERIMENT
 """
+
 # OUT_FOLDER = "tiny_experiments"
 # PP_NAME = "tiny_problem_14692157986148999600"
 
@@ -20,12 +19,10 @@ ANALYZE AND PLOT RESULTS
 
 results, raw = MDPPricing.folder_report(datadir(OUT_FOLDER, "results", PP_NAME); raw_result_array=true)
 
-
-
 df = results
 
 agg_res = MDPPricing.format_result_table(df)
-agg_res[!, [1,collect(10:34)...]]
+agg_res[!, [1, collect(10:34)...]]
 
 pp = raw[1][:pp]
 fr = raw[1][:results][!, :]

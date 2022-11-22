@@ -7,8 +7,6 @@ using POMDPSimulators
 using POMDPPolicies
 using DiscreteValueIteration
 
-# using Formatting
-
 import Base.show
 
 using Plots
@@ -20,27 +18,9 @@ using POMDPs
 using DataFrames
 using CSV
 
-# function Base.show(io::IO, ::MIME"text/plain", trace::SimHistory)
-#     for step in trace
-#         print(io, step.s)
-#         action = step.a
-#         budget = step.info.b
-#         printfmt(io, " b:{: 6.2f}", budget)
-#         printfmt(io, " a:{: 6.2f}", action)
-
-#         outcome, color = PMDPs.user_buy(action, budget) ? ("buy", :green) : ("not", :red)
-#         print(" -> ")
-#         printstyled(io, "$(outcome)"; color=color)
-#         print("\t")
-#         print(io, step.s)
-#         print(io, "\n")
-#     end
-# end
-
 RNG = Xoshiro
 
 include(srcdir("MDPPricing.jl"))
-
 
 """
 # EV problem
@@ -248,42 +228,42 @@ end
 ANALYZE AND PLOT RESULTS
 """
 
-results, raw = MDPPricing.folder_report(datadir(OUT_FOLDER, "results", PP_NAME); raw_result_array=true)
+# results, raw = MDPPricing.folder_report(datadir(OUT_FOLDER, "results", PP_NAME); raw_result_array=true)
 
-df = results
+# df = results
 
-agg_res = MDPPricing.format_result_table(df, N=N_traces)
-# grps = groupby(df, [:method, :objective])
-# grp = grps[1]
+# agg_res = MDPPricing.format_result_table(df, N=N_traces)
+# # grps = groupby(df, [:method, :objective])
+# # grp = grps[1]
 
-using Plots
+# using Plots
 
-begin
-    plot(legend=:outertopleft)
-    for method in ["flatrate", "vi", "hindsight"]
-        res = filter(:method => m -> startswith(m, method), agg_res)
-        hline!(res.mean_r, label=method, line=(:dash, 4))
-    end
+# begin
+#     plot(legend=:outertopleft)
+#     for method in ["flatrate", "vi", "hindsight"]
+#         res = filter(:method => m -> startswith(m, method), agg_res)
+#         hline!(res.mean_r, label=method, line=(:dash, 4))
+#     end
 
 
-    res = filter(:method => m -> startswith(m, "mcts"), agg_res)
-    resp = hcat(res, DataFrame(res.solver_params))
+#     res = filter(:method => m -> startswith(m, "mcts"), agg_res)
+#     resp = hcat(res, DataFrame(res.solver_params))
 
-    var_cols = [:exploration_constant, :n_iterations, :depth]
-    gr_cols = [var_cols[1], var_cols[3]]
-    plot_col = var_cols[2]
+#     var_cols = [:exploration_constant, :n_iterations, :depth]
+#     gr_cols = [var_cols[1], var_cols[3]]
+#     plot_col = var_cols[2]
 
-    sort!(resp, var_cols, rev=true)
-    for gr in groupby(resp, gr_cols)
-        plot!(gr[!, plot_col], gr.mean_r,
-            label="$(string(gr_cols[1])[1]):$(gr[1, gr_cols[1]])-$(string(gr_cols[2])[1]):$(gr[1, gr_cols[2]])",
-            xlabel=plot_col,
-            ylabel="mean_r")
-    end
-    plot!()
-end
+#     sort!(resp, var_cols, rev=true)
+#     for gr in groupby(resp, gr_cols)
+#         plot!(gr[!, plot_col], gr.mean_r,
+#             label="$(string(gr_cols[1])[1]):$(gr[1, gr_cols[1]])-$(string(gr_cols[2])[1]):$(gr[1, gr_cols[2]])",
+#             xlabel=plot_col,
+#             ylabel="mean_r")
+#     end
+#     plot!()
+# end
 
-res = filter(:method => m -> startswith(m, "mcts"), agg_res)
-resp = hcat(res, DataFrame(res.solver_params))
-CSV.write("notebooks/PlotlyJS/mcts_params_results.csv", resp)
-# Continue in notebook (notebooks/PlotlyJS)
+# res = filter(:method => m -> startswith(m, "mcts"), agg_res)
+# resp = hcat(res, DataFrame(res.solver_params))
+# CSV.write("notebooks/PlotlyJS/mcts_params_results.csv", resp)
+# # Continue in notebook (notebooks/PlotlyJS)
