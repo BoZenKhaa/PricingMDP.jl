@@ -1,7 +1,7 @@
 using PMDPs
 using PMDPs.LP
 using DrWatson
-using RandomNumbers.Xorshifts
+using Random
 using MCTS
 using POMDPSimulators
 using POMDPPolicies
@@ -18,30 +18,14 @@ using ProgressMeter
 
 using POMDPs
 using DataFrames
-
 using ProgressMeter
 
-# function Base.show(io::IO, ::MIME"text/plain", trace::SimHistory)
-#     for step in trace
-#         print(io, step.s)
-#         action = step.a
-#         budget = step.info.b
-#         printfmt(io, " b:{: 6.2f}", budget)
-#         printfmt(io, " a:{: 6.2f}", action)
 
-#         outcome, color = PMDPs.user_buy(action, budget) ? ("buy", :green) : ("not", :red)
-#         print(" -> ")
-#         printstyled(io, "$(outcome)"; color=color)
-#         print("\t")
-#         print(io, step.s)
-#         print(io, "\n")
-#     end
-# end
+RNG = Xoshiro
 
-RNG = Xorshift1024Plus
-Base.show(io::IO, rng::Xorshift1024Plus) = print(io, "Xorshift1024Plus")
 
 include(srcdir("MDPPricing.jl"))
+using .MDPPricing
 
 
 """
@@ -56,7 +40,6 @@ T is the number of timesteps.
 # Linear problem
 A placeholder before I fugure out the experiments
 """
- # pp = PMDPs.linear_pp(2; c = 2, T = 8)
  
 """
 PREPARE PROBLEM AND TRACES
@@ -66,7 +49,7 @@ OUT_FOLDER = "ev_experiments"
 
 inputs = []
 PP_NAME = "single_day_const_demand_cs_pp"
-OBJECTIVE = :revenue
+OBJECTIVE = PMDPs.REVENUE
 
 println("!!!!Check me: ", PP_NAME)
 
@@ -90,8 +73,6 @@ for (i, nᵣ) in enumerate(res_range)
             pp = PMDPs.single_day_cs_pp(;pp_params...)
         catch e
             if isa(e, AssertionError)
-                # println("Error: ", e)
-                # println("$(i): low multipler $(T_nᵣ_multiplier[i]) for nᵣ $(nᵣ)")
                 T_nᵣ_multiplier[i]+=1
                 continue
             else
@@ -101,10 +82,10 @@ for (i, nᵣ) in enumerate(res_range)
         break
     end
 end
-println("The multipliers for getting T are $(T_nᵣ_multiplier)")
+println("The multipliers for getting T are $(T_nᵣ_multiplier), setting multiplier as $(maximum(T_nᵣ_multiplier))")
 
 
-T_range =  [3,4,5,6,7,8,9,10,12, 14, 16, 18, 20, 22, 24].*7
+T_range =  res_range.*Int(maximum(T_nᵣ_multiplier))
 pp_var_params = collect(zip(T_range, res_range))
 Threads.@threads for (T, nᵣ) in pp_var_params
     pp_params = Dict(pairs((
@@ -116,8 +97,6 @@ Threads.@threads for (T, nᵣ) in pp_var_params
             objective = OBJECTIVE,
         )))
     println("nᵣ = ", nᵣ)
-
-    # PMDPs.statespace_size(pp)
 
     vi = true
     name = PP_NAME
@@ -131,7 +110,7 @@ Threads.@threads for (T, nᵣ) in pp_var_params
     push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
     
     upp_params = deepcopy(pp_params)
-    upp_params[:objective]=:utilization
+    upp_params[:objective]=PMDPs.UTILIZATION
     upp = PMDPs.single_day_cs_pp(;upp_params...)
     push!(inputs, PMDPs.prepare_traces(upp, upp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
 end
@@ -151,11 +130,21 @@ PREPARE SOLVERS AND RUN EXPERIMENTS
 #     )),
 # )
 
+# params_classical_MCTS = Dict(
+#     pairs((
+#         depth = 2,
+#         exploration_constant = 5.0,
+#         n_iterations = 800,
+#         reuse_tree = true,
+#         rng = RNG(1),
+#     )),
+# )
+
 params_classical_MCTS = Dict(
     pairs((
-        depth = 2,
-        exploration_constant = 5.0,
-        n_iterations = 800,
+        depth = 4,
+        exploration_constant = 25.0,
+        n_iterations = 1500,
         reuse_tree = true,
         rng = RNG(1),
     )),
@@ -210,7 +199,7 @@ Threads.@threads for (i, orig_data) in reordered_inputs
         solver_params=params_classical_MCTS,
         method_info = "vanilla_$(savename(params_classical_MCTS))",
         solver = MCTSSolver(;params_classical_MCTS...),
-        rng=rng,
+        rng=RNG(1),
         p=p
         )
 end
@@ -218,19 +207,19 @@ end
 
 for (i, data) in e_inputs
     println("hindsight...")
-    PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces, rng=rng)
+    PMDPs.process_data(data, PMDPs.hindsight; folder = OUT_FOLDER, N = N_traces, rng=RNG(1))
 end
 
 for (i, data) in e_inputs
     if PMDPs.n_resources(data[:pp])<=6
         println("vi...")
-        data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces, rng=rng)
+        data[:vi] && PMDPs.process_data(data, PMDPs.vi; folder = OUT_FOLDER, N = N_traces, rng=RNG(1))
     end
 end
 
 for (i, data) in e_inputs
     println("flatrate...")
-    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces, train_range=1:round(Int64, N_traces/100*25), rng=rng)
+    PMDPs.process_data(data, PMDPs.flatrate; folder = OUT_FOLDER, N = N_traces, train_range=1:round(Int64, N_traces/100*25), rng=RNG(1))
 end
 """
 ANALYZE AND PLOT RESULTS

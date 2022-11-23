@@ -39,17 +39,6 @@ MDPPricing.SimHistoryViewer(pp, fr[f⬆, :][i,:h])
 MDPPricing.SimHistoryViewer(pp, vr[f⬆, :][i,:h])
 
 
-vr[f⬆, :][1,:h]
-
-
-mg = PMDPg(pp)
-train_range::UnitRange{Int64}=1:5
-rng=RNG(1)
-PMDPs.get_flatrate_policy(mg, [PMDPs.generate_request_trace(mg, rng) for i = train_range])
-
-traces = inputs[1][:traces]
-traces[99]
-
 # using Plots
 
 # begin

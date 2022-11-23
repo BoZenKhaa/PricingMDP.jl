@@ -21,6 +21,7 @@ using CSV
 RNG = Xoshiro
 
 include(srcdir("MDPPricing.jl"))
+using .MDPPricing
 
 """
 # EV problem
@@ -176,7 +177,7 @@ for (i, orig_data) in e_inputs
     # ecs = [7., 9., 15.]
     # n_iter = [400, 600, 800, 1000, 1500]
 
-    # phase 3
+    # phase 3 - good choice
     depths = [4,]
     ecs = [25., ]
     n_iter = [1500,]
