@@ -1,60 +1,25 @@
 using PMDPs
-using PMDPs.LP
+using Random
 using DrWatson
-using RandomNumbers.Xorshifts
+using ProgressMeter
 using MCTS
-using POMDPSimulators
-using POMDPPolicies
-using DiscreteValueIteration
-
-using Formatting
-
-import Base.show
-
-using Plots
-using Distributions
-using ProgressMeter
-
-
-using POMDPs
-using DataFrames
-
-
-using ProgressMeter
-
-# function Base.show(io::IO, ::MIME"text/plain", trace::SimHistory)
-#     for step in trace
-#         print(io, step.s)
-#         action = step.a
-#         budget = step.info.b
-#         printfmt(io, " b:{: 6.2f}", budget)
-#         printfmt(io, " a:{: 6.2f}", action)
-
-#         outcome, color = PMDPs.user_buy(action, budget) ? ("buy", :green) : ("not", :red)
-#         print(" -> ")
-#         printstyled(io, "$(outcome)"; color=color)
-#         print("\t")
-#         print(io, step.s)
-#         print(io, "\n")
-#     end
-# end
-
-RNG = Xorshift1024Plus
-rng=RNG(426380)
-Base.show(io::IO, rng::Xorshift1024Plus) = print(io, "Xorshift1024Plus")
 
 include(srcdir("MDPPricing.jl"))
+using .MDPPricing
 
+
+RNG = Xoshiro
+rng=RNG(426380)
 
 """
 LOAD DATA
 (see notebook for details)
 """
 
-using CSV
-using Statistics
-using StatsBase
-using StatsPlots
+# using CSV
+# using Statistics
+# using StatsBase
+# using StatsPlots
 
 
 # df = DataFrame(CSV.File(datadir("cs_data", "deggendorf_ackerloh_charging.csv")))
@@ -96,6 +61,7 @@ using StatsPlots
 #     plot!(charging_durations_ed)
 # # end
 
+
 """
 FIGURE OUT NUMBER OF TIMESTEPS FOR PROBLEMS
 """
@@ -103,9 +69,10 @@ FIGURE OUT NUMBER OF TIMESTEPS FOR PROBLEMS
 nᵣ = 48
 #nᵣ = 72
 # nᵣ = 96
+OBJECTIVE = PMDPs.REVENUE
 
 expected_res_range = [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ, 3.5*nᵣ]
-expected_res_range./(3*nᵣ)
+expected_res_range./(3*nᵣ) # why?
 
 T_multipliers = ones(length(expected_res_range))
 for (i, expected_res) in enumerate(expected_res_range)
@@ -117,7 +84,7 @@ for (i, expected_res) in enumerate(expected_res_range)
                 T = Int64(expected_res*T_multipliers[i]),
                 expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
                 res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
-                objective = :utilization,
+                objective = OBJECTIVE,
             )))
         # println("$(i): nᵣ = $(nᵣ)")
         try
@@ -135,17 +102,18 @@ for (i, expected_res) in enumerate(expected_res_range)
         break
     end
 end
-println("The multipliers for getting T are $(T_multipliers) -> $(maximum(T_multipliers))")
-T_multiplier = maximum(T_multipliers)
+T_multiplier = Int(maximum(T_multipliers))
+println("The multipliers for getting T are $(T_multipliers) -> $(T_multiplier)")
+
 
 """
 PREPARE PROBLEM AND TRACES
 """
 
 OUT_FOLDER = "ev_experiments"
+PP_NAME = "cs_var_demand_$(nᵣ)"
 
 inputs = []
-PP_NAME = "cs_var_demand_$(nᵣ)"
 
 # Threads.@threads 
 for expected_res in expected_res_range
@@ -154,9 +122,9 @@ for expected_res in expected_res_range
             nᵣ = nᵣ,
             c = 3,
             T = Int64(expected_res*T_multiplier),
-            expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
-            res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
-            objective = :revenue,
+            expected_res = expected_res,
+            res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget per whole hour remains constant (1).
+            objective = OBJECTIVE,
         )))
     # PMDPs.statespace_size(pp)
         
@@ -172,10 +140,12 @@ for expected_res in expected_res_range
     push!(inputs, PMDPs.prepare_traces(pp, pp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=8888, save=true))
 
     upp_params = deepcopy(pp_params)
-    upp_params[:objective]=:utilization
+    upp_params[:objective]=PMDPs.UTILIZATION
     upp = PMDPs.single_day_cs_pp(; upp_params...)
     push!(inputs, PMDPs.prepare_traces(upp, upp_params, vi, name, n_traces; verbose=true, folder = OUT_FOLDER, seed=1))
 end
+
+@info "'inputs' size is $(Base.summarysize(inputs)/1000/1000) MB"
 
 """
 PREPARE SOLVERS AND RUN EXPERIMENTS
@@ -192,14 +162,23 @@ PREPARE SOLVERS AND RUN EXPERIMENTS
 #     )),
 # )
 
+# params_classical_MCTS = Dict(
+#     pairs((
+#         depth = 3,
+#         exploration_constant = 1.0,
+#         n_iterations = 1000,
+#         reuse_tree = true,
+#         rng = RNG(888),
+#     )),
+# )
 
 params_classical_MCTS = Dict(
     pairs((
-        depth = 3,
-        exploration_constant = 1.0,
-        n_iterations = 1000,
-        reuse_tree = true,
-        rng = RNG(888),
+        depth=4,
+        exploration_constant=25.0,
+        n_iterations=1500,
+        reuse_tree=true,
+        rng=RNG(1),
     )),
 )
 
@@ -228,12 +207,13 @@ for (i, input) in reordered_inputs
 end
 
 p=Progress(length(e_inputs)*N_traces, desc="All MCTS:", color=:red)
-Threads.@threads for (i, orig_data) in reordered_inputs
-    data = deepcopy(orig_data)
-    # data = orig_data
+# Threads.@threads 
+for (i, orig_data) in reordered_inputs
+    # data = deepcopy(orig_data)
+    data = orig_data
 
     solver = MCTSSolver(;params_classical_MCTS...)
-    println("mcts, data-$i: \n\t problem: $(data[:pp_params]) \n\t solver: $(solver)")
+    @info "\nmcts, data-$i: \n\t problem: $(data[:pp_params]) \n\t solver: $(solver)"
     PMDPs.process_data(
         data,
         PMDPs.mcts;
@@ -245,6 +225,7 @@ Threads.@threads for (i, orig_data) in reordered_inputs
         rng=rng,
         p=p,
     )
+    GC.gc()
 end
 
 
