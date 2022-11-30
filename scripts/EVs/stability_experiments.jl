@@ -1,7 +1,7 @@
 using PMDPs
 using PMDPs.LP
 using DrWatson
-using RandomNumbers.Xorshifts
+using Random
 using MCTS
 using POMDPSimulators
 using POMDPPolicies
@@ -35,7 +35,7 @@ function Base.show(io::IO, ::MIME"text/plain", trace::SimHistory)
     end
 end
 
-RNG = Xorshift1024Plus
+RNG = Xoshiro
 
 include(srcdir("MDPPricing.jl"))
 
@@ -81,7 +81,7 @@ params_classical_MCTS = Dict(
 # dpw_solver_params = (;depth=50, 
 #     exploration_constant=40.0, max_time=1.,
 #     enable_state_pw = false, 
-#     keep_tree=true, show_progress=false, rng=Xorshift128Plus())
+#     keep_tree=true, show_progress=false, rng=Xoshiro())
 
 params_mcts=params_classical_MCTS
 
@@ -124,7 +124,7 @@ metrics = []
     # dpw_solver_params = (;depth=50, 
     #     exploration_constant=40.0, max_time=1.,
     #     enable_state_pw = false, 
-    #     keep_tree=true, show_progress=false, rng=Xorshift128Plus())
+    #     keep_tree=true, show_progress=false, rng=Xoshiro())
 
     params_mcts=params_classical_MCTS
 

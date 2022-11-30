@@ -1,7 +1,7 @@
 using PMDPs
 using PMDPs.LP
 using DrWatson
-using RandomNumbers.Xorshifts
+using Random
 using MCTS
 using POMDPSimulators
 using POMDPPolicies
@@ -36,7 +36,7 @@ using DataFrames
 #     end
 # end
 
-RNG = Xorshift1024Plus
+RNG = Xoshiro
 
 include(srcdir("MDPPricing.jl"))
 

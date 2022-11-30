@@ -5,7 +5,7 @@ using DrWatson
 using POMDPs
 using BSON, CSV
 using DrWatson
-using RandomNumbers.Xorshifts
+using Random
 using Random
 using DataFrames
 using StaticArrays, Distributions # load
@@ -46,11 +46,11 @@ dpw_solver_params = (;
     enable_state_pw = false,
     keep_tree = true,
     show_progress = false,
-    rng = Xorshift128Plus(),
+    rng = Xoshiro(),
 )
 
 mcts_solver_params =
-    (; depth = 50, exploration_constant = 40.0, max_time = 1.0, rng = Xorshift128Plus())
+    (; depth = 50, exploration_constant = 40.0, max_time = 1.0, rng = Xoshiro())
 
 # pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5., objective=objective)))
 # name = "linear_problem"

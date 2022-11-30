@@ -3,7 +3,6 @@ using PMDPs.LP
 using POMDPs
 using BSON, CSV
 using DrWatson
-using RandomNumbers.Xorshifts
 using Random
 using MCTS, DiscreteValueIteration
 using DataFrames
@@ -20,14 +19,14 @@ dpw_solver = DPWSolver(;
     enable_state_pw = false,
     keep_tree = true,
     show_progress = false,
-    rng = Xorshift128Plus(),
+    rng = Xoshiro(),
 )
 
 mcts_solver = MCTSSolver(;
     depth = 50,
     exploration_constant = 40.0,
     max_time = 1.0,
-    rng = Xorshift128Plus(),
+    rng = Xoshiro(),
 )
 
 """

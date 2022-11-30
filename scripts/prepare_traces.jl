@@ -1,5 +1,5 @@
 using PMDPs
-using RandomNumbers.Xorshifts
+using Random
 using DrWatson
 using BSON
 
@@ -65,7 +65,7 @@ for pp_params in pps
     pp = PMDPs.linear_pp(; pp_params...)
     mg = PMDPs.PMDPg(pp)
 
-    rng = Xorshift128Plus(1)
+    rng = Xoshiro(1)
     traces = [PMDPs.simulate_trace(mg, rng) for i = 1:N_individ]
 
     sname = savename("traces_lp", pp_params, "bson")
@@ -138,7 +138,7 @@ for pp_params in gpps
     draw(PNG(plotsdir(savename("graph_", pp_params, "png")), 16cm, 16cm), gplot(g))
     # mg = PMDPs.PMDPg(pp)
 
-    # rng = Xorshift128Plus(1)
+    # rng = Xoshiro(1)
     # traces = [PMDPs.simulate_trace(mg, rng) for i in 1:N_individ]
 
     # sname = savename("traces_gp", pp_params,  "bson")
@@ -163,7 +163,7 @@ for expected_res = 50:50:1200
     pp = PMDPs.linear_pp(; pp_params...)
     mg = PMDPs.PMDPg(pp)
 
-    rng = Xorshift128Plus(1)
+    rng = Xoshiro(1)
     traces = [PMDPs.simulate_trace(mg, rng) for i = 1:N]
 
     sname = savename("traces_lp", pp_params, "bson")
@@ -190,7 +190,7 @@ for seed = 1:10
         pp, g = PMDPs.graph_pp(; pp_params...)
         mg = PMDPs.PMDPg(pp)
 
-        rng = Xorshift128Plus(1)
+        rng = Xoshiro(1)
         traces = [PMDPs.simulate_trace(mg, rng) for i = 1:N]
 
         sname = savename("traces_gp", pp_params, "bson")

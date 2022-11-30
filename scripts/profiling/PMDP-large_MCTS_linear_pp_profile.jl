@@ -10,7 +10,7 @@ using DiscreteValueIteration
 using StaticArrays
 using Distributions
 using Random
-using RandomNumbers.Xorshifts
+
 # using DrWatson
 # import Base.show
 # using Plots

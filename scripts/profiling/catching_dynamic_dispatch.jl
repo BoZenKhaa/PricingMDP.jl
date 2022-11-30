@@ -16,7 +16,7 @@ function prepare_model()
 end
 
 mg = prepare_model()
-RNG = Xorshift1024Plus(1)
+RNG = Xoshiro(1)
 s = rand(RNG, initialstate(mg))
 
 @report_opt PMDPs.sample_request(mg, 3, RNG)

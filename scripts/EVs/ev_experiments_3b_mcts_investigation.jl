@@ -1,7 +1,7 @@
 using PMDPs
 using PMDPs.LP
 using DrWatson
-using RandomNumbers.Xorshifts
+using Random
 using MCTS
 using POMDPSimulators
 using POMDPPolicies
@@ -39,9 +39,9 @@ using ProgressMeter
 #     end
 # end
 
-RNG = Xorshift1024Plus
+RNG = Xoshiro
 rng=RNG(426380)
-Base.show(io::IO, rng::Xorshift1024Plus) = print(io, "Xorshift1024Plus")
+
 
 include(srcdir("MDPPricing.jl"))
 
