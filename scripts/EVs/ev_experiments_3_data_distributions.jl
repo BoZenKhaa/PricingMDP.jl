@@ -3,11 +3,11 @@ using PMDPs.LP
 using DrWatson
 using Random
 using MCTS
-using POMDPSimulators
-using POMDPPolicies
+using POMDPTools
+using POMDPTools
 using DiscreteValueIteration
 
-using Formatting
+using Format
 
 import Base.show
 

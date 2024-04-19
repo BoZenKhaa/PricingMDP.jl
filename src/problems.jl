@@ -68,7 +68,7 @@ function graph_params(objective)
                 pairs((
                     NV = 5,
                     NE = 8,
-                    seed = 1,
+                    # seed = 1,
                     NP = 20,
                     c = 5,
                     T = 100,
@@ -85,7 +85,7 @@ function graph_params(objective)
                 pairs((
                     NV = 8,
                     NE = 20,
-                    seed = 1,
+                    # seed = 1,
                     NP = 50,
                     c = 10,
                     T = 1000,
@@ -102,7 +102,7 @@ function graph_params(objective)
                 pairs((
                     NV = 15,
                     NE = 30,
-                    seed = 1,
+                    # seed = 1,
                     NP = 100,
                     c = 10,
                     T = 1000,
@@ -119,10 +119,10 @@ function graph_params(objective)
     ]
 end
 
-function get_linear_problems(objective::Symbol)
+function get_linear_problems(objective)
     pps = [(pp = PMDPs.linear_pp(; p.params...), p...) for p in linear_params(objective)]
 end
-function get_graph_problems(objective::Symbol)
+function get_graph_problems(objective)
     pps = [(pp = PMDPs.graph_pp(; p.params...), p...) for p in graph_params(objective)]
 end
 
@@ -131,7 +131,7 @@ n_lp ... how many lp problems to use (e.g. 3 - use the first three problems)
 n_gp ... how many gp problems to use (e.g. 3 - use the first three problems). 
 By default, first 100 problems will be used.
 """
-function get_benchmarks(; objectives = (:revenue, :utilization), n_lp = 100, n_gp = 100)
+function get_benchmarks(; objectives = (PMDPs.REVENUE, PMDPs.UTILIZATION), n_lp = 100, n_gp = 100)
     problems = []
     for obj in objectives
         lpps = get_linear_problems(obj)

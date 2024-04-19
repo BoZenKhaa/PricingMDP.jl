@@ -1,19 +1,19 @@
 using PMDPs
 using Test
-using POMDPSimulators
+using POMDPTools
 
 using StaticArrays
 using POMDPs
 using MCTS, DiscreteValueIteration
 using StatsBase
 using Plots
-using POMDPSimulators
+using POMDPTools
 using D3Trees
-using POMDPPolicies
+using POMDPTools
 using POMDPLinter
 using Random
 using DataFrames
-using POMDPSimulators
+using POMDPTools
 
 
 mdp_vi = PMDPs.create_PMDP(PMDPe)

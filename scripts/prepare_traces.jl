@@ -3,7 +3,7 @@ using Random
 using DrWatson
 using BSON
 
-using POMDPSimulators # load histories
+using POMDPTools # load histories
 using Distributions # load
 
 using LightGraphs

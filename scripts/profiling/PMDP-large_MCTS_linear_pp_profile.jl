@@ -2,8 +2,8 @@ using PMDPs
 using PMDPs.LP
 using PMDPs.CountingProcesses
 using POMDPs
-using POMDPSimulators
-using POMDPPolicies
+using POMDPTools
+using POMDPTools
 using MCTS
 using DiscreteValueIteration
 

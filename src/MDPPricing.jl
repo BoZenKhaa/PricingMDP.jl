@@ -4,9 +4,9 @@ using DataFrames
 using PMDPs
 using JLD2
 using DrWatson
-using POMDPSimulators
+using POMDPTools
 import Base.show
-using Formatting
+using Format
 
 include("reporting.jl")
 include("problems.jl")

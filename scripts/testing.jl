@@ -10,7 +10,7 @@ using DataFrames
 using StaticArrays, Distributions # load
 
 using MCTS, DiscreteValueIteration
-using POMDPSimulators # load histories
+using POMDPTools # load histories
 
 using LightGraphs
 using GraphPlot

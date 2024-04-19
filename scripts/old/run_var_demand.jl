@@ -7,7 +7,7 @@ using Random
 using MCTS, DiscreteValueIteration
 using DataFrames
 
-using POMDPSimulators
+using POMDPTools
 using StaticArrays, Distributions # load pp
 
 N = 3

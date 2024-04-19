@@ -3,8 +3,6 @@ using PMDPs.LP
 using DrWatson
 using Random
 using MCTS
-using POMDPTools
-using POMDPTools
 using DiscreteValueIteration
 
 import Base.show
@@ -17,6 +15,11 @@ using ProgressMeter
 using POMDPs
 using DataFrames
 using CSV
+using FilePaths
+using FilePathsBase; using FilePathsBase: /
+using YAML
+using JLD2
+# using FileIO
 
 RNG = Xoshiro
 
@@ -43,25 +46,36 @@ PREPARE PROBLEM AND TRACES
 
 OUT_FOLDER = "ev_experiments"
 PP_NAME = "single_day_cs_pp_testing_MCTS"
+pp=nothing
 
 inputs = []
 # res_range = range(6, 6)
-res_range = [6,]
+res_range = [6,7]
 # T_range =  [[3*18, 4*10]; [5,6,7,8,9,10,12, 14, 16, 18, 20, 24].*8]
 T_nᵣ_multiplier = ones(length(res_range))
 for (i, nᵣ) in enumerate(res_range)
     while true
+        T = Int64(nᵣ * T_nᵣ_multiplier[i])
         pp_params = Dict(pairs((
             nᵣ=nᵣ,
             c=3,
-            T=Int64(nᵣ * T_nᵣ_multiplier[i]),
+            T=T,
             expected_res=2 * nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
             res_budget_μ=24.0 / nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
             objective=PMDPs.REVENUE,
         )))
         println("$(i): nᵣ = $(nᵣ)")
         try
-            pp = PMDPs.single_day_cs_pp(; pp_params...)
+            pp_constructor = PMDPs.single_day_cs_pp
+            pp = pp_constructor(; pp_params...)
+            pp_hash = string(hash(pp_params))
+            problem_dir = cwd() / "data"/ "inputs"/string(pp_constructor)/"nodes_$(nᵣ)"/"timesteps_$T/instance_$(pp_hash)"
+            mkpath(problem_dir)
+            YAML.write_file(string(problem_dir / "params.yaml"), pp_params)
+            JLD2.save(string(problem_dir / "pp.jld2"), "pp", pp, 
+                                "constructor", pp_constructor, 
+                                "params", pp_params)
+
         catch e
             if isa(e, AssertionError)
                 # println("Error: ", e)
@@ -77,6 +91,7 @@ for (i, nᵣ) in enumerate(res_range)
 end
 println("The multipliers for getting T are $(T_nᵣ_multiplier)")
 
+JLD2.load("data/inputs/single_day_cs_pp/nodes_6/timesteps_42/pp.jld2")
 
 T_range = res_range .* 7
 pp_var_params = collect(zip(T_range, res_range))

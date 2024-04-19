@@ -1,5 +1,5 @@
 using POMDPs, QuickPOMDPs, MCTS, DiscreteValueIteration, POMDPTools
-using Distributions, Combinatorics, StaticArrays, POMDPSimulators
+using Distributions, Combinatorics, StaticArrays, POMDPTools
 using TickTock
 
 NumberUnits = 5;

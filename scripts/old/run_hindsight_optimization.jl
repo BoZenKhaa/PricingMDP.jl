@@ -1,7 +1,7 @@
 using PMDPs
 using Test
 
-using POMDPSimulators
+using POMDPTools
 using POMDPs
 using Random
 

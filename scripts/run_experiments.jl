@@ -1,26 +1,26 @@
 using PMDPs
 using PMDPs.LP
 using DrWatson
+using D3Trees
 
 using POMDPs
-using BSON, CSV
+# using CSV
 using DrWatson
-using Random
 using Random
 using DataFrames
 using StaticArrays, Distributions # load
 
 using MCTS, DiscreteValueIteration
-using POMDPSimulators # load histories
-using POMDPPolicies
+# using POMDPTools # load histories
+# using POMDPTools
 
 using LightGraphs
-using GraphPlot
-using Cairo, Compose
+# using GraphPlot
+# using Cairo, Compose
 
 using Debugger
 
-using TableView
+# using TableView
 
 include(srcdir("MDPPricing.jl"))
 """
@@ -33,6 +33,8 @@ inputs = [
     (pp, params, vi, name) in problems[1:end]
 ]
 
+
+PMDP
 
 """
 Evaluate

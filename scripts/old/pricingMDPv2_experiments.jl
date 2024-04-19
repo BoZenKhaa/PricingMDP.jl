@@ -5,9 +5,9 @@ using POMDPs
 using MCTS, DiscreteValueIteration
 using StatsBase
 using Plots
-using POMDPSimulators
+using POMDPTools
 using D3Trees
-using POMDPPolicies
+using POMDPTools
 using Random
 
 using Traceur
