@@ -133,3 +133,7 @@ res = PMDPs.run_solver(solver_cfg_filepath)
 
 
 
+
+
+# path = raw"/home/mrkosja1/MDPPricing/data/ev_test_experiments/single_day_cs_pp_T=96_c=3_expected_res=12_nᵣ=12_res_budget_μ=2.0/results/flatrate/..\..\traces\traces_N=100_seed=888.jld2"
+
