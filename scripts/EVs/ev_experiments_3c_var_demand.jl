@@ -7,7 +7,7 @@ using MCTS
 include(srcdir("MDPPricing.jl"))
 using .MDPPricing
 
-
+# Does not seem to provide any benefit over MersenneTwister
 RNG = Xoshiro
 rng=RNG(426380)
 
@@ -66,12 +66,13 @@ LOAD DATA
 FIGURE OUT NUMBER OF TIMESTEPS FOR PROBLEMS
 """
 # nᵣ = 24
-nᵣ = 48
+nᵣ = 48 # number of resources
 #nᵣ = 72
 # nᵣ = 96
 OBJECTIVE = PMDPs.REVENUE
 
-expected_res_range = [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ, 3.5*nᵣ]
+# expected number of requested resources
+expected_res_range = [0.5*nᵣ]# 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ, 3.5*nᵣ]
 expected_res_range./(3*nᵣ) # why?
 
 T_multipliers = ones(length(expected_res_range))
@@ -246,23 +247,23 @@ end
 # """
 # ANALYZE AND PLOT RESULTS
 # """
-# results, raw = folder_report(datadir("results", "ev_results", PP_NAME); raw_result_array = true)
+results, raw = folder_report(datadir("results", "ev_results", PP_NAME); raw_result_array = true)
 
-# df = results.results
-# df
+df = results.results
+df
 
-# # agg_res = format_result_table(results.results, N=N_traces)
-# grps = groupby(df, [:method, :objective])
-# grp = grps[1]
+# agg_res = format_result_table(results.results, N=N_traces)
+grps = groupby(df, [:method, :objective])
+grp = grps[1]
 
-# plot()
-# for grp in grps
-#     label = grp.method[1][1:min(10, length(grp.method[1]))]
-#     plot!(grp.expected_res, grp.mean_r; label=grp.method[1][1:3] )
-# end
-# plot!()
+plot()
+for grp in grps
+    label = grp.method[1][1:min(10, length(grp.method[1]))]
+    plot!(grp.expected_res, grp.mean_r; label=grp.method[1][1:3] )
+end
+plot!()
 
-# print(sort(unique([String(v.name) for v in methodswith(DataFrame)])))
-# DataFrames
+print(sort(unique([String(v.name) for v in methodswith(DataFrame)])))
+DataFrames
 
-# methods()
+methods()
