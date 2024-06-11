@@ -21,6 +21,17 @@ PMDPs.jl
 # xlsx tables with policies
 *.xlsx
 
+# Intellij seetings folder
+*.idea
+
+# Python cache
+*.egg-info
+*.pyc
+
+# Experiment logs
+log*.txt
+unfinished_runs*.txt
+
 ################################################################################
 #                                    VS code                                   #
 ################################################################################

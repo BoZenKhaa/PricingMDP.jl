@@ -58,7 +58,9 @@ function prepare_pricing_problem_config(experiment_name::String, pp_constructor,
         pp_constructor = pp_constructor,
         pp_params = pp_params,))
     )
-    save_yaml_config(joinpath(path, "pp_config.yaml"), cfg)
+    config_fpath = joinpath(path, "pp_config.yaml") 
+    save_yaml_config(config_fpath, cfg)
+    return config_fpath
 end
 
 function prepare_solver_config(traces_filepath::String, solver_cfg::Dict)

@@ -7,6 +7,6 @@ Pkg.activate(joinpath(@__DIR__, "../.."))
 using PMDPs
 
 solver_cfg_pathfile = ARGS[1]
-@show "Running solver on "*solver_config_pathfile
-PMDPs.run_solver(solver_cfg_filepath)
+print("[runner.jl] Running solver on "*solver_cfg_pathfile)
+PMDPs.run_solver(solver_cfg_pathfile)
 

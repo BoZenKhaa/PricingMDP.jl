@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-
+import time
 from pathlib import Path
 import logging
 import subprocess
 import argparse
 import re
 import os
+import yaml
 
-import pricingmdp.exec
+import pricingmdprunner.exec
 
 
 def s2hhmmss(s: int):
@@ -16,17 +17,26 @@ def s2hhmmss(s: int):
     return f'{h:d}:{m:02d}:{s:02d}'
 
 
+def load_yaml(path: Path):
+    with open(path, "r") as stream:
+        try:
+            py_yaml = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            logging.error(exc)
+    return py_yaml
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        prog="RCI-DARP_benchmark_runner",
-        description="Script to schedule DARP-benchmark experiments on RCI cluster",
+        prog="RCI-MDPPricing_solver_runner",
+        description="Script to schedule MDPPricing solver experiments on RCI cluster",
     )
     parser.add_argument("--dry_run", action="store_true",
                         help="Perform dry run: prepare and log configs but do not submit sbatch jobs to the cluster.")
     parser.add_argument("--experiments_path", default="/home/fiedlda1/Experiment Data/DARP/final/Results",
                         help="Path to results/experiment configs.")
-    parser.add_argument("--instances_path", default="/home/fiedlda1/Experiment Data/DARP/final/Instances",
-                        help="Path to instances.")
+    # parser.add_argument("--instances_path", default="/home/fiedlda1/Experiment Data/DARP/final/Instances",
+    #                     help="Path to instances.")
     parser.add_argument("--log", default="log.txt",
                         help="path to logfile. For logging into terminal, set to empty. (Default: file)")
     parser.add_argument("--method_filter", default=".*",
@@ -56,7 +66,7 @@ if __name__ == '__main__':
         logging.info(f'using method filter: {method_filter}')
 
     experiments_path = Path(args.experiments_path)
-    instances_path = Path(args.instances_path)
+    # instances_path = Path(args.instances_path)
     method_re = re.compile(str(args.method_filter))
     city_re = re.compile(str(args.city_filter))
     path_re = re.compile(str(args.path_filter))
@@ -77,16 +87,17 @@ if __name__ == '__main__':
 
     os.chdir(Path(__file__).resolve().parent)
 
-    python_runner_path = Path('run_experiment.py').resolve()
+    sbatch_script_path = Path('/home/mrkosja1/MDPPricing/scripts/RCI/runner.bash').resolve()
+    runner_path = Path('/home/mrkosja1/MDPPricing/scripts/RCI/runner.jl').resolve()
 
-    for config_path in experiments_path.rglob("**/config.yaml"):
-        # logging.info(f"{config_path} - {config_path in config_paths_filter}")
+    for config_path in experiments_path.rglob("**/config*.yaml"):
+        logging.info(f"{config_path} - {config_path in config_paths_filter}")
         if config_paths_filter and config_path not in config_paths_filter:
             continue
 
         config = load_yaml(config_path)
 
-        method = config['method']
+        method = config['runner']
         city = config_path.parts[-6]
 
         skip_msg = ""
@@ -108,7 +119,7 @@ if __name__ == '__main__':
         # timeout_s = int(config['timeout'])
         # timeout_str = s2hhmmss(timeout_s)
 
-        mem = TODo
+        mem = 16
         tmax = 1 if 'tmax' not in config else config['tmax']
         timeout = '24:00:00' if 'timeout' not in config else f'00:{int(config["timeout"] / 60)}:00'
 
@@ -124,26 +135,28 @@ if __name__ == '__main__':
             -t - how many minutes will should be resource allocated.
         """
 
-        sbatch_vars = f"EXPERIMENT_CONFIG={config_path},OUTPUT=/home/fiedlda1/Experiment Data/DARP/final/Results/rci_job_overview.log,RUNNER={python_runner_path}"
+        sbatch_vars = f"EXPERIMENT_CONFIG={config_path},OUTPUT=UNUSED.log,RUNNER={runner_path}"
         commands = [
             'sbatch',
             '-p',
             'amd',
             '-o',
-            f'{config_path.parent}/rci_job.log',
+            f'{config_path.parent}/{config_path.stem}_rci_job.log',
             '--job-name',
-            f'darp_{city}_{method}_{"_".join(config_path.parts[-4:-1])}',
+            f'MDPPricing_{city}_{method}_{"_".join(config_path.parts[-4:-1])}',
             f'--time={timeout}',
             f'--mem={mem}G',
             f'--ntasks={tmax}',
             f'--export={sbatch_vars}',
-            f'./run_experiment.batch'
+            # f'./run_experiment.batch',
+            f'{sbatch_script_path}'
         ]
 
         runned.append(' '.join(commands))
 
         if not args.dry_run:
-            pricingmdp.exec.call_executable(commands)
+            # time.sleep(2)
+            pricingmdprunner.exec.call_executable(commands)
 
     runned_join = '\n'.join(runned)
     if args.dry_run:
