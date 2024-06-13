@@ -2,7 +2,6 @@
 import time
 from pathlib import Path
 import logging
-import subprocess
 import argparse
 import re
 import os
@@ -10,20 +9,13 @@ import yaml
 
 import pricingmdprunner.exec
 
+from Python.pricingmdprunner.utils import load_yaml
+
 
 def s2hhmmss(s: int):
     m, s = divmod(s, 60)
     h, m = divmod(m, 60)
     return f'{h:d}:{m:02d}:{s:02d}'
-
-
-def load_yaml(path: Path):
-    with open(path, "r") as stream:
-        try:
-            py_yaml = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            logging.error(exc)
-    return py_yaml
 
 
 if __name__ == '__main__':

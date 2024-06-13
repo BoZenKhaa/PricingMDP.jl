@@ -24,9 +24,10 @@ PMDPs.jl
 # Intellij seetings folder
 *.idea
 
-# Python cache
+# Python
 *.egg-info
 *.pyc
+venv/
 
 # Experiment logs
 log*.txt
