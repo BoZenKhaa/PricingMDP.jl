@@ -27,9 +27,9 @@ using .MDPPricing
 
 """
 
-experiment_name = "ev_experiments"
+experiment_name = "test_ev_experiments"
 OBJECTIVE = PMDPs.REVENUE
-nᵣ = 12 # number of resources
+nᵣ = 2 # number of resources
 expected_res = nᵣ
 
 pp_params = Dict(pairs((
@@ -44,14 +44,14 @@ pp_params = Dict(pairs((
 pp = PMDPs.single_day_cs_pp(;pp_params...)
 
 
-prepare_pricing_problem_config(experiment_name, PMDPs.single_day_cs_pp, pp_params)
+pp_config_path = prepare_pricing_problem_config(experiment_name, PMDPs.single_day_cs_pp, pp_params)
 
-pp_config = PMDPs.parse_yaml_config("data/ev_test_experiments/single_day_cs_pp_T=96_c=3_expected_res=12_nᵣ=12_res_budget_μ=2.0/pp_config.yaml")
+pp_config = PMDPs.parse_yaml_config(pp_config_path)
 pp = pp_config[:pp_constructor](;pp_config[:pp_params]...)
 
 
 N_traces = 100
-traces_fpath = PMDPs.prepare_traces("data/ev_test_experiments/single_day_cs_pp_T=96_c=3_expected_res=12_nᵣ=12_res_budget_μ=2.0/pp_config.yaml", N_traces; seed = 888, verbose = true)
+traces_fpath = PMDPs.prepare_traces(pp_config_path, N_traces; seed = 888, verbose = true)
 
 """
 # Generate solver configs
@@ -76,12 +76,9 @@ solver_cfg = Dict(pairs((
         )),
     ),
 )))
-# traces_fpath = raw"data\ev_test_experiments\single_day_cs_pp_T=96_c=3_expected_res=12_nᵣ=12_res_budget_μ=2.0\traces\traces_N=100_seed=888.jld2"
-MDPPricing.prepare_solver_config(traces_fpath, solver_cfg)
 
-# solver_cfg_filepath = raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_test_experiments\single_day_cs_pp_T=96_c=3_expected_res=12_nᵣ=12_res_budget_μ=2.0\results\mcts\config_mcts_depth=4_exploration_constant=25.0_n_iterations=100_reuse_tree=true.yaml"
-
-# res = PMDPs.run_solver(solver_cfg_filepath)
+solver_cfg_filepath = MDPPricing.prepare_solver_config(traces_fpath, solver_cfg)
+res = PMDPs.run_solver(solver_cfg_filepath)
 
 """
 ## ============= Oracle solver =============
@@ -91,9 +88,9 @@ solver_cfg = Dict(pairs((
     seed = 1234,
 )))
 
-traces_filepath = raw"data\ev_test_experiments\single_day_cs_pp_T=96_c=3_expected_res=12_nᵣ=12_res_budget_μ=2.0\traces\traces_N=100_seed=888.jld2"
-solver_cfg_filepath = prepare_solver_config(traces_filepath, solver_cfg)
-# res = PMDPs.run_solver(solver_cfg_filepath)
+
+solver_cfg_filepath = prepare_solver_config(traces_fpath, solver_cfg)
+res = PMDPs.run_solver(solver_cfg_filepath)
 
 
 """
@@ -106,10 +103,26 @@ solver_cfg = Dict(pairs((
     flatrate_train_range_end = 100
 )))
 
-traces_filepath = raw"data\ev_test_experiments\single_day_cs_pp_T=96_c=3_expected_res=12_nᵣ=12_res_budget_μ=2.0\traces\traces_N=100_seed=888.jld2"
-solver_cfg_filepath = prepare_solver_config(traces_filepath, solver_cfg)
-# res = PMDPs.run_solver(solver_cfg_filepath)
+solver_cfg_filepath = prepare_solver_config(traces_fpath, solver_cfg)
+res = PMDPs.run_solver(solver_cfg_filepath)
 
+"""
+## ============= VI =============
+"""
+solver_cfg = Dict(pairs((
+    runner = PMDPs.vi,
+    solver_params = Dict(
+        pairs((            
+            max_iterations=100, 
+            belres=1e-6, 
+            verbose=true,
+        )),
+    ),
+    seed = 1234, # needed here even though VI does not use this
+)))
+
+solver_cfg_filepath = prepare_solver_config(traces_fpath, solver_cfg)
+res = PMDPs.run_solver(solver_cfg_filepath)
 
 
 

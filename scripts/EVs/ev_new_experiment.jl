@@ -43,7 +43,7 @@ k = PMDPs.CountingProcesses.n_steps(pp.D)
  # Prepare traces
 """
 inputs = []
-OUT_FOLDER = "ev_new_experiments"
+OUT_FOLDER = datadir("ev_new_experiments")
 PP_NAME = "cs_$(nᵣ)"
 
 vi = false
@@ -77,7 +77,9 @@ params_classical_MCTS = Dict(
         rng=RNG(seed),
     )),
 )
-for d in [1, 2, 3, 4, 5, 10, 20, 50, 100]
+
+
+for d in [3,]
     for data in inputs
         params = deepcopy(params_classical_MCTS)
         params[:depth] = d
@@ -86,6 +88,7 @@ for d in [1, 2, 3, 4, 5, 10, 20, 50, 100]
         PMDPs.process_data(
             data,
             PMDPs.mcts;
+            result_fpath = joinpath(OUT_FOLDER, "test_mcts" ),
             folder = OUT_FOLDER,
             n = 1,
             N = N_traces,
@@ -98,36 +101,6 @@ for d in [1, 2, 3, 4, 5, 10, 20, 50, 100]
     end
 end
 
-
-params_classical_MCTS = Dict(
-    pairs((
-        depth=4, # unlimited?
-        exploration_constant=25.0, # may bound error in the literature
-        n_iterations=10_000, # min pocet samplu
-        reuse_tree=true, # probably not
-        rng=RNG(seed),
-    )),
-)
-for d in [1, 2, 3, 4, 5, 10, 20, 50, 100]
-    for data in inputs
-        params = deepcopy(params_classical_MCTS)
-        params[:depth] = d
-        p=Progress(length(e_inputs)*N_traces, desc="All MCTS:", color=:red)
-        solver = MCTSSolver(;params...)
-        PMDPs.process_data(
-            data,
-            PMDPs.mcts;
-            folder = OUT_FOLDER,
-            n = 1,
-            N = N_traces,
-            method_info = "vanilla_$(savename(params))",
-            solver = solver,
-            solver_params  = params,
-            rng=RNG(seed),
-            p=p,
-        )
-    end
-end
 
 """
  # flatrate and oracle
