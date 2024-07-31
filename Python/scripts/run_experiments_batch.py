@@ -25,12 +25,12 @@ if __name__ == '__main__':
     )
     parser.add_argument("--dry_run", action="store_true",
                         help="Perform dry run: prepare and log configs but do not submit sbatch jobs to the cluster.")
-    parser.add_argument("--experiments_path", default="/home/fiedlda1/Experiment Data/DARP/final/Results",
+    parser.add_argument("--experiments_path", default="/home/fiedlda1/data/ev_experiments",
                         help="Path to results/experiment configs.")
     # parser.add_argument("--instances_path", default="/home/fiedlda1/Experiment Data/DARP/final/Instances",
     #                     help="Path to instances.")
     parser.add_argument("--log", default="log.txt",
-                        help="path to logfile. For logging into terminal, set to empty. (Default: file)")
+                        help='path to logfile. For logging into terminal, set to --log="". (Default: file)')
     parser.add_argument("--method_filter", default=".*",
                         help='Specify methods to run as regex, as read from config.yaml. For example, "ih" for ih or "('
                              'halns|vga)" for methods other than ih. (Default: .*). Note that the method in config is not equal to the '
@@ -81,6 +81,8 @@ if __name__ == '__main__':
 
     sbatch_script_path = Path('/home/mrkosja1/MDPPricing/scripts/RCI/runner.bash').resolve()
     runner_path = Path('/home/mrkosja1/MDPPricing/scripts/RCI/runner.jl').resolve()
+
+    assert experiments_path.exists(), f"Experiments path {experiments_path} does not exist!!"
 
     for config_path in experiments_path.rglob("**/config*.yaml"):
         logging.info(f"{config_path} - {config_path in config_paths_filter}")

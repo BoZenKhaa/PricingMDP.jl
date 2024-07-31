@@ -1,9 +1,9 @@
 import logging
 from pathlib import Path
 
-data = Path("/mnt/data/mobility/MDPPricing/data/ev_mcts_analysis/single_day_cs_pp_T=96_c=3_expected_res=12_nᵣ=12_res_budget_μ=2.0")
+data = Path("/mnt/data/mobility/MDPPricing/data/ev_variable_resources")
 
-results_path = data / "results"
+results_path = data
 
 logging.basicConfig(level=logging.DEBUG)
 
