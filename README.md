@@ -41,6 +41,14 @@ Assuming the project is already cloned on RCI, run the experiments according to 
 --log="" # log into console instead of a file
 ```
 
+Alternatively, in bash, run: 
+
+```bash
+source venv/bin/activate
+python run_experiments_batch.py --experiments_path=/home/mrkosja1/MDPPricing/data/ev_variable_resources --dry_run --log=""
+```
+
+
 4. [ ] **Keep track of experiments** You can use following to check on the status of your jobs:
       ```bash
       watch --color -n .5 'squeue -o  "%.18i %.9P %80j %.8u %.2t %.10M %.6D %R" | grep mrkos | tail -n $(($LINES - 2))'
