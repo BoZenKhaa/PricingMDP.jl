@@ -34,9 +34,9 @@ Assuming the project is already cloned on RCI, run the experiments according to 
 
 2. [ ] **sync experiment configs to the RCI cluster** - use WinSCP to copy the configs in the `data` folder to the `/mnt/data/mobility/MDPPricing/data` folder on the RCI cluster.
 
-3. [ ] **run the experiments** - connect to the RCI cluster with Jetbrains Gateway to run the Python scripts. Use `Python/run_experiments_batch.py` to launch the experiments. Start with the following options: 
+3. [ ] **run the experiments** - connect to the RCI cluster with Jetbrains Gateway to run the Python scripts. Use `Python/scripts/run_experiments_batch.py` to launch the experiments. Start with the following options: 
 ```bash
---experiments_path=/home/mrkosja1/MDPPricing/data/ev_variable_resources
+--experiments_path=/mnt/data/mobility/MDPPricing/data/ev_variable_resources_higher_demand/
 --dry_run # check the commands that will be run
 --log="" # log into console instead of a file
 ```
@@ -45,7 +45,7 @@ Alternatively, in bash, run:
 
 ```bash
 source venv/bin/activate
-python run_experiments_batch.py --experiments_path=/home/mrkosja1/MDPPricing/data/ev_variable_resources --dry_run --log=""
+ python Python/scripts/run_experiments_batch.py --experiments_path=/mnt/data/mobility/MDPPricing/data/ev_variable_resources_higher_demand/ --dry_run --log=""
 ```
 
 

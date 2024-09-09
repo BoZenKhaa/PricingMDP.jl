@@ -9,7 +9,7 @@ import yaml
 
 import pricingmdprunner.exec
 
-from Python.pricingmdprunner.utils import load_yaml
+from pricingmdprunner.utils import load_yaml
 
 
 def s2hhmmss(s: int):
