@@ -113,7 +113,7 @@ if __name__ == '__main__':
         # timeout_s = int(config['timeout'])
         # timeout_str = s2hhmmss(timeout_s)
 
-        mem = 16
+        mem = 32
         tmax = 1 if 'tmax' not in config else config['tmax']
         timeout = '24:00:00' if 'timeout' not in config else f'00:{int(config["timeout"] / 60)}:00'
 
