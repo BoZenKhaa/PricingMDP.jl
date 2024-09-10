@@ -15,7 +15,7 @@ if __name__ == '__main__':
                         help='path to the output file. If empty, log into console only. (Default: "unfinished_runs.txt")')
     args = parser.parse_args()
 
-    results_path = args.results_path
+    experiments_path = args.experiments_path
     output = args.output
 
     logging.basicConfig(level=logging.DEBUG)
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     #     logging.info(instance_config_path)
 
     unfinished_runs = []
-    for result_config_path in results_path.rglob("**/config*.yaml"):
+    for result_config_path in experiments_path.rglob("**/config*.yaml"):
         if (result_config_path.parent / f"{result_config_path.stem}_result.csv").is_file():
             # logging.info(f"\t-SOLUTION- \t{result_config_path}")
             pass
