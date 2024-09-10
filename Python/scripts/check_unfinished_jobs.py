@@ -7,7 +7,7 @@ if __name__ == '__main__':
         prog="RCI-MDPPricing_jobs_checker",
         description="Script to check which jobs are unfinished on RCI cluster",
     )
-    parser.add_argument("--results_path", default="/mnt/data/mobility/MDPPricing/data",
+    parser.add_argument("--experiments_path", default="/mnt/data/mobility/MDPPricing/data",
                         help="Path to results/experiment configs.")
     # parser.add_argument("--instances_path", default="/home/fiedlda1/Experiment Data/DARP/final/Instances",
     #                     help="Path to instances.")
