@@ -45,6 +45,7 @@ if __name__ == '__main__':
     parser.add_argument("--config_paths_from_file", default="",
                         help="Read paths to experiment configs from file. Useful for re-running experiments that failed.")
     parser.add_argument("--log-level", default="INFO", help="Set log level. (Default: INFO)")
+    parser.add_argument("--sleep", default="0", help="Sleep time between sbatch calls. (Default: 0)")
 
     args = parser.parse_args()
 
@@ -149,7 +150,7 @@ if __name__ == '__main__':
         runned.append(' '.join(commands))
 
         if not args.dry_run:
-            # time.sleep(2)
+            time.sleep(int(args.sleep))
             pricingmdprunner.exec.call_executable(commands)
 
     runned_join = '\n'.join(runned)
