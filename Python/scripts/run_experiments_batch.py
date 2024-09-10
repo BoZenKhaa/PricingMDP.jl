@@ -5,7 +5,6 @@ import logging
 import argparse
 import re
 import os
-import yaml
 
 import pricingmdprunner.exec
 
