@@ -65,7 +65,7 @@ OBJECTIVE = PMDPs.REVENUE
 for demand_multiplier in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     nᵣ = 24
     # nᵣ = 2 # number of resources
-    expected_res =3*nᵣ
+    expected_res = demand_multiplier*nᵣ
 
     pp_params = Dict(pairs((
         nᵣ = nᵣ,
