@@ -15,7 +15,7 @@ if __name__ == '__main__':
                         help='path to the output file. If empty, log into console only. (Default: "unfinished_runs.txt")')
     args = parser.parse_args()
 
-    experiments_path = args.experiments_path
+    experiments_path = Path(args.experiments_path)
     output = args.output
 
     logging.basicConfig(level=logging.DEBUG)
