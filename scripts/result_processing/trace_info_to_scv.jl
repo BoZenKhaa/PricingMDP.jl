@@ -56,7 +56,7 @@ end
 # CSV.write("traces.csv", data)
 
 
-for (root, dirs, files) in walkdir(raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_variable_resources")
+for (root, dirs, files) in walkdir(raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_variable_demand/")
     if length(files)>0
         for file in files
             if splitext(file)[2] == ".jld2"  && file[1:6]=="traces"
