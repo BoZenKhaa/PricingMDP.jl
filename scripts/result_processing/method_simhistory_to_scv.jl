@@ -43,7 +43,7 @@ function JLD2result_histories2CSV(filepath::String)
         end
     end
         
-    save_filepath = replace(filepath, ".jld2" => ".csv")
+    save_filepath = replace(filepath, "result.jld2" => "simhistories.csv")
     CSV.write(save_filepath, compacted_histories)
     return compacted_histories
 end
@@ -65,7 +65,7 @@ end
 # h_v
 
 
-for (root, dirs, files) in walkdir(raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_variable_demand")
+for (root, dirs, files) in walkdir(raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_variable_resources_higher_demand")
     if length(files)>0
         for file in files
             if splitext(file)[2] == ".jld2"  && splitext(file)[1][end-5:end]=="result"
