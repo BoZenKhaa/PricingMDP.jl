@@ -58,7 +58,7 @@ end
 
 """
 
-experiment_name = "ev_variable_resources"
+experiment_name = "ev_variable_resources_v2"
 OBJECTIVE = PMDPs.REVENUE
 
 for nᵣ in nᵣ_vals

@@ -34,7 +34,7 @@ err(λ, k) = err₂(λ, k)/λ
 
 nᵣ_vals = [2, 3, 4, 6, 8, 10, 12, 16, 20, 24, 30, 36, 42, 48, 60, 72, 84, 96]#, 120, 144, 168, 192, 240]
 
-experiment_name = "ev_variable_resources_higher_demand"
+experiment_name = "ev_variable_resources_higher_demand_v2"
 OBJECTIVE = PMDPs.REVENUE
 
 

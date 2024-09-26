@@ -27,7 +27,7 @@ using .MDPPricing
 
 """
 
-experiment_name = "ev_mcts_analysis"
+experiment_name = "ev_mcts_analysis_v2"
 OBJECTIVE = PMDPs.REVENUE
 nᵣ = 12 # number of resources
 demand_scaling_parameter = nᵣ
