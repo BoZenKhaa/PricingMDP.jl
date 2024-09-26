@@ -38,7 +38,7 @@ pp_params = Dict(pairs((
     nᵣ = 6,
     c = 3,
     T = nᵣ*7,
-    expected_res = 2*nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+    demand_scaling_parameter = 2*nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
     res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
     objective = :revenue,
 )))
@@ -128,7 +128,7 @@ pp_params = Dict(pairs((
     nᵣ = nᵣ,
     c = 3,
     T = nᵣ*7,
-    expected_res = 2*nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+    demand_scaling_parameter = 2*nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
     res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
     objective = :revenue,
 )))

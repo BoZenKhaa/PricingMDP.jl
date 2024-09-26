@@ -29,7 +29,7 @@ pp_params = Dict(pairs((
                 nᵣ = nᵣ,
                 c = 5,
                 T = Int64(nᵣ*24),
-                expected_res = 2*nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+                demand_scaling_parameter = 2*nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
                 res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
                 objective = PMDPs.REVENUE,
             )))

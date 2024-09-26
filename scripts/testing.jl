@@ -24,18 +24,18 @@ include(srcdir("MDPPricing.jl"))
 
 
 objective = :revenue
-# pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5., objective=objective)))
+# pp_params = Dict(pairs((nᵣ=3, c=3, T=10, demand_scaling_parameter=3., res_budget_μ=5., objective=objective)))
 pp_params = Dict(
     pairs((
         nᵣ = 5,
         c = 3,
         T = 30,
-        expected_res = 30.0,
+        demand_scaling_parameter = 30.0,
         res_budget_μ = 5.0,
         objective = objective,
     )),
 ) # VI runs
-# pp_params =  Dict(pairs((nᵣ=6, c=3, T=30, expected_res=36., res_budget_μ=5., 
+# pp_params =  Dict(pairs((nᵣ=6, c=3, T=30, demand_scaling_parameter=36., res_budget_μ=5., 
 #                    objective=objective))) # VI does not run 
 name = "linear_problem"
 
@@ -88,7 +88,7 @@ mcts_solver = MCTSSolver(;
     rng = Xoshiro(),
 )
 
-# pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5., objective=objective)))
+# pp_params = Dict(pairs((nᵣ=3, c=3, T=10, demand_scaling_parameter=3., res_budget_μ=5., objective=objective)))
 # name = "linear_problem"
 out_folder = "test"
 

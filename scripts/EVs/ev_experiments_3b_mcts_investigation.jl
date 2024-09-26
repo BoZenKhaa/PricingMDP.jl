@@ -104,18 +104,18 @@ nᵣ = 48
 #nᵣ = 72
 # nᵣ = 96
 
-expected_res_range = [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ, 3.5*nᵣ]
-expected_res_range./(3*nᵣ)
+demand_scaling_parameter_range = [0.5*nᵣ, 1*nᵣ, 1.5*nᵣ, 2*nᵣ, 2.5*nᵣ, 3*nᵣ, 3.5*nᵣ]
+demand_scaling_parameter_range./(3*nᵣ)
 
-T_multipliers = ones(length(expected_res_range))
-for (i, expected_res) in enumerate(expected_res_range)
+T_multipliers = ones(length(demand_scaling_parameter_range))
+for (i, demand_scaling_parameter) in enumerate(demand_scaling_parameter_range)
     while true
-        # pp_params = get_pp_params(expected_res)
+        # pp_params = get_pp_params(demand_scaling_parameter)
         pp_params = Dict(pairs((
                 nᵣ = nᵣ,
                 c = 3,
-                T = Int64(expected_res*T_multipliers[i]),
-                expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+                T = Int64(demand_scaling_parameter*T_multipliers[i]),
+                demand_scaling_parameter = demand_scaling_parameter, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
                 res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
                 objective = :utilization,
             )))
@@ -148,13 +148,13 @@ inputs = []
 PP_NAME = "cs_deggendorf_data_driven_$(nᵣ)"
 
 # Threads.@threads 
-for expected_res in expected_res_range
-    # println("\n===Running expected res: $(expected_res)")
+for demand_scaling_parameter in demand_scaling_parameter_range
+    # println("\n===Running expected res: $(demand_scaling_parameter)")
     pp_params = Dict(pairs((
             nᵣ = nᵣ,
             c = 3,
-            T = Int64(expected_res*T_multiplier),
-            expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+            T = Int64(demand_scaling_parameter*T_multiplier),
+            demand_scaling_parameter = demand_scaling_parameter, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
             res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
             objective = :revenue,
         )))
@@ -278,7 +278,7 @@ end
 # plot()
 # for grp in grps
 #     label = grp.method[1][1:min(10, length(grp.method[1]))]
-#     plot!(grp.expected_res, grp.mean_r; label=grp.method[1][1:3] )
+#     plot!(grp.demand_scaling_parameter, grp.mean_r; label=grp.method[1][1:3] )
 # end
 # plot!()
 

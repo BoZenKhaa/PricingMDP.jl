@@ -12,18 +12,18 @@ using Cairo, Compose
 
 N_individ = 100
 pps = [
-    # Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5.))),
-    # Dict(pairs((nᵣ=6, c=5, T=100, expected_res=60., res_budget_μ=5.))),
-    # Dict(pairs((nᵣ=10, c=5, T=100, expected_res=100., res_budget_μ=5.))),
-    # Dict(pairs((nᵣ=10, c=40, T=1000, expected_res=Float64(800), res_budget_μ=5.))),
-    # Dict(pairs((nᵣ=50, c=40, T=1000, expected_res=Float64(4000), res_budget_μ=5.)))
-    # Dict(pairs((nᵣ=6, c=5, T=100, expected_res=60., res_budget_μ=5., objective=:utilization))),
+    # Dict(pairs((nᵣ=3, c=3, T=10, demand_scaling_parameter=3., res_budget_μ=5.))),
+    # Dict(pairs((nᵣ=6, c=5, T=100, demand_scaling_parameter=60., res_budget_μ=5.))),
+    # Dict(pairs((nᵣ=10, c=5, T=100, demand_scaling_parameter=100., res_budget_μ=5.))),
+    # Dict(pairs((nᵣ=10, c=40, T=1000, demand_scaling_parameter=Float64(800), res_budget_μ=5.))),
+    # Dict(pairs((nᵣ=50, c=40, T=1000, demand_scaling_parameter=Float64(4000), res_budget_μ=5.)))
+    # Dict(pairs((nᵣ=6, c=5, T=100, demand_scaling_parameter=60., res_budget_μ=5., objective=:utilization))),
     Dict(
         pairs((
             nᵣ = 3,
             c = 3,
             T = 10,
-            expected_res = 3.0,
+            demand_scaling_parameter = 3.0,
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
@@ -33,7 +33,7 @@ pps = [
             nᵣ = 10,
             c = 5,
             T = 100,
-            expected_res = 100.0,
+            demand_scaling_parameter = 100.0,
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
@@ -43,7 +43,7 @@ pps = [
             nᵣ = 10,
             c = 40,
             T = 1000,
-            expected_res = Float64(800),
+            demand_scaling_parameter = Float64(800),
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
@@ -53,7 +53,7 @@ pps = [
             nᵣ = 50,
             c = 40,
             T = 1000,
-            expected_res = Float64(4000),
+            demand_scaling_parameter = Float64(4000),
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
@@ -83,7 +83,7 @@ gpps = [
             NP = 20,
             c = 5,
             T = 100,
-            expected_res = Float64(80),
+            demand_scaling_parameter = Float64(80),
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
@@ -96,7 +96,7 @@ gpps = [
             NP = 50,
             c = 10,
             T = 1000,
-            expected_res = Float64(400),
+            demand_scaling_parameter = Float64(400),
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
@@ -109,7 +109,7 @@ gpps = [
             NP = 100,
             c = 10,
             T = 1000,
-            expected_res = Float64(600),
+            demand_scaling_parameter = Float64(600),
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
@@ -122,7 +122,7 @@ gpps = [
             NP = 100,
             c = 10,
             T = 1000,
-            expected_res = Float64(900),
+            demand_scaling_parameter = Float64(900),
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
@@ -148,13 +148,13 @@ end
 
 const N = 100 # number of traces
 # Linear instances
-for expected_res = 50:50:1200
+for demand_scaling_parameter = 50:50:1200
     pp_params = Dict(
         pairs((
             nᵣ = 10,
             c = 40,
             T = 1000,
-            expected_res = Float64(expected_res),
+            demand_scaling_parameter = Float64(demand_scaling_parameter),
             res_budget_μ = 5.0,
         )),
     )
@@ -172,7 +172,7 @@ end
 
 # Graph instances
 for seed = 1:10
-    for expected_res = 25:25:600
+    for demand_scaling_parameter = 25:25:600
         pp_params = Dict(
             pairs((
                 NV = 8,
@@ -181,7 +181,7 @@ for seed = 1:10
                 NP = 50,
                 c = 10,
                 T = 1000,
-                expected_res = Float64(expected_res),
+                demand_scaling_parameter = Float64(demand_scaling_parameter),
                 res_budget_μ = 5.0,
             )),
         )

@@ -55,7 +55,7 @@ for (i, nᵣ) in enumerate(res_range)
             nᵣ=nᵣ,
             c=3,
             T=Int64(nᵣ * T_nᵣ_multiplier[i]),
-            expected_res=2 * nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+            demand_scaling_parameter=2 * nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
             res_budget_μ=24.0 / nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
             objective=PMDPs.REVENUE,
         )))
@@ -85,7 +85,7 @@ Threads.@threads for (T, nᵣ) in pp_var_params
         nᵣ=nᵣ,
         c=3,
         T=T,
-        expected_res=2 * nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+        demand_scaling_parameter=2 * nᵣ, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
         res_budget_μ=24.0 / nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
         objective=PMDPs.REVENUE,
     )))

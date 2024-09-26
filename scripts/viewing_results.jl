@@ -75,7 +75,7 @@ Plotting results experiments with different PP configurations
 
 using Plots
 
-sort!(df, [:method, :expected_res])
+sort!(df, [:method, :demand_scaling_parameter])
 grps = groupby(df, [:method, :objective])
 grp = grps[4]
 
@@ -83,7 +83,7 @@ plot(legend=:bottomleft)
 for grp in grps
     method_label = grp.method[1][1:min(11, length(grp.method[1]))]
     # method_label = grp.method[1]
-    plot!(grp.expected_res, grp.mean_r; label=method_label)
+    plot!(grp.demand_scaling_parameter, grp.mean_r; label=method_label)
 end
 plot!()
 

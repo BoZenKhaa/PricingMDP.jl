@@ -30,13 +30,13 @@ using .MDPPricing
 experiment_name = "test_ev_experiments"
 OBJECTIVE = PMDPs.REVENUE
 nᵣ = 2 # number of resources
-expected_res = nᵣ
+demand_scaling_parameter = nᵣ
 
 pp_params = Dict(pairs((
     nᵣ = nᵣ,
     c = 3,
-    T = Int64(expected_res*8),
-    expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+    T = Int64(demand_scaling_parameter*8),
+    demand_scaling_parameter = demand_scaling_parameter, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
     res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
     objective = OBJECTIVE,
 )))

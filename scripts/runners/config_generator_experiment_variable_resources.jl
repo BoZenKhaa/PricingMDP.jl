@@ -36,18 +36,18 @@ nᵣ_vals = [2, 3, 4, 6, 8, 10, 12, 16, 20, 24, 30, 36, 42, 48, 60, 72, 84, 96, 
 
 for nᵣ in nᵣ_vals
     # nᵣ = 2 # number of resources
-    expected_res = nᵣ
+    demand_scaling_parameter = nᵣ
 
     pp_params = Dict(pairs((
         nᵣ = nᵣ,
         c = 3,
-        T = Int64(expected_res*8),
-        expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+        T = Int64(demand_scaling_parameter*8),
+        demand_scaling_parameter = demand_scaling_parameter, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
         res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
         objective = OBJECTIVE,
     )))
 
-    @show nᵣ,  err(expected_res, pp_params[:T])
+    @show nᵣ,  err(demand_scaling_parameter, pp_params[:T])
 
     pp = PMDPs.single_day_cs_pp(;pp_params...)
 end
@@ -63,13 +63,13 @@ OBJECTIVE = PMDPs.REVENUE
 
 for nᵣ in nᵣ_vals
     # nᵣ = 2 # number of resources
-    expected_res = nᵣ
+    demand_scaling_parameter = nᵣ
 
     pp_params = Dict(pairs((
         nᵣ = nᵣ,
         c = 3,
-        T = Int64(expected_res*8),
-        expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+        T = Int64(demand_scaling_parameter*8),
+        demand_scaling_parameter = demand_scaling_parameter, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
         res_budget_μ = 24.0/nᵣ, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
         objective = OBJECTIVE,
     )))

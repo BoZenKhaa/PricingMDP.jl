@@ -54,7 +54,7 @@ dpw_solver_params = (;
 mcts_solver_params =
     (; depth = 50, exploration_constant = 40.0, max_time = 1.0, rng = Xoshiro())
 
-# pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5., objective=objective)))
+# pp_params = Dict(pairs((nᵣ=3, c=3, T=10, demand_scaling_parameter=3., res_budget_μ=5., objective=objective)))
 # name = "linear_problem"
 out_folder = "test"
 

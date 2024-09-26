@@ -12,15 +12,15 @@ using StaticArrays, Distributions # load pp
 
 N = 3
 # LP
-for expected_res = 50:50:1200
-    # pp_params = Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5.)))
-    # pp_params = Dict(pairs((nᵣ=10, c=5, T=100, expected_res=100., res_budget_μ=5.)))
+for demand_scaling_parameter = 50:50:1200
+    # pp_params = Dict(pairs((nᵣ=3, c=3, T=10, demand_scaling_parameter=3., res_budget_μ=5.)))
+    # pp_params = Dict(pairs((nᵣ=10, c=5, T=100, demand_scaling_parameter=100., res_budget_μ=5.)))
     pp_params = Dict(
         pairs((
             nᵣ = 10,
             c = 40,
             T = 1000,
-            expected_res = Float64(expected_res),
+            demand_scaling_parameter = Float64(demand_scaling_parameter),
             res_budget_μ = 5.0,
         )),
     )
@@ -39,7 +39,7 @@ println("Done.")
 
 
 for seed = 1:2
-    for expected_res = 25:25:600
+    for demand_scaling_parameter = 25:25:600
         pp_params = Dict(
             pairs((
                 NV = 8,
@@ -48,7 +48,7 @@ for seed = 1:2
                 NP = 50,
                 c = 10,
                 T = 1000,
-                expected_res = Float64(expected_res),
+                demand_scaling_parameter = Float64(demand_scaling_parameter),
                 res_budget_μ = 5.0,
             )),
         )

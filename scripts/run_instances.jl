@@ -73,28 +73,28 @@ N = 10
  ------ LP ------------
 """
 pps = [
-    # Dict(pairs((nᵣ=3, c=3, T=10, expected_res=3., res_budget_μ=5.))),
-    # # Dict(pairs((nᵣ=6, c=5, T=100, expected_res=60., res_budget_μ=5.))),
-    # Dict(pairs((nᵣ=10, c=5, T=100, expected_res=100., res_budget_μ=5.))),
-    # Dict(pairs((nᵣ=10, c=40, T=1000, expected_res=Float64(800), res_budget_μ=5.))),
-    # Dict(pairs((nᵣ=50, c=40, T=1000, expected_res=Float64(4000), res_budget_μ=5.))), 
+    # Dict(pairs((nᵣ=3, c=3, T=10, demand_scaling_parameter=3., res_budget_μ=5.))),
+    # # Dict(pairs((nᵣ=6, c=5, T=100, demand_scaling_parameter=60., res_budget_μ=5.))),
+    # Dict(pairs((nᵣ=10, c=5, T=100, demand_scaling_parameter=100., res_budget_μ=5.))),
+    # Dict(pairs((nᵣ=10, c=40, T=1000, demand_scaling_parameter=Float64(800), res_budget_μ=5.))),
+    # Dict(pairs((nᵣ=50, c=40, T=1000, demand_scaling_parameter=Float64(4000), res_budget_μ=5.))), 
     Dict(
         pairs((
             nᵣ = 3,
             c = 3,
             T = 10,
-            expected_res = 3.0,
+            demand_scaling_parameter = 3.0,
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
     ),
-    # Dict(pairs((nᵣ=6, c=5, T=100, expected_res=60., res_budget_μ=5., objective=:utilization))),
+    # Dict(pairs((nᵣ=6, c=5, T=100, demand_scaling_parameter=60., res_budget_μ=5., objective=:utilization))),
     Dict(
         pairs((
             nᵣ = 10,
             c = 5,
             T = 100,
-            expected_res = 100.0,
+            demand_scaling_parameter = 100.0,
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
@@ -104,7 +104,7 @@ pps = [
             nᵣ = 10,
             c = 40,
             T = 1000,
-            expected_res = Float64(800),
+            demand_scaling_parameter = Float64(800),
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
@@ -114,7 +114,7 @@ pps = [
             nᵣ = 50,
             c = 40,
             T = 1000,
-            expected_res = Float64(4000),
+            demand_scaling_parameter = Float64(4000),
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
@@ -146,10 +146,10 @@ println("LP Done.")
 """
 seed = 12
 gpps = [
-    # Dict(pairs((NV=5, NE=8, seed=1, NP=20, c=5, T=100, expected_res=Float64(80), res_budget_μ=5.))), 
-    # Dict(pairs((NV=8, NE=20, seed=1, NP=50, c=10, T=1000, expected_res=Float64(400), res_budget_μ=5.))),
-    # Dict(pairs((NV=15, NE=30, seed=1, NP=100, c=10, T=1000, expected_res=Float64(600), res_budget_μ=5.))),
-    # Dict(pairs((NV=30, NE=45, seed=1, NP=100, c=10, T=1000, expected_res=Float64(900), res_budget_μ=5.)))
+    # Dict(pairs((NV=5, NE=8, seed=1, NP=20, c=5, T=100, demand_scaling_parameter=Float64(80), res_budget_μ=5.))), 
+    # Dict(pairs((NV=8, NE=20, seed=1, NP=50, c=10, T=1000, demand_scaling_parameter=Float64(400), res_budget_μ=5.))),
+    # Dict(pairs((NV=15, NE=30, seed=1, NP=100, c=10, T=1000, demand_scaling_parameter=Float64(600), res_budget_μ=5.))),
+    # Dict(pairs((NV=30, NE=45, seed=1, NP=100, c=10, T=1000, demand_scaling_parameter=Float64(900), res_budget_μ=5.)))
     Dict(
         pairs((
             NV = 5,
@@ -158,7 +158,7 @@ gpps = [
             NP = 20,
             c = 5,
             T = 100,
-            expected_res = Float64(80),
+            demand_scaling_parameter = Float64(80),
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
@@ -171,7 +171,7 @@ gpps = [
             NP = 50,
             c = 10,
             T = 1000,
-            expected_res = Float64(400),
+            demand_scaling_parameter = Float64(400),
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
@@ -184,7 +184,7 @@ gpps = [
             NP = 100,
             c = 10,
             T = 1000,
-            expected_res = Float64(600),
+            demand_scaling_parameter = Float64(600),
             res_budget_μ = 5.0,
             objective = :utilization,
         )),
@@ -197,7 +197,7 @@ gpps = [
             NP = 100,
             c = 10,
             T = 1000,
-            expected_res = Float64(900),
+            demand_scaling_parameter = Float64(900),
             res_budget_μ = 5.0,
             objective = :utilization,
         )),

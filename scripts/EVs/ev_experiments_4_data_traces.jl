@@ -101,13 +101,13 @@ inputs = []
 PP_NAME = "cs_deggendorf_data_driven"
 nᵣ = 48
 # Threads.@threads 
-for expected_res in [0.5 * nᵣ, 1 * nᵣ, 1.5 * nᵣ, 2 * nᵣ, 2.5 * nᵣ, 3 * nᵣ, 3.5 * nᵣ, 4 * nᵣ]
-    println("\n===Running expected res: $(expected_res)")
+for demand_scaling_parameter in [0.5 * nᵣ, 1 * nᵣ, 1.5 * nᵣ, 2 * nᵣ, 2.5 * nᵣ, 3 * nᵣ, 3.5 * nᵣ, 4 * nᵣ]
+    println("\n===Running expected res: $(demand_scaling_parameter)")
     pp_params = Dict(pairs((
         nᵣ = nᵣ,
         c = 3,
-        T = Int64(expected_res * 8),
-        expected_res = expected_res, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
+        T = Int64(demand_scaling_parameter * 8),
+        demand_scaling_parameter = demand_scaling_parameter, # keeps the expected demand constant for different numbers of resources, at average 2 per hour-long slot.
         res_budget_μ = 1.0, # assuming nᵣ is number of timeslots in one day, this means that budget remains 1 per hour.
         objective = :revenue,
     )))
@@ -214,7 +214,7 @@ end
 # plot()
 # for grp in grps
 #     label = grp.method[1][1:min(10, length(grp.method[1]))]
-#     plot!(grp.expected_res, grp.mean_r; label=grp.method[1][1:3] )
+#     plot!(grp.demand_scaling_parameter, grp.mean_r; label=grp.method[1][1:3] )
 # end
 # plot!()
 
