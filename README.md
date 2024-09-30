@@ -33,7 +33,7 @@ Assuming the project is already cloned on RCI, run the experiments according to 
 1. [ ] **sync code to the RCI cluster** - pull in the latest changes from git. Do this by `ssh rci_amd` from WSL where the ssh agent forwarding works. In the RCI terminal, run 
 ```Bash
 ml purge #clear the modules that are breaking TLS and preventing `git pull` from working.
-cd MDPricing
+cd MDPPricing
 git pull
 
 cd PMDPs.jl/
@@ -54,24 +54,30 @@ Alternatively, in bash, run:
 
 ```bash
 source venv/bin/activate
-python Python/scripts/run_experiments_batch.py --experiments_path=/mnt/data/mobility/MDPPricing/data/ev_variable_resources_higher_demand/ --dry_run --log=""
+
+python Python/scripts/run_experiments_batch.py --experiments_path=/mnt/data/mobility/MDPPricing/data/ev_variable_resources_higher_demand/ --dry_run --log="" --sleep=0
 ```
 
 
 4. [ ] **Keep track of experiments** You can use following to check on the status of your jobs:
-      ```bash
-      watch --color -n .5 'squeue -o  "%.18i %.9P %80j %.8u %.2t %.10M %.6D %R" | grep mrkos | tail -n $(($LINES - 2))'
-      ```
+```bash
+watch --color -n .5 'squeue -o  "%.18i %.9P %80j %.8u %.2t %.10M %.6D %R" | grep mrkos | tail -n $(($LINES - 2))'
+```
+
 Use 
-```Bash
+
+```bash
 python Python/scripts/check_unfinished_jobs.py --experiments_path=/mnt/data/mobility/MDPPricing/data/ev_variable_resources_higher_demand/
 ```
+
 to get a list of jobs that did not finish. 
 
 Rerun experiments with 
+
 ```bash
 python Python/scripts/run_experiments_batch.py --experiments_path=/mnt/data/mobility/MDPPricing/data/ev_variable_resources_higher_demand/ --config_paths_from_file=/home/mrkosja1/MDPPricing/unfinished_runs.txt --dry_run --log=""
 ``` 
+
 to run only unfinished jobs.
 
 5. [ ] **sync results from the RCI cluster** - use WinSCP to copy the results from the RCI cluster to the local machine.

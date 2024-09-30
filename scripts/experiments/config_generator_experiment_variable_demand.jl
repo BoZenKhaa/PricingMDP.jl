@@ -34,7 +34,7 @@ err(λ, k) = err₂(λ, k)/λ
 
 # nᵣ_vals = [2, 3, 4, 6, 8, 10, 12, 16, 20, 24, 30, 36, 42, 48, 60, 72, 84, 96]#, 120, 144, 168, 192, 240]
 
-experiment_name = "ev_variable_demand_v2"
+experiment_name = "ev_variable_demand"
 OBJECTIVE = PMDPs.REVENUE
 
 
@@ -124,7 +124,7 @@ for demand_multiplier in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     )))
 
 
-    solver_cfg_filepath = prepare_solver_config(traces_fpath, solver_cfg)
+    solver_cfg_filepath = MDPPricing.prepare_solver_config(traces_fpath, solver_cfg)
     # res = PMDPs.run_solver(solver_cfg_filepath)
 
 
@@ -138,7 +138,7 @@ for demand_multiplier in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         flatrate_train_range_end = 25
     )))
 
-    solver_cfg_filepath = prepare_solver_config(traces_fpath, solver_cfg)
+    solver_cfg_filepath = MDPPricing.prepare_solver_config(traces_fpath, solver_cfg)
     # res = PMDPs.run_solver(solver_cfg_filepath)
 
     """
@@ -156,7 +156,7 @@ for demand_multiplier in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         seed = 1234, # needed here even though VI does not use this
     )))
 
-    solver_cfg_filepath = prepare_solver_config(traces_fpath, solver_cfg)
+    solver_cfg_filepath = MDPPricing.prepare_solver_config(traces_fpath, solver_cfg)
     # res = PMDPs.run_solver(solver_cfg_filepath)
 end
 
