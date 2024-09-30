@@ -30,7 +30,16 @@ Assuming the project is already cloned on RCI, run the experiments according to 
 
 0. [ ] **prepare experiment configs** - copy the script `scripts/RCI/config_generator` and edit it to generate scripts for required experiments. Run or REPL the script to prepare the configs. 
 
-1. [ ] **sync code to the RCI cluster** - pull in the latest changes from git. Do this by `ssh rci_amd` from WSL where the ssh agent forwarding works. In the RCI terminal, run `ml purge` to clear the modules that are breaking TLS and preventing `git pull` from working. Do not forget to commit/push the submodules! Use VS code to check the changes are commited. 
+1. [ ] **sync code to the RCI cluster** - pull in the latest changes from git. Do this by `ssh rci_amd` from WSL where the ssh agent forwarding works. In the RCI terminal, run 
+```Bash
+ml purge #clear the modules that are breaking TLS and preventing `git pull` from working.
+cd MDPricing
+git pull
+
+cd PMDPs.jl/
+git pull
+``` 
+Do not forget to commit/push the submodules! Use VS code to check the changes are commited. 
 
 2. [ ] **sync experiment configs to the RCI cluster** - use WinSCP to copy the configs in the `data` folder to the `/mnt/data/mobility/MDPPricing/data` folder on the RCI cluster.
 

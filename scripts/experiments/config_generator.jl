@@ -89,7 +89,7 @@ solver_cfg = Dict(pairs((
 )))
 
 
-solver_cfg_filepath = prepare_solver_config(traces_fpath, solver_cfg)
+solver_cfg_filepath = MDPPricing.prepare_solver_config(traces_fpath, solver_cfg)
 res = PMDPs.run_solver(solver_cfg_filepath)
 
 
@@ -103,7 +103,7 @@ solver_cfg = Dict(pairs((
     flatrate_train_range_end = 100
 )))
 
-solver_cfg_filepath = prepare_solver_config(traces_fpath, solver_cfg)
+solver_cfg_filepath = MDPPricing.prepare_solver_config(traces_fpath, solver_cfg)
 res = PMDPs.run_solver(solver_cfg_filepath)
 
 """
@@ -121,7 +121,7 @@ solver_cfg = Dict(pairs((
     seed = 1234, # needed here even though VI does not use this
 )))
 
-solver_cfg_filepath = prepare_solver_config(traces_fpath, solver_cfg)
+solver_cfg_filepath = MDPPricing.prepare_solver_config(traces_fpath, solver_cfg)
 res = PMDPs.run_solver(solver_cfg_filepath)
 
 
