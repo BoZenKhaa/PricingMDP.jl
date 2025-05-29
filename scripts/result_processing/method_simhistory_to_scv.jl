@@ -5,10 +5,10 @@ using DataFrames
 product2string(p::PMDPs.Product) = reduce(*, map(v-> v ? "1" : "0", p.res))
 
 
-filepath_mcts = raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_variable_resources_higher_demand\single_day_cs_pp_T=48_c=3_expected_res=6_nᵣ=2_res_budget_μ=12.0\results\mcts\config_mcts_depth=3_exploration_constant=3.0_n_iterations=10000_reuse_tree=false_result.jld2"
-filepath_vi = raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_variable_resources_higher_demand\single_day_cs_pp_T=48_c=3_expected_res=6_nᵣ=2_res_budget_μ=12.0\results\vi\config_vi_belres=1e-6_max_iterations=100_verbose=true_result.jld2"
-filepath_flatrate = raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_variable_resources_higher_demand\single_day_cs_pp_T=48_c=3_expected_res=6_nᵣ=2_res_budget_μ=12.0\results\flatrate\config_flatrate_result.jld2"
-filepath_oracle = raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_variable_resources_higher_demand\single_day_cs_pp_T=48_c=3_expected_res=6_nᵣ=2_res_budget_μ=12.0\results\hindsight\config_hindsight_result.jld2"
+# filepath_mcts = raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_variable_resources_higher_demand\single_day_cs_pp_T=48_c=3_expected_res=6_nᵣ=2_res_budget_μ=12.0\results\mcts\config_mcts_depth=3_exploration_constant=3.0_n_iterations=10000_reuse_tree=false_result.jld2"
+# filepath_vi = raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_variable_resources_higher_demand\single_day_cs_pp_T=48_c=3_expected_res=6_nᵣ=2_res_budget_μ=12.0\results\vi\config_vi_belres=1e-6_max_iterations=100_verbose=true_result.jld2"
+# filepath_flatrate = raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_variable_resources_higher_demand\single_day_cs_pp_T=48_c=3_expected_res=6_nᵣ=2_res_budget_μ=12.0\results\flatrate\config_flatrate_result.jld2"
+# filepath_oracle = raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_variable_resources_higher_demand\single_day_cs_pp_T=48_c=3_expected_res=6_nᵣ=2_res_budget_μ=12.0\results\hindsight\config_hindsight_result.jld2"
 
 
 function JLD2result_histories2CSV(filepath::String)
@@ -65,7 +65,7 @@ end
 # h_v
 
 
-for (root, dirs, files) in walkdir(raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_variable_resources_higher_demand")
+for (root, dirs, files) in walkdir(raw"C:\Users\mrkos\scth\projects\MDPPricing\data\ev_experiments_nonhomo_demand/")
     if length(files)>0
         for file in files
             if splitext(file)[2] == ".jld2"  && splitext(file)[1][end-5:end]=="result"

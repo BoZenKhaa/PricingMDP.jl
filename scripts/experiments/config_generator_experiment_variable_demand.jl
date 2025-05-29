@@ -78,6 +78,9 @@ for demand_multiplier in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     pp = PMDPs.single_day_cs_pp(;pp_params...)
 
+    @show nᵣ, pp_params[:T],  err(demand_scaling_parameter, pp_params[:T])
+
+end
 
     pp_config_path = prepare_pricing_problem_config(experiment_name, PMDPs.single_day_cs_pp, pp_params)
 

@@ -75,6 +75,8 @@ for nᵣ in nᵣ_vals
         objective = OBJECTIVE,
     )))
 
+    @show nᵣ,  err(demand_scaling_parameter, pp_params[:T])
+
     pp = PMDPs.single_day_cs_pp(;pp_params...)
 
 

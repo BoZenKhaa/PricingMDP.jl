@@ -10,12 +10,12 @@ def vec_from_str(s):
     return np.array(vec)
 
 
-def prepare_simhistory(df, tdf, tid, runner, e_res):
+def prepare_simhistory(df, tdf, tid, runner, e_res, demand_scaling_col="demand_scaling_parameter"):
     # tid = 1
     # e_res = 72
     # runner = "Oracle"
-    simhistory = df[(df.runner == runner) & (df.expected_res == e_res) & (df.trace_id == tid)]
-    trace = tdf[(tdf.expected_res == e_res) & (tdf.trace_id == tid)]
+    simhistory = df[(df.runner == runner) & (df.loc[:, demand_scaling_col] == e_res) & (df.trace_id == tid)]
+    trace = tdf[(tdf.loc[:, demand_scaling_col]  == e_res) & (tdf.trace_id == tid)]
 
     # Some simhistory may terminate before the end of the trace since no sale is possible after c=0
     assert all(trace.timestep == simhistory.timestep)

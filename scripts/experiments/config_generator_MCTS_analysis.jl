@@ -27,7 +27,7 @@ using .MDPPricing
 
 """
 
-experiment_name = "ev_mcts_analysis_v2"
+experiment_name = "ev_mcts_analysis"
 OBJECTIVE = PMDPs.REVENUE
 nᵣ = 12 # number of resources
 demand_scaling_parameter = nᵣ
@@ -67,7 +67,7 @@ Full grid search over the following parameters:
 ## ============= MCTS solver =============
 """
 
-depth_range = [1,2,3,4,6,8,10,15,20,30,50]
+depth_range = [1,2,3,4,6,8,10]#,15,20,30,50]
 exploration_constant_range = [0.5, 1.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0]
 n_iterations_range = [10, 30, 50, 80, 100, 1000, 10000]
 reuse_tree_range = [true, false]
